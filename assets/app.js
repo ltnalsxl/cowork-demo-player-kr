@@ -8,6 +8,10 @@
   var run = null, idx = 0, timer = null, speed = 2, costShown = false,
       picked = null, effortPick = null, running = false;
 
+  /* 재생 속도. 1.0 근처를 촘촘히 두고 양끝만 성기게 잡는다. */
+  var SPEEDS = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4,
+                1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.5, 3.0];
+
   var fmt = function (n) { return Number(n).toLocaleString('ko-KR'); };
   var usd = function (c) { return '$' + (c / 100).toFixed(2); };
 
@@ -443,8 +447,9 @@
         '<button class="btn" id="restart">' + I.restart + '처음부터</button>' +
         '<button class="btn" id="skip">' + I.skip + '끝으로</button>' +
         '<div class="speed"><span>속도</span>' +
-          '<input type="range" id="sp" min="1" max="6" step="1" value="2">' +
-          '<span class="v" id="spv">2×</span></div>' +
+          '<input type="range" id="sp" min="0" max="' + (SPEEDS.length - 1) +
+          '" step="1" value="' + SPEEDS.indexOf(speed) + '">' +
+          '<span class="v" id="spv">' + speed.toFixed(1) + '×</span></div>' +
         '<div class="prog"><i id="bar"></i></div>' +
         '<div class="count" id="cnt">0/' + (run.log.length + 1) + '</div>' +
       '</div>' +
@@ -471,8 +476,8 @@
     document.getElementById('restart').addEventListener('click', function () { open(id); });
     document.getElementById('skip').addEventListener('click', skipAll);
     document.getElementById('sp').addEventListener('input', function (e) {
-      speed = +e.target.value;
-      document.getElementById('spv').textContent = speed + '×';
+      speed = SPEEDS[+e.target.value];
+      document.getElementById('spv').textContent = speed.toFixed(1) + '×';
       if (timer) { start(); }
     });
 

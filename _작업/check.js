@@ -41,6 +41,26 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
   w.close();
 }
 
+// ── 1-2) 재생 속도 ─────────────────────────────────────
+{
+  const w = boot();
+  const $ = (s) => w.document.querySelector(s);
+  w.document.querySelector('.ritem[data-id]').dispatchEvent(new w.Event('click', { bubbles: true }));
+  const sp = $('#sp');
+  ok('속도 단계 18개', sp.min === '0' && sp.max === '17', sp.min + '~' + sp.max);
+  ok('기본 2.0배', $('#spv')?.textContent === '2.0×', $('#spv')?.textContent);
+  const set = (v) => {
+    sp.value = String(v);
+    sp.dispatchEvent(new w.Event('input', { bubbles: true }));
+    return $('#spv').textContent;
+  };
+  ok('가장 느림 0.5배', set(0) === '0.5×');
+  ok('1.0배 지점', set(5) === '1.0×');
+  ok('0.1 간격', set(6) === '1.1×' && set(14) === '1.9×');
+  ok('가장 빠름 3.0배', set(17) === '3.0×');
+  w.close();
+}
+
 // ── 2) 시나리오별 재생 ──────────────────────────────────
 const EXPECT = {
   'tc04-auto': { steps: 5, arts: 2, credit: null },
