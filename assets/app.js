@@ -303,7 +303,7 @@
   }
 
   /* ── 사이드바 ── */
-  /* 목록은 실제 화면의 밀도만 흉내 낸 가짜 항목이다.
+  /* 목록은 실제 화면의 밀도만 흉내 낸 예시 항목이다.
      고객에게 나가는 자료이므로 회사명, 고객사명, 사내 프로젝트명을 쓰지 않는다. */
   var FILLER = [
     ['주간 업무보고 자동 생성', 0, ''],
@@ -449,7 +449,7 @@
         '<div class="count" id="cnt">0/' + (run.log.length + 1) + '</div>' +
       '</div>' +
       '<div class="notice"><span class="ic">' + I.info + '</span><span>' +
-        '실제 Copilot Cowork 실행 기록을 재생합니다. 사내 파일명과 조직 정보는 지웠고, ' +
+        '실제 Copilot Cowork 실행 기록을 재생합니다. 회사명과 담당자명은 예시 값으로 바꿨고, ' +
         '크레딧은 <code>/cost</code>로 확인한 실측값입니다.' +
         (run.note ? '<br>' + esc(run.note) : '') + '</span></div>' +
       '<div class="stream" id="stream"><div class="wrap" id="w">' +
