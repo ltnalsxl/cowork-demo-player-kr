@@ -150,7 +150,17 @@
     }).join('');
   }
   function el(h) { var d = document.createElement('div'); d.innerHTML = h.trim(); return d.firstElementChild; }
-  function scroll() { if (stream) { stream.scrollTop = stream.scrollHeight; } }
+
+  /* 사용자가 위로 올려 읽는 중이면 아래로 끌어내리지 않는다.
+     다시 바닥에 닿으면 따라가기를 재개한다. */
+  var stick = true;
+  function scroll() { if (stream && stick) { stream.scrollTop = stream.scrollHeight; } }
+  function watchScroll() {
+    if (!stream) { return; }
+    stream.addEventListener('scroll', function () {
+      stick = stream.scrollHeight - stream.scrollTop - stream.clientHeight < 48;
+    });
+  }
 
   /* ── 팝오버 ──
      실제 화면의 ＋ 메뉴, 모델 선택기, 노력 선택기를 재현한다.
@@ -367,9 +377,12 @@
   }
 
   /* ── 홈 ── */
-  function renderHome() {
+  function renderHome(fromHash) {
     document.title = 'Copilot Cowork 시나리오 데모';
     app.classList.remove('panel-open');
+    run = null;
+    clearInterval(timer); timer = null;
+    if (!fromHash && location.hash) { location.hash = ''; }
     /* 팁은 실제 화면처럼 열 때마다 바뀐다. */
     var tip = TIPS[tipN % TIPS.length];
     tipN++;
@@ -377,10 +390,14 @@
     var resume = RUNS.map(function (r) {
       var chips = r.artifacts.slice(0, 1).map(function (a) { return fileChip(a.name); }).join('');
       var extra = r.artifacts.length > 1 ? '<span class="plus">+' + (r.artifacts.length - 1) + '</span>' : '';
+      /* 고르기 전에 비용을 가늠할 수 있게 크레딧을 함께 보여준다. */
+      var cost = r.credit
+        ? '<span class="rcost">' + fmt(r.credit) + ' 크레딧</span>'
+        : '<span class="rcost none">크레딧 미측정</span>';
       return '<button class="ritem" data-id="' + r.id + '">' +
         '<span class="rico">' + I.circleCheck + '</span>' +
         '<span class="rbody"><span class="rtitle">' + esc(r.chatTitle || r.title) + '</span>' +
-        '<span class="rsub">' + esc(r.subtitle) + '</span></span>' +
+        '<span class="rsub">' + cost + esc(r.subtitle) + '</span></span>' +
         '<span class="rchips">' + chips + extra + '</span></button>';
     }).join('');
 
@@ -424,10 +441,13 @@
   }
 
   /* ── 실행 화면 ── */
-  function open(id) {
+  function open(id, fromHash) {
     run = RUNS.filter(function (r) { return r.id === id; })[0];
     if (!run) { return renderHome(); }
-    document.title = run.title + ' · Copilot Cowork 데모';
+    if (!fromHash && decodeURIComponent((location.hash || '').slice(1)) !== id) {
+      location.hash = id;
+    }
+    document.title = run.chatTitle + ' · Copilot Cowork 데모';
     app.classList.add('panel-open');
     idx = 0; costShown = false;
     clearInterval(timer); timer = null;
@@ -450,12 +470,14 @@
           '<input type="range" id="sp" min="0" max="' + (SPEEDS.length - 1) +
           '" step="1" value="' + SPEEDS.indexOf(speed) + '">' +
           '<span class="v" id="spv">' + speed.toFixed(1) + '×</span></div>' +
-        '<div class="prog"><i id="bar"></i></div>' +
+        '<div class="prog" id="prog" title="눌러서 그 지점으로 이동"><i id="bar"></i></div>' +
         '<div class="count" id="cnt">0/' + (run.log.length + 1) + '</div>' +
       '</div>' +
       '<div class="notice"><span class="ic">' + I.info + '</span><span>' +
         '실제 실행 기록입니다. 개인정보는 마스킹했고, 크레딧은 <code>/cost</code> 실측값입니다.' +
-        (run.note ? ' <b>볼 것</b> — ' + esc(run.note) : '') + '</span></div>' +
+        (run.note ? ' <b>볼 것</b> — ' + esc(run.note) : '') +
+        '<span class="keys">스페이스 재생·정지 · ← → 한 단계씩 · 진행 바를 눌러 이동</span>' +
+        '</span></div>' +
       '<div class="stream" id="stream"><div class="wrap" id="w">' +
         '<div class="daysep"><span>' + esc(run.date) + ' · KST</span></div></div></div>' +
       '<div class="composer"><div class="cbox">' +
@@ -465,6 +487,8 @@
       '</div></div>';
 
     stream = document.getElementById('stream');
+    stick = true;
+    watchScroll();
     picked = run.model;
     effortPick = run.effort;
     renderPanel();
@@ -473,12 +497,17 @@
     document.getElementById('goHome').addEventListener('click', renderHome);
     document.getElementById('tgPanel').addEventListener('click', function () { app.classList.toggle('panel-open'); });
     document.getElementById('play').addEventListener('click', toggle);
-    document.getElementById('restart').addEventListener('click', function () { open(id); });
+    document.getElementById('restart').addEventListener('click', function () { seek(0); });
     document.getElementById('skip').addEventListener('click', skipAll);
     document.getElementById('sp').addEventListener('input', function (e) {
       speed = SPEEDS[+e.target.value];
       document.getElementById('spv').textContent = speed.toFixed(1) + '×';
       if (timer) { start(); }
+    });
+    /* 진행 바를 누르면 그 지점으로 옮긴다. */
+    document.getElementById('prog').addEventListener('click', function (e) {
+      var r = this.getBoundingClientRect();
+      seek(Math.round((e.clientX - r.left) / r.width * (run.log.length + 1)));
     });
 
     var ub = userBubble(run.prompt, run.promptTime, run.promptFiles, true);
@@ -1060,12 +1089,33 @@
     document.getElementById('bar').style.width = (cur / total * 100) + '%';
     syncPanel();
   }
+  function done() { return idx >= run.log.length && costShown; }
+
+  /* 특정 지점으로 옮긴다. 뒤로 가려면 처음부터 다시 그려야 해서 통째로 새로 만든다. */
+  function seek(n) {
+    stop();
+    stick = true;
+    var w = document.getElementById('w');
+    w.innerHTML = '<div class="daysep"><span>' + esc(run.date) + ' · KST</span></div>';
+    w.appendChild(userBubble(run.prompt, run.promptTime, run.promptFiles, true));
+    var outs = document.getElementById('outs');
+    if (outs) { outs.innerHTML = ''; }
+    idx = 0; costShown = false;
+    n = Math.max(0, Math.min(n, run.log.length + 1));
+    while (idx < n && idx < run.log.length) { emit(run.log[idx]); idx++; }
+    if (n > run.log.length) { showCost(); }
+    if (!n) { setStatus(null); }
+    tick();
+    scroll();
+  }
   function step() {
     if (idx < run.log.length) { emit(run.log[idx]); idx++; tick(); return; }
     if (!costShown) { showCost(); tick(); return; }
     stop();
   }
   function start() {
+    /* 끝까지 본 뒤에 다시 누르면 처음부터 돌린다. 죽은 버튼을 만들지 않는다. */
+    if (done()) { seek(0); }
     clearInterval(timer);
     timer = setInterval(step, 1600 / speed);
     document.getElementById('play').innerHTML = I.pause + '<span>일시정지</span>';
@@ -1076,7 +1126,7 @@
     clearInterval(timer); timer = null;
     var p = document.getElementById('play');
     if (p) {
-      p.innerHTML = I.play + '<span>재생</span>';
+      p.innerHTML = I.play + '<span>' + (done() ? '다시 재생' : '재생') + '</span>';
       p.addEventListener('click', toggle, { once: true });
     }
     setRunningUI(false);
@@ -1085,9 +1135,11 @@
   function toggle() { timer ? stop() : start(); }
   function skipAll() {
     stop();
+    stick = true;
     while (idx < run.log.length) { emit(run.log[idx]); idx++; }
     setStatus(null);
-    showCost(); tick();
+    if (!costShown) { showCost(); }
+    tick(); stop();
   }
 
   /* ── 뷰어 ── */
@@ -1112,17 +1164,32 @@
     if (e.target.id === 'viewer' || e.target.closest('.vx')) { this.classList.remove('on'); }
   });
   document.addEventListener('keydown', function (e) {
+    var vOpen = document.getElementById('viewer').classList.contains('on');
     if (e.key === 'Escape') {
       closePops();
       document.getElementById('viewer').classList.remove('on');
+      return;
     }
-    if (e.key === ' ' && run && ['INPUT', 'SELECT', 'TEXTAREA'].indexOf(e.target.tagName) < 0) {
-      e.preventDefault(); toggle();
-    }
+    if (!run || vOpen) { return; }
+    if (['INPUT', 'SELECT', 'TEXTAREA'].indexOf(e.target.tagName) > -1) { return; }
+    /* 발표하면서 한 단계씩 넘길 수 있게 좌우 키를 둔다. */
+    if (e.key === ' ') { e.preventDefault(); toggle(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); stop(); seek(idx + (costShown ? 0 : 1)); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); stop(); seek(idx + (costShown ? 1 : 0) - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); seek(0); }
+    else if (e.key === 'End') { e.preventDefault(); skipAll(); }
   });
 
+  /* 주소창 해시로 시나리오를 바로 열 수 있게 한다. 링크로 공유할 때 쓴다. */
+  function route() {
+    var id = decodeURIComponent((location.hash || '').replace(/^#/, ''));
+    if (id && RUNS.some(function (r) { return r.id === id; })) { open(id, true); }
+    else { renderHome(true); }
+  }
+  window.addEventListener('hashchange', route);
+
   buildSide();
-  renderHome();
+  route();
 })();
 
 
