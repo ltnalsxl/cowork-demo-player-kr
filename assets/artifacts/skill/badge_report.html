@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>사업장 출입 - 출입증 미태그 상위 10명</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0b0e13;
+    --panel:#12171f;
+    --panel-2:#171d27;
+    --line:#243040;
+    --text:#e8edf4;
+    --muted:#8c9bb0;
+    --amber:#ffb020;
+    --alert:#ff4d4d;
+    --alert-dim:#3a1418;
+    --ok:#3ddc97;
+    --mono:'JetBrains Mono', ui-monospace, monospace;
+    --kr:'Pretendard Variable', Pretendard, 'Malgun Gothic', '맑은 고딕', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:var(--kr);
+    line-height:1.7;
+    letter-spacing:-0.01em;
+    word-break:keep-all;
+    overflow-wrap:anywhere;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+    min-height:100vh;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(60em 40em at 88% -10%, rgba(255,176,32,.16), transparent 60%),
+      radial-gradient(48em 34em at -10% 12%, rgba(255,77,77,.12), transparent 62%),
+      radial-gradient(40em 30em at 50% 120%, rgba(61,220,151,.08), transparent 60%);
+  }
+  body::after{
+    content:"";
+    position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap{position:relative; z-index:1; max-width:74em; margin:0 auto; padding:clamp(1.5rem,4vw,4.5rem) clamp(1.1rem,4vw,3rem) 5rem}
+
+  /* ── 헤더: 비대칭 + 겹침 ── */
+  header{position:relative; padding-bottom:2.6rem; border-bottom:1px solid var(--line)}
+  .kicker{
+    font-family:var(--mono); font-size:.72rem; font-weight:700;
+    letter-spacing:.24em; color:var(--amber); text-transform:uppercase;
+    display:flex; align-items:center; gap:.7rem;
+    animation:rise .6s cubic-bezier(.2,.7,.3,1) both;
+  }
+  .kicker::before{content:""; width:2.4rem; height:2px; background:var(--amber)}
+  h1{
+    font-size:clamp(1.9rem,5.2vw,3.5rem);
+    line-height:1.18; font-weight:800; letter-spacing:-0.035em;
+    margin:.75rem 0 0; max-width:16em;
+    animation:rise .6s .06s cubic-bezier(.2,.7,.3,1) both;
+  }
+  h1 em{font-style:normal; color:var(--amber)}
+  .ghost{
+    position:absolute; right:-.4rem; top:-1.6rem;
+    font-family:var(--mono); font-weight:800;
+    font-size:clamp(5rem,17vw,13rem); line-height:.8;
+    color:#fff; opacity:.045; letter-spacing:-.06em; user-select:none;
+    pointer-events:none;
+  }
+  .lede{
+    max-width:36em; margin:1.4rem 0 0; color:var(--muted);
+    font-size:clamp(.98rem,1.6vw,1.08rem);
+    animation:rise .6s .12s cubic-bezier(.2,.7,.3,1) both;
+  }
+  .lede b{color:var(--text); font-weight:700}
+  .lede .hot{color:var(--alert); font-weight:700}
+
+  /* ── 지표 스트립 ── */
+  .stats{
+    display:grid; gap:1px; background:var(--line);
+    grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));
+    border:1px solid var(--line); margin:2.6rem 0 0;
+    animation:rise .6s .18s cubic-bezier(.2,.7,.3,1) both;
+  }
+  .stat{background:var(--panel); padding:1.25rem 1.35rem}
+  .stat:nth-child(odd){background:var(--panel-2)}
+  .stat .n{
+    font-family:var(--mono); font-weight:800; font-variant-numeric:tabular-nums;
+    font-size:clamp(1.7rem,4vw,2.3rem); line-height:1.1; letter-spacing:-.04em;
+  }
+  .stat .n .u{font-size:.9rem; font-weight:400; color:var(--muted); margin-left:.2rem}
+  .stat .l{font-size:.82rem; color:var(--muted); margin-top:.35rem}
+  .stat.hot .n{color:var(--alert)}
+  .stat.warn .n{color:var(--amber)}
+
+  h2{
+    font-size:1.16rem; font-weight:700; letter-spacing:-.02em;
+    margin:3.4rem 0 .3rem; display:flex; align-items:baseline; gap:.7rem; line-height:1.3;
+  }
+  h2 .idx{font-family:var(--mono); font-size:.78rem; color:var(--amber); font-weight:700}
+  .note{color:var(--muted); font-size:.86rem; margin:0 0 1.1rem; max-width:38em}
+
+  /* ── 표 ── */
+  .tablewrap{border:1px solid var(--line); overflow-x:auto}
+  table{width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; min-width:38rem}
+  thead th{
+    background:#0e131b; text-align:right; padding:.85rem 1rem;
+    font-family:var(--mono); font-size:.7rem; font-weight:700;
+    letter-spacing:.12em; color:var(--muted); text-transform:uppercase;
+    border-bottom:1px solid var(--line); white-space:nowrap;
+  }
+  thead th:nth-child(1),thead th:nth-child(2),thead th:nth-child(3){text-align:left}
+  tbody td{padding:.9rem 1rem; border-bottom:1px solid #1b232f; text-align:right; font-size:.95rem}
+  tbody td:nth-child(1),tbody td:nth-child(2),tbody td:nth-child(3){text-align:left}
+  tbody tr{animation:fade .5s both}
+  tbody tr:nth-child(1){animation-delay:.20s} tbody tr:nth-child(2){animation-delay:.25s}
+  tbody tr:nth-child(3){animation-delay:.30s} tbody tr:nth-child(4){animation-delay:.35s}
+  tbody tr:nth-child(5){animation-delay:.40s} tbody tr:nth-child(6){animation-delay:.45s}
+  tbody tr:nth-child(7){animation-delay:.50s} tbody tr:nth-child(8){animation-delay:.55s}
+  tbody tr:nth-child(9){animation-delay:.60s} tbody tr:nth-child(10){animation-delay:.65s}
+  tbody tr:hover{background:#151c26}
+  .rank{font-family:var(--mono); font-weight:800; color:var(--muted); width:3.4rem}
+  .name{font-weight:700; letter-spacing:-.02em; white-space:nowrap}
+  .badge{font-family:var(--mono); font-size:.86rem; color:var(--muted); white-space:nowrap}
+  .num{font-family:var(--mono); font-weight:700}
+  .miss{font-family:var(--mono); font-weight:800; font-size:1.05rem}
+
+  /* 미태그 비율 셀: 막대 + 수치 */
+  .pct{white-space:nowrap}
+  .pct .bar{
+    display:inline-block; vertical-align:middle; width:5.5rem; height:6px;
+    background:#212b39; margin-right:.6rem; position:relative; overflow:hidden;
+  }
+  .pct .bar i{
+    position:absolute; inset:0 auto 0 0; background:var(--amber);
+    transform:scaleX(var(--w)); transform-origin:left;
+    animation:grow .9s .35s cubic-bezier(.2,.7,.3,1) both;
+  }
+  .pct .v{font-family:var(--mono); font-weight:800; color:var(--amber)}
+
+  /* 50% 초과 = 경고 행 */
+  tr.over td{background:var(--alert-dim)}
+  tr.over:hover td{background:#4a191e}
+  tr.over td:first-child{box-shadow:inset 3px 0 0 var(--alert)}
+  tr.over .name,tr.over .miss,tr.over .rank{color:var(--alert)}
+  tr.over .pct .v{color:var(--alert)}
+  tr.over .pct .bar i{background:var(--alert)}
+  .flag{
+    display:inline-block; margin-left:.5rem; padding:.08rem .45rem;
+    font-family:var(--mono); font-size:.62rem; font-weight:700; letter-spacing:.1em;
+    color:var(--alert); border:1px solid var(--alert); vertical-align:middle;
+  }
+  .legend{
+    display:flex; flex-wrap:wrap; gap:1.4rem; margin-top:1rem;
+    font-size:.82rem; color:var(--muted);
+  }
+  .legend span{display:flex; align-items:center; gap:.45rem}
+  .swatch{width:.85rem; height:.85rem; display:inline-block}
+  .swatch.a{background:var(--alert)} .swatch.b{background:var(--amber)}
+
+  .callout{
+    margin-top:2.6rem; border-left:3px solid var(--amber);
+    background:var(--panel); padding:1.3rem 1.5rem;
+  }
+  .callout h3{margin:0 0 .5rem; font-size:.95rem; letter-spacing:-.02em; line-height:1.3}
+  .callout ul{margin:0; padding-left:1.1rem; color:var(--muted); font-size:.92rem; max-width:38em}
+  .callout li{margin:.4rem 0}
+  .callout b{color:var(--text)}
+
+  footer{
+    margin-top:3.4rem; padding-top:1.4rem; border-top:1px solid var(--line);
+    color:var(--muted); font-size:.8rem; display:flex; flex-wrap:wrap; gap:.4rem 1.4rem;
+  }
+  footer .m{font-family:var(--mono)}
+
+  @keyframes rise{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
+  @keyframes fade{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+  @keyframes grow{from{transform:scaleX(0)} to{transform:scaleX(var(--w))}}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important}}
+  @media (max-width:560px){
+    .ghost{display:none}
+    .stat{padding:1rem 1.1rem}
+    .pct .bar{width:3.2rem}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="ghost">164</div>
+    <div class="kicker">Access Control / Badge Audit</div>
+    <h1>사업장 출입<br><em>출입증 미태그</em> 상위&nbsp;10명</h1>
+    <p class="lede">
+      전국 사업장 출입 기록 <b>600건</b>을 점검했습니다. 퇴근 태그가 남지 않은 건은
+      <b>164건</b>으로 전체의 <b>27.3%</b>입니다. 기록이 있는 <b>12명</b> 전원에게서
+      최소 한 번씩 발생했고, 그중 <span class="hot">3명</span>은 미태그 비율이
+      <span class="hot">50%를 넘습니다</span>. 상위 4명이 전체 미태그의 119건,
+      곧 <b>72.6%</b>를 차지합니다.
+    </p>
+
+    <div class="stats">
+      <div class="stat"><div class="n">600</div><div class="l">전체 출입 기록</div></div>
+      <div class="stat hot"><div class="n">164</div><div class="l">출입증 미태그</div></div>
+      <div class="stat warn"><div class="n">27.3<span class="u">%</span></div><div class="l">전체 미태그 비율</div></div>
+      <div class="stat"><div class="n">12</div><div class="l">대상 인원</div></div>
+      <div class="stat hot"><div class="n">3</div><div class="l">미태그 50% 초과</div></div>
+    </div>
+  </header>
+
+  <h2><span class="idx">01</span> 출입증 미태그 상위 10명</h2>
+  <p class="note">출입증 미태그 건수 내림차순입니다. 미태그 비율이 50%를 넘는 사람은 빨간색으로 표시했습니다.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">순위</th>
+          <th scope="col">성명</th>
+          <th scope="col">출입증번호</th>
+          <th scope="col">전체 출입 건수</th>
+          <th scope="col">출입증 미태그</th>
+          <th scope="col">미태그 비율</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="over">
+          <td class="rank">01</td><td class="name">김도현<span class="flag">50%+</span></td>
+          <td class="badge">ZK-1000</td><td class="num">47</td><td class="miss">38</td>
+          <td class="pct"><span class="bar" style="--w:.809"><i></i></span><span class="v">80.9%</span></td>
+        </tr>
+        <tr class="over">
+          <td class="rank">02</td><td class="name">박준서<span class="flag">50%+</span></td>
+          <td class="badge">ZK-1002</td><td class="num">40</td><td class="miss">30</td>
+          <td class="pct"><span class="bar" style="--w:.750"><i></i></span><span class="v">75.0%</span></td>
+        </tr>
+        <tr class="over">
+          <td class="rank">03</td><td class="name">이서연<span class="flag">50%+</span></td>
+          <td class="badge">ZK-1006</td><td class="num">42</td><td class="miss">27</td>
+          <td class="pct"><span class="bar" style="--w:.643"><i></i></span><span class="v">64.3%</span></td>
+        </tr>
+        <tr>
+          <td class="rank">04</td><td class="name">정우진</td>
+          <td class="badge">ZK-1007</td><td class="num">51</td><td class="miss">24</td>
+          <td class="pct"><span class="bar" style="--w:.471"><i></i></span><span class="v">47.1%</span></td>
+        </tr>
+        <tr>
+          <td class="rank">05</td><td class="name">최지아</td>
+          <td class="badge">ZK-1011</td><td class="num">59</td><td class="miss">9</td>
+          <td class="pct"><span class="bar" style="--w:.153"><i></i></span><span class="v">15.3%</span></td>
+        </tr>
+        <tr>
+          <td class="rank">06</td><td class="name">한소영</td>
+          <td class="badge">ZK-1009</td><td class="num">50</td><td class="miss">8</td>
+          <td class="pct"><span class="bar" style="--w:.160"><i></i></span><span class="v">16.0%</span></td>
+        </tr>
+        <tr>
+          <td class="rank">07</td><td class="name">오민석</td>
+          <td class="badge">ZK-1004</td><td class="num">54</td><td class="miss">8</td>
+          <td class="pct"><span class="bar" style="--w:.148"><i></i></span><span class="v">14.8%</span></td>
+        </tr>
+        <tr>
+          <td class="rank">08</td><td class="name">강예린</td>
+          <td class="badge">ZK-1005</td><td class="num">57</td><td class="miss">6</td>
+          <td class="pct"><span class="bar" style="--w:.105"><i></i></span><span class="v">10.5%</span></td>
+        </tr>
+        <tr>
+          <td class="rank">09</td><td class="name">김나윤</td>
+          <td class="badge">ZK-1001</td><td class="num">49</td><td class="miss">5</td>
+          <td class="pct"><span class="bar" style="--w:.102"><i></i></span><span class="v">10.2%</span></td>
+        </tr>
+        <tr>
+          <td class="rank">10</td><td class="name">윤재호</td>
+          <td class="badge">ZK-1008</td><td class="num">52</td><td class="miss">4</td>
+          <td class="pct"><span class="bar" style="--w:.077"><i></i></span><span class="v">7.7%</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="legend">
+    <span><i class="swatch a"></i> 미태그 비율 50% 초과</span>
+    <span><i class="swatch b"></i> 미태그 비율 50% 이하</span>
+    <span>동일 건수는 미태그 비율이 높은 순</span>
+  </div>
+
+  <div class="callout">
+    <h3>짚어 볼 점</h3>
+    <ul>
+      <li><b>김도현·박준서·이서연</b> 세 명은 퇴근 태그를 남긴 날보다 남기지 않은 날이 많습니다. 개인 안내만으로는 되돌리기 어려운 수준입니다.</li>
+      <li><b>정우진</b>은 비율로는 47.1%로 경계선 아래지만 건수로는 4위입니다. 함께 확인하는 편이 좋습니다.</li>
+      <li>미태그가 <b>을지로 영업지원센터 47건</b>, <b>수성 대경지사 33건</b>에 몰려 있습니다. 개인 습관이 아니라 해당 사업장 퇴근 리더기의 위치나 동작 문제일 수 있습니다.</li>
+      <li>5위 이하는 모두 <b>16% 이하</b>로, 상위 4명과 성격이 다른 산발적 누락으로 보입니다.</li>
+    </ul>
+  </div>
+
+  <footer>
+    <span>집계 기간 <b class="m">2026-06-01 ~ 2026-08-20</b></span>
+    <span>원본 <b class="m">badge_check.csv</b> · 600행</span>
+    <span>미태그 판정 기준: 퇴근일시 열이 빈 값</span>
+  </footer>
+
+</div>
+</body>
+</html>

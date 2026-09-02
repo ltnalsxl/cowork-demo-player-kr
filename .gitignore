@@ -1,0 +1,23 @@
+# 실제 제품 화면 캡처. 저장소에 올리지 않는다.
+_작업/frames/
+
+# 익명화 매핑 표. 원본 이름과 대체 이름을 잇는 키라서 올리면 익명화가 무의미해진다.
+_작업/anon_rules.py
+_작업/anon_tc01.py
+_작업/anon_tc04.py
+
+# 파이썬 캐시
+__pycache__/
+*.pyc
+
+# 검증용 임시 설치물
+node_modules/
+package-lock.json
+
+# 산출물 원본 보관본
+assets/artifacts/**/_원본/
+
+# OS 부스러기
+Thumbs.db
+.DS_Store
+desktop.ini

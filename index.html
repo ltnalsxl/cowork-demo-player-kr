@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Copilot Cowork 시나리오 데모</title>
+<meta name="description" content="Copilot Cowork 실행 기록을 재생하고 작업에 든 크레딧을 실측값으로 보여주는 데모">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="app" id="app">
+  <aside class="side">
+    <div class="side-top" id="sideTop"></div>
+    <div class="seg">
+      <button>채팅</button>
+      <button aria-selected="true">Cowork</button>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="chats" id="chats"></div>
+    <div class="me" id="me"></div>
+  </aside>
+
+  <main class="main" id="main"></main>
+  <aside class="panel" id="panel"></aside>
+</div>
+
+<div class="viewer" id="viewer">
+  <div class="vbox">
+    <div class="vtop">
+      <span class="vn"></span>
+      <span class="vm"></span>
+      <button class="btn vx">닫기</button>
+    </div>
+    <div class="vbody"></div>
+  </div>
+</div>
+
+<script src="data/runs.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

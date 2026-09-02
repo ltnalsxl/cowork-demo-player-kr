@@ -1,0 +1,631 @@
+# -*- coding: utf-8 -*-
+"""실습-03 ISMS-P 사후심사 대응 시나리오.
+
+문서 넷을 첨부하고 산출물 넷을 요구한 실행. 캡처 시점에 1/4까지 끝나 있다.
+Word 편집이 자주 거부되는 모습이 그대로 남아 있다.
+숫자는 첨부한 CSV를 직접 집계해 맞췄다.
+"""
+import json
+import os
+
+BASE = os.path.dirname(os.path.abspath(__file__))
+OUT = os.path.join(BASE, 'runs', 'isms-audit.json')
+
+FILES = ['접근통제-정책.docx', '데이터-보존-파기-정책.docx',
+         'zava-위험관리대장.csv', 'zava-심사체크리스트.csv']
+DOC1 = 'zava-심사대응-경영진요약.docx'
+DOC2 = 'zava-심사대응-공문.docx'
+XLSX = 'zava-gap-분석.xlsx'
+MAIL = '심사 대응 자료 검토 요청 — 10월 12일 ISMS-P 사후심사'
+
+PROMPT = """저는 Zava 파이낸셜코리아의 준법감시 담당자입니다. Fabrikam 정보보호인증원의 ISMS-P 인증 사후심사가 2026년 10월 12일부터 16일까지 예정돼 있습니다. CISO가 이번 주 안에 경영진 검토용 심사 제출 자료를 요구했습니다.
+
+현재 회사의 관리 수준을 보여주는 문서 네 건을 첨부했습니다.
+
+첨부 파일만을 근거로 삼아 주세요. 파일에 없는 지적사항, 담당자, 정책 내용을 지어내지 마세요.
+
+문서 세 건과 메일 초안 하나를 만들어 주세요.
+
+**1. 경영진 요약** (Word, 파일명: zava-심사대응-경영진요약.docx)
+
+대상 독자: CISO와 경영진. 문체: 사실 위주로 명확하게. 위기감을 조장하지 않습니다.
+
+포함할 내용:
+- 첨부 문서에 근거한 전반적인 정보보호 관리 수준 진단
+- 위험도가 가장 높은 미조치 항목. 위험관리대장의 실제 위험ID를 그대로 인용합니다
+- 체크리스트의 준비 상태별 건수 집계
+- 노출도가 가장 큰 통제영역
+- 심사 전 6주 동안의 우선순위별 조치 계획
+
+**2. Gap 분석** (Excel, 파일명: zava-gap-분석.xlsx)
+
+위험관리대장의 미조치·조치중 항목을 각각 대응하는 심사 점검 항목에 연결합니다.
+
+열 구성: 위험ID | 위험내용 | 위험등급 | 관련 점검 항목 | 점검 항목 준비상태 | 미비 내용 | 심사 전 권고 조치 | 담당자
+
+위험등급 내림차순으로 정렬합니다(심각이 맨 위). 맨 아래에 위험등급별 건수를 집계한 행을 추가합니다.
+
+**3. 심사기관 제출 공문** (Word, 파일명: zava-심사대응-공문.docx)
+
+수신: Fabrikam 정보보호인증원 심사팀장
+서명: 정다은 준법감시인, 남지훈 정보보호본부장
+
+포함할 내용:
+- 동봉하는 심사 대응 자료에 대한 안내
+- 심사 범위 확인 (ISMS-P 인증기준, 2026년 10월 12일~16일)
+- 일부 조치가 진행 중임을 밝히고 상세 내용은 경영진 요약을 참조하도록 안내
+
+형식: 공문 형식, 오늘 날짜, 맺음말은 "위와 같이 제출합니다"
+
+**4. 경영진 보고 메일**
+
+제목: 심사 대응 자료 검토 요청 — 10월 12일 ISMS-P 사후심사
+
+포함할 내용:
+- 10월 12일 심사 일정과 Fabrikam 정보보호인증원 언급
+- 경영진이 직접 판단해야 할 가장 시급한 미비 항목 세 건 (위험관리대장의 실제 위험ID를 인용합니다)
+- 경영진 요약을 첨부했다는 안내
+- 이번 주 안에 30분 논의 자리를 요청
+
+문체: 간결하게. 짧은 문단 세 개를 넘지 않습니다"""
+
+T1 = ('Four files: two policy documents in Word and two CSVs. The CSVs carry the numbers '
+      'I need, so I will read those first and treat the policies as supporting evidence. '
+      'The user was explicit about not inventing findings, owners or policy text, '
+      'so every claim has to trace back to a row in one of these files.')
+T2 = ('Checklist status counts: 3 ready, 6 incomplete, 6 in progress out of 15 total. '
+      'Risk register by grade: 5 critical, 6 high, 1 moderate out of 12. '
+      'Ten are unaddressed and two are in progress.')
+T3 = ('Mapping risks and checklist gaps to control areas. Access control and account or '
+      'permission management carry the heaviest concentration of unresolved issues, '
+      'specifically R-001, R-003 and R-007 against checklist items 2, 3 and 4. '
+      'Before building the deliverables I should invoke the docx skill so I follow the '
+      'right formatting approach.')
+T4 = ('The user wants specific filenames, so I need to produce actual docx files. '
+      'Let me check which artifact tools are available for creating documents before '
+      'starting the tasks.')
+T5 = ('Today is 2026-09-02 and the audit lands on 2026-10-12, so the six-week plan runs '
+      'in weekly blocks through 10/11. Target dates come straight from the register: '
+      'R-010 by 9/15, then R-001, R-004, R-008 and R-012 by 9/30. '
+      'I will start the executive summary with the four required sections.')
+T6 = ('The table cell writes keep getting rejected after the table is created. '
+      'Let me read the document structure to get the real cell indices and split the '
+      'edits into smaller batches instead of retrying the same call.')
+T7 = ('Section 3 is the checklist readiness counts. Three ready out of fifteen reads harsh '
+      'on its own, so I should pair it with the six in progress to show movement. '
+      'The user asked not to create alarm, and the numbers do that job without adjectives.')
+T8 = ('Executive summary is done. Moving to the Gap workbook. Twelve unaddressed or '
+      'in-progress risks map one-to-one onto checklist items, so the sheet is 12 data rows '
+      'sorted by grade with a formula-driven count row at the bottom. '
+      'That total has to come out to 12 or the mapping dropped something.')
+T9 = ('Now the official letter. It is short but the format matters more here: recipient '
+      'line, sender, date, subject, numbered body, the closing "위와 같이 제출합니다", '
+      'and the two signatures.')
+T10 = ('Last piece is the email draft. The user asked for three short paragraphs and three '
+       'risk IDs that need an executive decision. R-001, R-002 and R-004 all need a call '
+       'someone above me has to make. I should look up the CISO in the directory to '
+       'address it properly.')
+T11 = ('The directory lookup returned nothing for CISO. I will not guess an address. '
+       'Save it as a draft with the recipient left blank and say so plainly at the end, '
+       'so the user fills in one field and sends.')
+
+FINAL = """네 건 모두 준비했습니다.
+
+**1. 경영진 요약** — `zava-심사대응-경영진요약.docx`
+
+관리 수준 진단(위험 12건 중 미조치 10·조치중 2), 심각 등급 미조치 5건(R-001~R-005) 표, 체크리스트 준비상태 집계(준비완료 3·진행중 6·미비 6), 노출도가 가장 큰 통제영역(접근통제·계정 및 권한관리 — R-001, R-003, R-007 집중), 9월 2일부터 심사 직전까지 6주 우선순위별 조치 계획을 담았습니다. 두 정책 문서가 스스로 기록해 둔 미준수 사항(접근통제 정책 3.2절, 데이터 보존·파기 정책 7절)도 근거로 인용했습니다.
+
+**2. Gap 분석** — `zava-gap-분석.xlsx`
+
+미조치·조치중 12건 전부를 대응 점검 항목과 연결했고, 위험등급 내림차순(심각 5 → 높음 6 → 보통 1)으로 정렬했습니다. 맨 아래 등급별 건수 집계는 수식으로 계산되며 합계 12건으로 검증했습니다.
+
+**3. 심사기관 제출 공문** — `zava-심사대응-공문.docx`
+
+Fabrikam 정보보호인증원 심사팀장 수신, 오늘 날짜, 심사 범위 확인(ISMS-P 인증기준 / 2026년 10월 12일~16일), 동봉 자료 안내, 일부 조치 진행 중임을 밝히고 상세는 경영진 요약을 참조하도록 안내했습니다. "위와 같이 제출합니다"로 맺고 정다은 준법감시인·남지훈 정보보호본부장 서명란을 넣었습니다.
+
+**4. 경영진 보고 메일** — 초안으로 저장했습니다(발송하지 않음)
+
+세 문단 구성이며 R-001, R-002, R-004 세 건을 경영진 결정이 필요한 항목으로 짚었습니다. 경영진 요약 파일을 첨부했습니다.
+
+한 가지 확인이 필요합니다. 조직 주소록에서 CISO를 찾지 못해 메일 초안의 수신자는 비워 두었습니다. 받는 분 주소만 채워 주시면 바로 보내실 수 있습니다."""
+
+# 실제로 저장된 초안 본문. 세 문단에 위험ID 셋이 들어 있다.
+MAIL_BODY = """Fabrikam 정보보호인증원의 ISMS-P 인증 사후심사가 2026년 10월 12일부터 16일까지 진행됩니다. 심사 제출용 자료 작성을 마쳐 검토를 요청드립니다.
+
+경영진 판단이 필요한 가장 시급한 미비 항목은 세 건입니다. R-001은 공용 관리자 계정 14개가 남아 있어 조치 전에는 특수권한 관련 증적을 제출할 수 없으며 목표일이 9월 30일입니다. R-002는 고객 개인신용정보가 담긴 Azure Blob 컨테이너 3개가 암호화 미적용 상태이고 목표일이 9월 25일로 가장 촉박합니다. R-004는 Litware 데이터애널리틱스의 상시 접근권한 건으로, 보안계약서 개정안이 법무 검토 중이어서 심사 전 확정 여부를 결정해 주셔야 합니다.
+
+전체 진단과 6주 조치 계획은 첨부한 경영진 요약(zava-심사대응-경영진요약.docx)에 정리했습니다. 이번 주 안에 30분 정도 논의 자리를 잡아 주시면 위 세 건의 결정 사항을 함께 확정하겠습니다.
+
+정다은 드림"""
+
+# ── 두 번째 턴 ────────────────────────────────────────────
+T12 = ('The user wants the draft sent to themselves along with the files. '
+       'The draft is sitting in the mailbox with no recipient, so let me pull it back '
+       'and see what state it is actually in before I touch it.')
+T13 = ('The saved draft has no recipient stored, so I cannot just fill one field and send '
+       'that object. Cleaner to compose a fresh message to the user with all three files '
+       'attached and leave the original draft alone. I should say that plainly rather than '
+       'let them wonder why a stale draft is still sitting there.')
+
+FINAL2 = """보내드렸습니다. 세 개 파일을 모두 첨부해 회원님 주소로 발송했습니다.
+
+- `zava-심사대응-경영진요약.docx`
+- `zava-gap-분석.xlsx`
+- `zava-심사대응-공문.docx`
+
+메일함에 남아 있던 초안은 수신자가 저장되지 않아 새 메일로 발송했습니다. 초안이 그대로 남아 있으니 필요 없으시면 삭제해 드리겠습니다."""
+
+log = [
+    {'t': 'say', 'time': '오후 3:16', 'body': "I'll start by reading the four attached files.",
+     'status': '파일을 여는 중', 'act': '첨부 파일을 읽는 중'},
+
+    {'t': 'tools', 'label': '작업을 실행하는 중…', 'time': '오후 3:17',
+     'status': '자료를 읽는 중',
+     'items': [
+         {'think': True, 'body': T1},
+         {'icon': 'check', 'label': 'Read the risk register and checklist'},
+         {'think': True, 'body': T2},
+         {'icon': 'check', 'label': 'Extract policy document text'},
+         {'think': True, 'body': T3},
+     ]},
+
+    {'t': 'tools', 'label': '작업을 실행하는 중…', 'time': '오후 3:21',
+     'status': '문서 도구를 준비하는 중', 'act': 'Word 문서 작업을 준비하는 중',
+     'items': [
+         {'icon': 'file', 'label': 'Word 문서 작업 준비 중'},
+         {'think': True, 'body': T4},
+         {'think': True, 'body': T5},
+         {'icon': 'newfile', 'label': '파일 만들기', 'target': DOC1},
+     ]},
+
+    {'t': 'edit', 'time': '오후 3:23', 'kind': 'w', 'file': DOC1,
+     'status': '머리말을 쓰는 중', 'act': 'Cowork가 ' + DOC1 + '을(를) 편집하고 있습니다.',
+     'items': [
+         {'k': '페이지 레이아웃 설정'},
+         {'k': '단락 삽입', 'v': 'ISMS-P 인증 사후심사 대응 경영진 요약'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '단락 삽입',
+          'v': 'Zava 파이낸셜코리아 주식회사 | 심사기관: Fabrikam 정보보호인증원 | 심사기간: 2026년 10월 12일 ~ 16일'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '단락 삽입',
+          'v': '작성 2026년 9월 2일 | 작성자 정다은 준법감시인 | 수신 CISO 및 경영진 | 분류 대외비'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 3:26', 'kind': 'w', 'file': DOC1,
+     'status': '진단 절을 쓰는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '1. 전반적인 정보보호 관리 수준 진단'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '단락 삽입', 'v': '위험관리대장 12건 가운데 10건이 미조치, 2건이 조치중입니다.'},
+         {'k': '단락 삽입', 'v': '심사 체크리스트 15개 항목 중 준비완료는 3건입니다.'},
+         {'k': '단락 삽입', 'v': '정책 문서는 현행이며 접근통제 정책과 보존·파기 정책이 갱신돼 있습니다.'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 3:29', 'kind': 'w', 'file': DOC1, 'failed': True,
+     'status': '까다로운 부분을 처리하는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '2. 위험도가 가장 높은 미조치 항목'},
+         {'k': '테이블 삽입', 'size': '6×4'},
+         {'k': '테이블 셀 설정', 'v': 'R-001 · 심각 · 접근통제'},
+     ]},
+
+    {'t': 'tool', 'icon': 'struct', 'label': '파일 구조 읽기', 'target': DOC1, 'time': '오후 3:30'},
+
+    {'t': 'edit', 'time': '오후 3:31', 'kind': 'w', 'file': DOC1,
+     'status': '다시 시도하는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '2. 위험도가 가장 높은 미조치 항목'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 3:33', 'kind': 'w', 'file': DOC1,
+     'status': '심각 등급을 정리하는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '위험등급 심각 5건이 모두 미조치 상태입니다.'},
+         {'k': '테이블 삽입', 'size': '6×4'},
+         {'k': '테이블 셀 설정', 'v': 'R-001 공용 관리자 계정 14개 · 남지훈 · 9/30'},
+         {'k': '테이블 셀 설정', 'v': 'R-002 Blob 컨테이너 3개 암호화 미적용 · 문경호 · 9/25'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 3:36', 'kind': 'w', 'file': DOC1, 'failed': True,
+     'status': '까다로운 부분을 처리하는 중',
+     'items': [
+         {'k': '테이블 셀 설정', 'v': 'R-003 서비스 계정 23개 MFA 미적용'},
+         {'k': '테이블 셀 설정', 'v': 'R-004 Litware 상시 접근권한'},
+         {'k': '테이블 셀 설정', 'v': 'R-005 모의훈련 18개월 미실시'},
+         {'k': '테이블 열 너비 설정'},
+         {'k': '테이블 열 너비 설정'},
+         {'k': '테이블 열 너비 설정'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'think', 'label': '사고 과정', 'time': '오후 3:37', 'body': T6,
+     'status': '문서 구조를 확인하는 중'},
+
+    {'t': 'edit', 'time': '오후 3:38', 'kind': 'w', 'file': DOC1,
+     'status': '작은 배치로 이어가는 중',
+     'items': [
+         {'k': '테이블 셀 설정', 'v': 'R-003 서비스 계정 23개 MFA 미적용 · 문경호 · 10/5'},
+         {'k': '테이블 셀 설정', 'v': 'R-004 Litware 상시 접근권한 · 조현우 · 9/30'},
+         {'k': '테이블 셀 설정', 'v': 'R-005 모의훈련 18개월 미실시 · 남지훈 · 9/25'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 3:41', 'kind': 'w', 'file': DOC1, 'failed': True,
+     'status': '표 서식을 맞추는 중',
+     'items': [
+         {'k': '테이블 열 너비 설정'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 3:43', 'kind': 'w', 'file': DOC1,
+     'status': '표 서식을 맞추는 중',
+     'items': [
+         {'k': '테이블 열 너비 설정'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 3:45', 'kind': 'w', 'file': DOC1, 'failed': True,
+     'status': '까다로운 부분을 처리하는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '진행 상황 보충'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 3:47', 'kind': 'w', 'file': DOC1,
+     'status': '진행 상황을 덧붙이는 중',
+     'items': [
+         {'k': '단락 삽입',
+          'v': '다섯 건 가운데 R-001은 진행률이 가장 명확합니다. PAM 도입이 진행 중이고 대상 계정 식별과 문서화가 끝났습니다.'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 3:48', 'kind': 'w', 'file': DOC1,
+     'status': '진행 상황을 덧붙이는 중',
+     'items': [
+         {'k': '단락 삽입',
+          'v': 'R-004는 보안계약서 개정안이 법무 검토 단계에 머물러 있어 경영진 차원의 결정이 필요합니다.'},
+     ]},
+
+    {'t': 'say', 'time': '오후 3:49', 'body': 'Now section 3 — the checklist readiness counts.',
+     'status': '집계 절을 쓰는 중'},
+
+    {'t': 'think', 'label': '사고 과정', 'time': '오후 3:50', 'body': T7,
+     'status': '문장을 다듬는 중'},
+
+    {'t': 'edit', 'time': '오후 3:52', 'kind': 'w', 'file': DOC1,
+     'status': '집계 절을 쓰는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '3. 체크리스트 준비 상태별 건수'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '테이블 삽입', 'size': '4×3'},
+         {'k': '테이블 셀 설정', 'v': '준비완료 3건 · 진행중 6건 · 미비 6건 · 합계 15건'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 3:55', 'kind': 'w', 'file': DOC1, 'failed': True,
+     'status': '까다로운 부분을 처리하는 중',
+     'items': [
+         {'k': '테이블 셀 설정', 'v': '비율 표기'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 3:57', 'kind': 'w', 'file': DOC1,
+     'status': '노출 영역을 쓰는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '4. 노출도가 가장 큰 통제영역'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '단락 삽입',
+          'v': '접근통제와 계정·권한 관리에 미조치가 몰려 있습니다. 체크리스트 항목 2·3·4가 여기 해당합니다.'},
+         {'k': '단락 삽입', 'v': 'R-001, R-003, R-007이 같은 영역입니다.'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:00', 'kind': 'w', 'file': DOC1, 'failed': True,
+     'status': '조치 계획을 쓰는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '5. 심사 전 6주 조치 계획'},
+         {'k': '테이블 삽입', 'size': '7×3'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:02', 'kind': 'w', 'file': DOC1,
+     'status': '조치 계획을 쓰는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '5. 심사 전 6주 조치 계획'},
+         {'k': '테이블 삽입', 'size': '7×3'},
+         {'k': '테이블 셀 설정', 'v': '1주차 ~ 9/15 · R-010 변경관리 지침 개정 완료'},
+         {'k': '테이블 셀 설정', 'v': '2~3주차 ~ 9/25 · R-002 암호화 소급 적용, R-005 모의훈련 실시'},
+         {'k': '테이블 셀 설정', 'v': '4주차 ~ 9/30 · R-001, R-004, R-008, R-009, R-012'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:05', 'kind': 'w', 'file': DOC1, 'failed': True,
+     'status': '까다로운 부분을 처리하는 중',
+     'items': [
+         {'k': '테이블 셀 설정', 'v': '5~6주차 증적 정리'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:07', 'kind': 'w', 'file': DOC1,
+     'status': '조치 계획을 마무리하는 중',
+     'items': [
+         {'k': '테이블 셀 설정', 'v': '5주차 ~ 10/5 · R-003 서비스 계정 MFA 전환 완료'},
+         {'k': '테이블 셀 설정', 'v': '6주차 ~ 10/11 · 증적 취합과 예행 점검'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:10', 'kind': 'w', 'file': DOC1, 'failed': True,
+     'status': '까다로운 부분을 처리하는 중',
+     'items': [
+         {'k': '텍스트 서식 지정'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'tool', 'icon': 'struct', 'label': '파일 구조 읽기', 'target': DOC1, 'time': '오후 4:11'},
+
+    {'t': 'edit', 'time': '오후 4:12', 'kind': 'w', 'file': DOC1, 'failed': True,
+     'status': '까다로운 부분을 처리하는 중',
+     'items': [
+         {'k': '단락 텍스트 설정', 'v': '표 머리행 서식'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:14', 'kind': 'w', 'file': DOC1,
+     'status': '마무리하는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '근거: 첨부한 위험관리대장과 심사 체크리스트, 정책 문서 두 건'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'think', 'label': '사고 과정', 'time': '오후 4:16', 'body': T8,
+     'status': '다음 문서로 넘어가는 중'},
+
+    {'t': 'tool', 'icon': 'newfile', 'label': '파일 만들기', 'target': DOC2, 'time': '오후 4:17'},
+
+    {'t': 'edit', 'time': '오후 4:19', 'kind': 'w', 'file': DOC2,
+     'status': '공문 머리말을 쓰는 중',
+     'act': 'Cowork가 여러 파일을 편집하고 있습니다.',
+     'items': [
+         {'k': '페이지 레이아웃 설정'},
+         {'k': '단락 삽입', 'v': 'Zava 파이낸셜코리아 주식회사'},
+         {'k': '단락 삽입', 'v': '수신 Fabrikam 정보보호인증원 심사팀장'},
+         {'k': '단락 삽입', 'v': '제목 ISMS-P 인증 사후심사 대응 자료 제출'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:22', 'kind': 'w', 'file': DOC2,
+     'status': '본문을 쓰는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '1. 귀 원의 정보보호 활동에 감사드립니다.'},
+         {'k': '단락 삽입', 'v': '2. 아래와 같이 심사 대응 자료를 제출합니다.'},
+         {'k': '단락 삽입', 'v': '3. 심사 범위 확인'},
+         {'k': '단락 삽입', 'v': '4. 동봉 자료 목록'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:25', 'kind': 'w', 'file': DOC2, 'failed': True,
+     'status': '까다로운 부분을 처리하는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '5. 조치 진행 상황 고지'},
+         {'k': '텍스트 서식 지정'},
+         {'k': '테이블 삽입', 'size': '3×2'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:27', 'kind': 'w', 'file': DOC2,
+     'status': '다시 시도하는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '5. 조치 진행 상황 고지'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:29', 'kind': 'w', 'file': DOC2, 'failed': True,
+     'status': '까다로운 부분을 처리하는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '심사 대상 기간 2026년 10월 12일 ~ 16일'},
+         {'k': '단락 삽입', 'v': '일부 항목은 조치가 진행 중이며 상세 내용은 경영진 요약을 참조하시기 바랍니다.'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:31', 'kind': 'w', 'file': DOC2,
+     'status': '본문을 마무리하는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '심사 대상 기간 2026년 10월 12일 ~ 16일'},
+         {'k': '단락 삽입', 'v': '일부 항목은 조치가 진행 중입니다. 상세 내용은 경영진 요약을 참조하시기 바랍니다.'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:34', 'kind': 'w', 'file': DOC2, 'failed': True,
+     'status': '서명란을 만드는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '위와 같이 제출합니다.'},
+         {'k': '테이블 삽입', 'size': '2×2'},
+         {'k': '테이블 셀 설정', 'v': '정다은 준법감시인 / 남지훈 정보보호본부장'},
+     ]},
+
+    {'t': 'tool', 'icon': 'struct', 'label': '파일 구조 읽기', 'target': DOC2, 'time': '오후 4:35'},
+
+    {'t': 'edit', 'time': '오후 4:36', 'kind': 'w', 'file': DOC2, 'failed': True,
+     'status': '기다려 주셔서 감사합니다.',
+     'items': [
+         {'k': '테이블 셀 설정', 'v': '정다은 준법감시인'},
+         {'k': '테이블 셀 설정', 'v': '남지훈 정보보호본부장'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:39', 'kind': 'w', 'file': DOC2,
+     'status': '서명란을 만드는 중',
+     'items': [
+         {'k': '단락 삽입', 'v': '위와 같이 제출합니다.'},
+         {'k': '단락 삽입', 'v': '준법감시인 정다은'},
+         {'k': '단락 삽입', 'v': '정보보호본부장 남지훈'},
+         {'k': '텍스트 서식 지정'},
+     ]},
+
+    {'t': 'think', 'label': '사고 과정', 'time': '오후 4:42', 'body': T8,
+     'status': '워크북으로 넘어가는 중'},
+
+    {'t': 'tools', 'label': '작업을 실행하는 중…', 'time': '오후 4:45',
+     'status': 'Gap 워크북을 만드는 중',
+     'act': 'Cowork가 ' + XLSX + '을(를) 편집하고 있습니다.',
+     'items': [
+         {'icon': 'file', 'label': 'Excel 워크북 작업 준비 중'},
+         {'icon': 'newfile', 'label': '파일 만들기', 'target': XLSX},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:48', 'kind': 'x', 'file': XLSX,
+     'status': '표를 채우는 중',
+     'items': [
+         {'k': '시트 이름 설정', 'v': 'Gap 분석'},
+         {'k': '머리행 설정', 'size': '8열'},
+         {'k': '행 삽입', 'v': '심각 5건 · R-001 ~ R-005'},
+         {'k': '행 삽입', 'v': '높음 6건 · R-006, R-007, R-008, R-009, R-010, R-012'},
+         {'k': '행 삽입', 'v': '보통 1건 · R-011'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:52', 'kind': 'x', 'file': XLSX, 'failed': True,
+     'status': '까다로운 부분을 처리하는 중',
+     'items': [
+         {'k': '수식 설정', 'v': '등급별 COUNTIF 집계'},
+         {'k': '열 너비 설정'},
+     ]},
+
+    {'t': 'edit', 'time': '오후 4:55', 'kind': 'x', 'file': XLSX,
+     'status': '집계 행을 넣는 중',
+     'items': [
+         {'k': '수식 설정', 'v': '심각 5 · 높음 6 · 보통 1'},
+         {'k': '수식 설정', 'v': '합계 12'},
+         {'k': '열 너비 설정'},
+         {'k': '서식 적용', 'v': '위험등급 내림차순 정렬, 머리행 고정'},
+     ]},
+
+    {'t': 'think', 'label': '사고 과정', 'time': '오후 4:58', 'body': T9,
+     'status': '검산하는 중'},
+
+    {'t': 'tool', 'icon': 'struct', 'label': '파일 구조 읽기', 'target': XLSX, 'time': '오후 4:59'},
+
+    {'t': 'think', 'label': '사고 과정', 'time': '오후 5:12', 'body': T10,
+     'status': '수신자를 찾는 중', 'act': '메일 초안을 준비하는 중'},
+
+    {'t': 'tools', 'label': '작업을 실행하는 중…', 'time': '오후 5:15',
+     'status': '주소록을 조회하는 중',
+     'items': [
+         {'icon': 'search', 'label': '사용자 조회', 'target': 'CISO'},
+         {'icon': 'warn', 'label': '주소록에서 찾지 못함', 'tag': '결과 없음'},
+         {'think': True, 'body': T11},
+     ]},
+
+    {'t': 'edit', 'time': '오후 5:20', 'kind': 'm', 'file': MAIL,
+     'status': '메일 초안을 쓰는 중',
+     'items': [
+         {'k': '제목 설정', 'v': '심사 대응 자료 검토 요청 — 10월 12일 ISMS-P 사후심사'},
+         {'k': '본문 삽입', 'v': '1문단 · 10월 12일 심사와 Fabrikam 정보보호인증원'},
+         {'k': '본문 삽입', 'v': '2문단 · R-001, R-002, R-004 경영진 결정 필요'},
+         {'k': '본문 삽입', 'v': '3문단 · 이번 주 30분 논의 요청'},
+         {'k': '첨부 추가', 'v': 'zava-심사대응-경영진요약.docx'},
+         {'k': '초안 저장', 'v': '수신자 비움'},
+     ]},
+
+    {'t': 'mail', 'time': '오후 5:24', 'to': '', 'disabled': True,
+     'subject': '심사 대응 자료 검토 요청 — 10월 12일 ISMS-P 사후심사',
+     'body': MAIL_BODY, 'files': [],
+     'status': '초안으로 남기는 중', 'act': '메일을 초안으로 저장했습니다.'},
+
+    {'t': 'final', 'time': '오후 5:55', 'body': FINAL, 'out': [2, 1, 0, 3],
+     'act': 'Cowork에서 파일 편집을 마쳤습니다.'},
+
+    # ── 두 번째 턴. 초안을 실제로 보낸다 ──────────────────
+    {'t': 'prompt', 'time': '오후 7:14',
+     'sep': '2026년 9월 2일 수요일 오후 7:14', 'body': '이 메일과 파일들을 나에게 보내주세요'},
+
+    {'t': 'think', 'label': '사고 과정', 'time': '오후 7:15', 'body': T12,
+     'status': '초안을 찾는 중'},
+
+    {'t': 'tools', 'label': '작업 완료', 'time': '오후 7:17',
+     'status': '초안을 여는 중', 'act': 'Outlook 초안을 다루는 중',
+     'items': [
+         {'icon': 'pen', 'tag': 'Outlook',
+          'label': '심사 대응 자료 검토 요청 — 10월 12일 ISMS-P 사후심사', 'target': '초안 업데이트 중'},
+         {'icon': 'mail', 'tag': 'Outlook',
+          'label': '메시지 가져오기', 'target': '심사 대응 자료 검토 요청 — 10월 12일 ISMS-P 사후심사'},
+         {'think': True, 'body': T13},
+     ]},
+
+    {'t': 'approved', 'time': '오후 7:19', 'label': '1개 작업 승인됨',
+     'sent': '초안을 보냄', 'status': '초안을 처리하는 중'},
+
+    {'t': 'approved', 'time': '오후 7:20', 'label': '1개 작업 승인됨',
+     'sent': '보낸 이메일', 'status': '메일을 보내는 중'},
+
+    {'t': 'final', 'time': '오후 7:21', 'body': FINAL2, 'out': [],
+     'act': '메일을 보냈습니다.'},
+]
+
+data = {
+    'id': 'isms-audit',
+    'tc': '실습-03',
+    'folder': '실습',
+    'title': 'ISMS-P 사후심사 대응 자료 작성',
+    'chatTitle': 'ISMS-P 심사 대응 · 산출물 4종',
+    'subtitle': '정책 문서 둘과 CSV 둘을 첨부하고 문서 셋과 메일 하나를 요구한 실행. '
+                'Word 편집이 15번 거부됐고, 주소록에 없는 수신자는 비운 채 초안으로 남겼다',
+    'model': '자동',
+    'effort': '보통',
+    'date': '2026년 9월 2일 수요일',
+    'credit': 1130,
+    'costTime': '오후 5:56',
+    'note': '문서 넷을 첨부하고 산출물 넷을 요구한 실행입니다. '
+            '표를 만든 직후 셀에 값을 넣으려 하면 자주 거부되는데, 그때마다 문서 구조를 '
+            '다시 읽고 더 작은 배치로 나눠 넣습니다. Word 작업에서 반복되는 패턴입니다. '
+            'CISO 주소를 못 찾자 짐작해 채우지 않고 비운 채 초안으로 남겼고, '
+            '두 번째 턴에서 사용자가 요청하자 새 메일로 보냈습니다.',
+    'bench': {
+        'n': 1, 'people': 1, 'min': 219, 'max': 1178,
+        'head': '참고 · 같은 자동·보통 설정으로 측정한 회차',
+        'lead': '아래는 모델과 노력을 같게 두고 다른 작업을 돌렸을 때의 실측값입니다.',
+        'condition': '이 회차의 1,130은 한 번 시켜 산출물 넷을 만든 값입니다. '
+                     '첨부 문서 넷을 읽고 Word 둘, Excel 하나, 메일 초안 하나를 만들었습니다. '
+                     '아래 두 값은 주간 업무보고 시나리오에서 같은 자동·보통 설정으로 '
+                     '잰 값이라 작업 종류가 다릅니다. 직접 비교하는 근거로 쓰지 마십시오.',
+        'models': [
+            {'name': '주간보고 · 활동 없는 계정', 'avg': 219, 'n': 1, 'effort': '보통',
+             'meta': '자동·보통 · 데이터 0건'},
+            {'name': '주간보고 · 활동 많은 계정', 'avg': 1178, 'n': 1, 'effort': '보통',
+             'meta': '자동·보통 · 프로젝트 7건'},
+        ],
+    },
+    'steps': [
+        '경영진 요약 문서 작성',
+        'Gap 분석 워크북 작성',
+        '심사기관 제출 공문 작성',
+        '경영진 보고 메일 초안 작성',
+    ],
+    'skills': ['Word', 'Excel'],
+    'tools': ['SharePoint', 'Outlook', '사람'],
+    'prompt': PROMPT,
+    'promptTime': '오후 3:15',
+    'promptFiles': FILES,
+    'refs': FILES,
+    'log': log,
+    'artifacts': [
+        {'name': DOC1, 'kind': 'Word 문서', 'meta': '6쪽 · 표 4개 · 5개 절',
+         'file': 'assets/artifacts/isms/' + DOC1,
+         'thumb': 'assets/artifacts/isms/zava-심사대응-경영진요약_01.png',
+         'pages': ['assets/artifacts/isms/zava-심사대응-경영진요약_%02d.png' % i
+                   for i in (1, 2, 3)]},
+        {'name': DOC2, 'kind': 'Word 문서', 'meta': '2쪽 · 공문 형식 · 서명 2인',
+         'file': 'assets/artifacts/isms/' + DOC2,
+         'thumb': 'assets/artifacts/isms/zava-심사대응-공문_01.png',
+         'pages': ['assets/artifacts/isms/zava-심사대응-공문_%02d.png' % i for i in (1, 2)]},
+        {'name': XLSX, 'kind': 'Excel 스프레드시트', 'meta': '21행 × 8열 · 집계 수식',
+         'file': 'assets/artifacts/isms/' + XLSX,
+         'thumb': 'assets/artifacts/isms/zava-gap-분석_01.png',
+         'pages': ['assets/artifacts/isms/zava-gap-분석_%02d.png' % i for i in (1, 2, 3)]},
+        {'name': MAIL, 'kind': '메일 초안', 'meta': '임시보관함에 저장됨 · 수신자 비움',
+         'file': '', 'thumb': '', 'pages': []},
+    ],
+}
+
+json.dump(data, open(OUT, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+print('isms-audit.json  로그 %d단계  편집 실패 %d회'
+      % (len(log), sum(1 for x in log if x.get('failed'))))
+

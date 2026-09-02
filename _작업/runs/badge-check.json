@@ -1,0 +1,607 @@
+{
+ "id": "badge-check",
+ "tc": "실습-02",
+ "folder": "실습",
+ "title": "퇴근 기록 누락 직원 확인 및 보고서",
+ "chatTitle": "퇴근 기록 누락 직원 확인 및 보고서",
+ "subtitle": "첨부한 CSV를 집계해 메일로 보내고, 커스텀 스킬을 만들어 98점까지 올린 뒤 그 스킬로 리포트를 두 판본 뽑은 실행. 다섯 번 시켜 누적 789크레딧",
+ "model": "자동",
+ "effort": "보통",
+ "date": "2026년 9월 2일 수요일",
+ "credit": 789,
+ "costTime": "오후 2:59",
+ "note": "한 작업 안에서 다섯 번 시킨 회차입니다. 메일 발송과 파일 복사 모두 승인을 누르기 전까지 실행되지 않습니다. 네 번째 턴에서 방금 만든 스킬을 부르자 한 번 실패하는데, 세션에 아직 안 실려서 그렇습니다. `/cost`를 세 번 찍어 566 → 576 → 789로 오르는 것도 그대로 담았습니다.",
+ "bench": {
+  "n": 1,
+  "people": 1,
+  "min": 219,
+  "max": 1178,
+  "head": "참고 · 같은 자동·보통 설정으로 측정한 회차",
+  "lead": "아래는 모델과 노력을 같게 두고 다른 작업을 돌렸을 때의 실측값입니다.",
+  "condition": "이 회차의 789는 다섯 번 시킨 작업의 누적값입니다. `/cost`는 프롬프트 하나가 아니라 그 작업 전체를 셉니다. 12분 사이에 세 번 찍었더니 566 → 576 → 789로 올랐습니다. 아래 두 값은 주간 업무보고 시나리오에서 같은 자동·보통 설정으로 잰 값이라 작업 종류가 다릅니다. 직접 비교하는 근거로 쓰지 마십시오.",
+  "models": [
+   {
+    "name": "주간보고 · 활동 없는 계정",
+    "avg": 219,
+    "n": 1,
+    "effort": "보통",
+    "meta": "자동·보통 · 데이터 0건"
+   },
+   {
+    "name": "주간보고 · 활동 많은 계정",
+    "avg": 1178,
+    "n": 1,
+    "effort": "보통",
+    "meta": "자동·보통 · 프로젝트 7건"
+   }
+  ]
+ },
+ "steps": [],
+ "skills": [
+  "frontend-design"
+ ],
+ "skillsButton": true,
+ "tools": [
+  "Outlook"
+ ],
+ "prompt": "사업장 출입기록 CSV를 첨부했습니다. 퇴근일시가 비어 있으면 그 직원이 퇴근 태그를 하지 않은 것입니다. 퇴근 기록이 없는 직원이 누구인지 알려주고 요약 보고서를 메일로 보내주세요.",
+ "promptTime": "오후 1:24",
+ "promptFiles": [
+  "badge_check.csv"
+ ],
+ "refs": [
+  "badge_check.csv"
+ ],
+ "log": [
+  {
+   "t": "say",
+   "time": "오후 1:24",
+   "body": "I'll start by reading the file.",
+   "status": "파일을 여는 중",
+   "act": "첨부 파일을 읽는 중"
+  },
+  {
+   "t": "tools",
+   "label": "작업을 실행하는 중…",
+   "time": "오후 1:25",
+   "status": "항목을 연결하는 중",
+   "items": [
+    {
+     "icon": "file",
+     "label": "Reading the attendance file"
+    },
+    {
+     "icon": "check",
+     "label": "Analyzing missing check-out records"
+    },
+    {
+     "think": true,
+     "body": "The file has 600 rows with 성명, 출입증번호, 지역, 사업장, 출근일시, 퇴근일시. I need to treat whitespace-only 퇴근일시 as missing too, so let me strip before counting. That gives 164 missing out of 600, which is 27.3%."
+    },
+    {
+     "think": true,
+     "body": "Every one of the 12 people has at least one missing tag, so just listing names answers nothing. I should report per-person counts against their own total check-ins, plus the most recent date, so the reader can act on it."
+    },
+    {
+     "icon": "check",
+     "label": "Getting per-person detail"
+    }
+   ]
+  },
+  {
+   "t": "tools",
+   "label": "작업을 실행하는 중…",
+   "time": "오후 1:27",
+   "status": "단계를 추적하는 중",
+   "act": "집계를 정리하는 중",
+   "items": [
+    {
+     "think": true,
+     "body": "The distribution is heavily skewed. Four people account for 119 of 164. Let me also break it down by site and by month before writing the summary."
+    },
+    {
+     "think": true,
+     "body": "Time to send the email summary now. Since no recipient was specified, I'll send it to the admin/user address, so let me find the appropriate send tool for that.I'll send the email to the user with a summary table, and attach a detail CSV of missing records created as an output artifact for reference."
+    },
+    {
+     "icon": "check",
+     "label": "Building the detail list"
+    },
+    {
+     "icon": "check",
+     "label": "Preparing the attachment"
+    }
+   ]
+  },
+  {
+   "t": "tool",
+   "icon": "mail",
+   "tag": "Outlook",
+   "time": "오후 1:27",
+   "label": "Copilot User(으)로",
+   "target": "[출입기록 점검] 퇴근 태그 누락 현황 요약 (2026-06-01 ~… 관련…",
+   "status": "메일 초안을 만드는 중",
+   "act": "Outlook 초안을 만드는 중"
+  },
+  {
+   "t": "mail",
+   "time": "오후 1:27",
+   "to": "Copilot User",
+   "subject": "[출입기록 점검] 퇴근 태그 누락 현황 요약 (2026-06-01 ~ 2026-08-20)",
+   "body": "안녕하세요,\n\n사업장 출입기록(2026-06-01 ~ 2026-08-20, 총 600건)을 점검한 결과입니다. 퇴근일시가 비어 있는 **퇴근 태그 누락 건은 164건(전체의 27.3%)**이며, **12명 전원**에서 최소 1건 이상 발생했습니다.\n\n### 직원별 퇴근 태그 누락 현황\n\n| 성명 | 출입증번호 | 누락 건수 | 전체 출근 건수 | 누락 비율 | 최근 누락일 |\n| --- | --- | --- | --- | --- | --- |\n| 김도현 | ZK-1000 | 38 | 47 | 80.9% | 2026-08-04 |\n| 박준서 | ZK-1002 | 30 | 40 | 75.0% | 2026-07-24 |\n| 이서연 | ZK-1006 | 27 | 42 | 64.3% | 2026-07-28 |\n| 정우진 | ZK-1007 | 24 | 51 | 47.1% | 2026-08-07 |\n| 최지아 | ZK-1011 | 9 | 59 | 15.3% | 2026-08-06 |\n| 오민석 | ZK-1004 | 8 | 54 | 14.8% | 2026-07-22 |\n| 한소영 | ZK-1009 | 8 | 50 | 16.0% | 2026-08-07 |\n| 강예린 | ZK-1005 | 6 | 57 | 10.5% | 2026-08-18 |\n| 김나윤 | ZK-1001 | 5 | 49 | 10.2% | 2026-07-29 |\n| 윤재호 | ZK-1008 | 4 | 52 | 7.7% | 2026-07-24 |\n| 임하늘 | ZK-1003 | 3 | 46 | 6.5% | 2026-06-26 |\n| 서준영 | ZK-1010 | 2 | 53 | 3.8% | 2026-08-03 |\n\n### 사업장별 누락 건수\n\n| 사업장 | 누락 건수 |\n| --- | --- |\n| 을지로 영업지원센터 | 47 |\n| 수성 대경지사 | 33 |\n| 송도 글로벌캠퍼스 | 21 |\n| 대덕 데이터센터 | 12 |\n| 판교 R&D센터 | 12 |\n| 센텀 동남권지사 | 11 |\n| 여의도 금융센터 | 9 |\n| 첨단 호남지사 | 8 |\n| 광화문 본사 | 7 |\n| 첨단과학단지 오피스 | 4 |\n\n### 월별 추이\n\n6월 81건 → 7월 74건 → 8월 9건 (8월 데이터는 8/20까지)\n\n### 주요 사항\n\n- 상위 4명(김도현, 박준서, 이서연, 정우진)이 전체 누락의 **119건(72.6%)**을 차지합니다. 이 4명은 개별 안내가 필요해 보입니다.\n- 을지로 영업지원센터와 수성 대경지사에 누락이 집중되어 있어, 해당 사업장의 퇴근 리더기 위치나 동작 상태 점검을 권장합니다.\n- 누락 164건의 전체 상세 내역(성명, 출입증번호, 지역, 사업장, 출근일시)은 첨부 파일을 참고해 주세요.\n\n감사합니다.\n\nSent by Copilot Cowork",
+   "files": [
+    "퇴근미기록_상세.csv"
+   ],
+   "status": "보내기 승인을 기다리는 중",
+   "act": "사용자 승인을 기다리는 중"
+  },
+  {
+   "t": "approved",
+   "time": "오후 1:27",
+   "label": "1개 작업 승인됨",
+   "sent": "보낸 이메일",
+   "status": "메일을 보내는 중"
+  },
+  {
+   "t": "final",
+   "time": "오후 1:28",
+   "body": "퇴근 태그 누락 현황을 정리해 메일로 보내드렸습니다. 상세 내역 164건은 CSV로 첨부했습니다.\n\n**핵심 결과** — 기간 2026-06-01 ~ 2026-08-20, 총 600건 중 퇴근 기록 없는 건은 164건(27.3%), 직원 12명 전원에게서 발생했습니다.\n\n| 성명 | 출입증번호 | 누락 | 전체 | 비율 | 최근 누락일 |\n| --- | --- | --- | --- | --- | --- |\n| 김도현 | ZK-1000 | 38 | 47 | 80.9% | 2026-08-04 |\n| 박준서 | ZK-1002 | 30 | 40 | 75.0% | 2026-07-24 |\n| 이서연 | ZK-1006 | 27 | 42 | 64.3% | 2026-07-28 |\n| 정우진 | ZK-1007 | 24 | 51 | 47.1% | 2026-08-07 |\n| 최지아 | ZK-1011 | 9 | 59 | 15.3% | 2026-08-06 |\n| 오민석 | ZK-1004 | 8 | 54 | 14.8% | 2026-07-22 |\n| 한소영 | ZK-1009 | 8 | 50 | 16.0% | 2026-08-07 |\n| 강예린 | ZK-1005 | 6 | 57 | 10.5% | 2026-08-18 |\n| 김나윤 | ZK-1001 | 5 | 49 | 10.2% | 2026-07-29 |\n| 윤재호 | ZK-1008 | 4 | 52 | 7.7% | 2026-07-24 |\n| 임하늘 | ZK-1003 | 3 | 46 | 6.5% | 2026-06-26 |\n| 서준영 | ZK-1010 | 2 | 53 | 3.8% | 2026-08-03 |\n\n### 눈에 띄는 점\n\n- 상위 4명(김도현·박준서·이서연·정우진)이 전체 누락의 119건(72.6%)을 차지합니다.\n- 사업장별로는 을지로 영업지원센터 47건, 수성 대경지사 33건, 송도 글로벌캠퍼스 21건에 집중돼 있어 해당 사업장 리더기 점검도 함께 보시면 좋겠습니다.\n- 월별로는 6월 81건 → 7월 74건 → 8월 9건(8/20까지)입니다.\n\n메일은 본인 주소로 보냈습니다. 인사팀이나 각 사업장 담당자에게도 보낼까요?",
+   "out": [],
+   "act": "메일 발송을 마쳤습니다."
+  },
+  {
+   "t": "prompt",
+   "time": "오후 1:52",
+   "sep": "2026년 9월 2일 수요일 오후 1:52",
+   "body": "아래 내용으로 frontend-design 스킬을 만들어 주세요.\n\nOneDrive의 문서/Cowork/skills/frontend-design/ 아래에 SKILL.md로 저장하면 됩니다.\n\nname: frontend-design description: 보고서, 표, 이메일 본문을 만들 때 사용한다. 완성도 높은 단일 파일 반응형 HTML을 만들고 한글 본문의 줄바꿈과 폰트를 올바르게 처리한다.\n\n## Frontend Design\n\n흔한 AI 결과물처럼 보이지 않는 화면을 만드는 스킬이다. 설명만 늘어놓지 말고 실제로 동작하는 코드를 쓴다. 세부까지 다듬는다.\n\n사용자는 만들 대상을 알려준다. 컴포넌트일 수도 있고 페이지, 애플리케이션, 인터페이스일 수도 있다. 용도나 독자, 기술 제약을 함께 주기도 한다.\n\n## 설계 전에 정할 것\n\n코드를 쓰기 전에 맥락을 파악하고 미감의 방향을 하나로 정한다.\n\n- **용도**: 이 화면은 무슨 문제를 푸는가. 누가 보는가.\n- **톤**: 극단으로 하나 고른다. 극도의 미니멀, 과잉의 맥시멀리즘, 레트로 퓨처, 자연물, 럭셔리, 장난감 같은 경쾌함, 잡지 편집, 브루탈리즘, 아르데코 기하, 파스텔, 산업용 실용주의.\n- **제약**: 프레임워크, 성능, 접근성.\n- **차별점**: 무엇이 기억에 남는가. 본 사람이 하나만 기억한다면 그것은 무엇인가.\n\n**중요**: 방향을 분명히 정하고 정밀하게 실행한다. 대담한 맥시멀리즘도 절제된 미니멀리즘도 다 된다. 관건은 강도가 아니라 의도다.\n\n그다음 실제로 동작하는 코드를 쓴다. HTML/CSS/JS든 React든 Vue든 상관없다. 조건은 이렇다.\n\n- 바로 쓸 수 있고 기능이 동작할 것\n- 눈에 남을 것\n- 미감의 관점이 하나로 관통할 것\n- 세부까지 다듬을 것\n\n## 미감 지침\n\n- **타이포그래피**: 아름답고 개성 있는 폰트를 고른다. Arial이나 Inter 같은 무난한 선택은 피한다. 제목용 폰트와 본문용 폰트를 짝지어 쓴다.\n- **색과 테마**: 하나의 미감으로 통일한다. CSS 변수로 일관성을 잡는다. 지배색 하나에 날카로운 강조색을 얹는 편이, 여러 색을 고르게 배분한 소심한 팔레트보다 낫다.\n- **모션**: 효과와 미세 상호작용에 애니메이션을 쓴다. HTML에서는 CSS만으로 푸는 방법을 우선한다. 순간에 집중한다. 잘 짜인 페이지 로드 연출 하나가 여기저기 흩뿌린 미세 효과보다 인상이 깊다.\n- **공간 구성**: 예상을 벗어나는 배치. 비대칭. 겹침. 사선 흐름. 격자를 깨는 요소. 넉넉한 여백이나 통제된 밀도 중 하나.\n- **배경과 디테일**: 분위기와 깊이를 만든다. 전체 미감에 맞는 효과와 질감을 얹는다. 그러데이션 메시, 노이즈 텍스처, 기하 패턴, 겹친 투명도, 과감한 그림자, 장식 테두리 같은 것들이다.\n\n흔한 AI 결과물의 특징은 쓰지 않는다. 남발되는 폰트(Inter, Roboto, Arial, 시스템 기본값), 진부한 배색(특히 흰 배경 위 보라색 그러데이션), 맥락 없이 찍어낸 듯한 구성이 여기 해당한다.\n\n모든 결과물은 데스크톱, 태블릿, 모바일에서 제대로 보여야 한다. 유동 레이아웃과 상대 단위를 쓰고 필요하면 미디어 쿼리를 넣는다.\n\n## 한글 본문 처리\n\n결과물에 한글이 들어가면 아래를 반드시 지킨다. 영문 기준으로 짠 레이아웃에 한글을 그대로 부으면 줄바꿈이 어색해지고 글줄이 답답해진다.\n\n### 줄바꿈\n\n- `word-break: keep-all`을 본문에 적용한다. 이게 없으면 브라우저가 어절 중간에서 줄을 끊는다.\n- 긴 URL이나 영문 식별자가 섞이는 영역에는 `overflow-wrap: anywhere`를 함께 준다.\n- 붙어야 할 표현은 붙임 공백으로 묶는다. 예를 들어 `2026년 10월`, `R-001 항목`.\n\n### 글줄 길이\n\n- 한 줄에 한글 38자에서 44자가 들어가게 맞춘다. 이 범위를 벗어나면 읽는 속도가 떨어진다.\n- **`ch` 단위를 쓰지 않는다.** 한글 한 글자는 1ch가 아니라 약 1.83ch다. `max-width: 60ch`로 잡으면 한 줄에 33자밖에 안 들어간다.\n- `em`으로 지정한다. 환산 기준은 폰트마다 다르다. 맑은 고딕은 한글 한 글자가 약 1.0em, Pretendard는 약 0.86em이다.\n- 권장값은 이렇다. 본문 `max-width: 40em` (맑은 고딕 기준) 또는 `36em` (Pretendard 기준). 캡션은 더 좁게, 목록은 조금 넓게 잡는다.\n\n### 폰트\n\n- 웹에서는 Pretendard를 기본으로 쓴다. CDN으로 불러오고 가변폰트라 굵기를 자유롭게 쓸 수 있다.\n- Microsoft 브랜드 자료라면 맑은 고딕과 Segoe UI를 쓴다.\n- 한글은 자간을 살짝 좁혀야 정돈돼 보인다. `letter-spacing: -0.01em` 정도가 적당하다. 더 좁히면 오히려 읽기 어렵다.\n- 굵기는 400과 700 위주로 쓴다. 맑은 고딕은 중간 굵기가 없어서 브라우저가 가짜 굵기를 만들어내고 그러면 획이 뭉개진다.\n- 행간은 영문보다 넉넉해야 한다. 본문 `line-height: 1.7`, 제목 `1.3`을 기준으로 잡는다.\n\n### 숫자와 표\n\n- 숫자를 세로로 정렬해 비교하는 표에는 `font-variant-numeric: tabular-nums`를 준다.\n- 금액과 수량은 오른쪽 정렬, 텍스트는 왼쪽 정렬로 한다.\n- 천 단위 구분 쉼표를 넣는다.\n\n## 이메일과 Outlook 렌더링\n\n결과물이 이메일이면 위의 미감 지침을 **덮어쓰고** 아래 제약을 따른다. Outlook은 Word 2007 HTML 렌더링 엔진을 쓴다. HTML 4.01과 CSS 1.0의 일부만 지원한다.\n\n### 레이아웃\n\n- **표 기반으로 짠다.** 여러 단으로 나누거나 구조를 잡을 때 믿을 수 있는 방법은 `<table>`, `<tr>`, `<td>`뿐이다. `<div>`로 레이아웃을 잡지 않는다.\n- `width`를 CSS에만 쓰지 말고 `<table>`과 `<td>`의 **HTML 속성**으로도 넣는다.\n- 간격은 `cellpadding`과 `cellspacing` HTML 속성으로 준다.\n- 레이아웃용 표에는 `border=\"0\"`을 넣어 테두리가 보이지 않게 한다.\n\n### CSS\n\n- **인라인 스타일만 쓴다.** 모든 CSS를 각 요소의 `style` 속성에 넣는다. `<style>` 블록이나 외부 스타일시트는 Outlook이 지워버릴 수 있다.\n- **CSS 변수(`var(--x)`)를 쓰지 않는다.** Outlook은 아예 무시한다.\n- **단축 속성에 기대지 않는다.** 정밀도가 중요하면 `border-top-width`, `border-top-style`, `border-top-color`처럼 풀어 쓴다.\n- `<span>`은 **CORE** CSS만 지원한다. `<div>`와 `<p>`는 **COREEXTENDED**, 나머지 대부분(`<table>`, `<td>`, `<img>`, `<a>` 등)은 **FULL**을 지원한다.\n\n### 이메일에서 쓰면 안 되는 것\n\n`background-image`, `float`, `position`, `max-width`, `min-width`, `text-shadow`, `overflow`, `opacity`, CSS 애니메이션과 트랜지션, `@media` 쿼리, `@font-face`, CSS Grid, Flexbox.\n\nHTML 요소는 `<form>`, `<button>`, `<input>`, `<iframe>`, `<script>`, `<video>`, `<canvas>`, `<svg>`를 쓰지 않는다.\n\n### 이메일의 한글 타이포그래피\n\n**웹폰트를 쓸 수 없다.** `@font-face`와 Google Fonts는 Outlook이 무시한다. Pretendard도 이메일에서는 못 쓴다.\n\n한글 폰트 스택은 `'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', 'Nanum Gothic', Dotum, sans-serif`로 쓴다. 한글 폰트명을 영문과 한글로 둘 다 넣는다. 수신자의 OS 언어 설정에 따라 인식되는 이름이 다르다.\n\n`word-break: keep-all`은 `<td>`에 인라인으로 넣는다. Outlook은 무시하지만 Outlook 웹과 모바일 앱, 그 밖의 메일 클라이언트에서는 동작한다.\n\n본문 크기는 15px에서 16px, 행간은 1.7로 잡는다. 표 셀에 세로 10px, 가로 14px 이상의 `padding`을 준다. 자간은 건드리지 않는다.\n\n### 색과 배경\n\n- 배경색은 인라인 `background-color`와 함께 `bgcolor` HTML 속성을 같이 넣는다.\n- 색은 `#FF0000` 같은 16진수로 쓴다. `rgb()`, `rgba()`, 색 이름은 쓰지 않는다.\n- **그러데이션을 쓰지 않는다.** 단색만 쓴다.\n\n### 이메일의 반응형\n\nOutlook이 `@media` 쿼리를 지원하지 않으므로 **고정 폭 600px**을 표준으로 잡고 설계한다. 바깥 감싸는 표에 `width=\"100%\"`를 주고 안쪽 표를 `width=\"600\"` 같은 고정 폭으로 둔다.\n\n### 이메일 공통 규칙\n\n- 자바스크립트는 어떤 형태로도 쓰지 않는다.\n- `onclick`, `onmouseover` 같은 이벤트 속성을 쓰지 않는다.\n- `<iframe>`과 `<frameset>`은 Outlook 보안 정책이 막는다.\n- HTML을 단순하고 평평하게 유지한다. 표를 깊이 중첩하면 렌더링이 어긋난다."
+  },
+  {
+   "t": "think",
+   "label": "생각 중…",
+   "time": "오후 1:52",
+   "body": "The user wants me to create a skill file from pasted content. This is a file-writing task, not an analysis one, so I should confirm where the skills folder lives and whether a frontend-design skill already exists before I write anything.",
+   "status": "접근 방식을 좁히는 중"
+  },
+  {
+   "t": "tools",
+   "label": "작업을 실행하는 중…",
+   "time": "오후 1:53",
+   "status": "복잡한 내용을 처리하는 중",
+   "act": "스킬 파일을 만드는 중",
+   "items": [
+    {
+     "think": true,
+     "body": "I'll write this as a clean skill file at working/frontend-design/SKILL.md, unescaping the markdown formatting characters from the provided content. The description is short enough to fit within the character limit, so I just need to verify the name is valid before finalizing the file."
+    },
+    {
+     "icon": "check",
+     "label": "Checking the skill name and current count"
+    },
+    {
+     "think": true,
+     "body": "Now I'm drafting the SKILL.md, keeping the user's original description faithful while adding a few trigger phrases and a brief \"When NOT to Use\" note to make the guidance clearer, all within the length constraints."
+    },
+    {
+     "icon": "check",
+     "label": "Preparing the build folder"
+    },
+    {
+     "icon": "newfile",
+     "label": "Writing",
+     "target": "SKILL.md"
+    },
+    {
+     "think": true,
+     "body": "The skill file is written. Before handing it over I should score it against the routing and clarity checks and produce a report the user can actually read, then copy the build folder into the user surface so the skill is live."
+    },
+    {
+     "icon": "check",
+     "label": "Generating the quality report"
+    },
+    {
+     "icon": "copy",
+     "label": "파일 복사"
+    }
+   ]
+  },
+  {
+   "t": "confirm",
+   "time": "오후 1:56",
+   "icon": "copy",
+   "title": "파일 복사",
+   "status": "복사 승인을 기다리는 중",
+   "act": "사용자 승인을 기다리는 중",
+   "rows": [
+    [
+     "Destination",
+     "skills/frontend-design"
+    ],
+    [
+     "Overwrite",
+     "예"
+    ],
+    [
+     "Recursive",
+     "예"
+    ],
+    [
+     "Source",
+     "working/frontend-design"
+    ],
+    [
+     "Surface",
+     "user"
+    ]
+   ]
+  },
+  {
+   "t": "approved",
+   "time": "오후 1:56",
+   "label": "1개 작업 승인됨",
+   "status": "파일을 옮기는 중"
+  },
+  {
+   "t": "final",
+   "time": "오후 1:57",
+   "body": "**frontend-design 스킬을 만들었습니다.** 문서/Cowork/skills/frontend-design/SKILL.md에 저장됐고, OneDrive에는 30초 정도 뒤에 반영됩니다.\n\n**무엇을 하는 스킬인가** 보고서·표·이메일 본문을 만들 때 완성도 높은 단일 파일 반응형 HTML을 만들고, 한글 줄바꿈(`word-break: keep-all`)·글줄 길이(`ch` 대신 `em`)·폰트·표 숫자 정렬을 올바르게 처리합니다. 결과물이 이메일이면 Outlook 제약(표 기반 레이아웃, 인라인 스타일, 고정 폭 600px, 웹폰트 금지)이 미감 지침을 덮어씁니다.\n\n**이런 말에 켜집니다** \"HTML 보고서 만들어줘\", \"이메일 본문을 HTML로\", \"표를 예쁘게 정리해줘\", \"Outlook에서 깨지지 않게\"\n\n**품질 점수: 79점 / Good** — 출시 기준(65점)을 통과했습니다. 상세 리포트는 `skill-quality-report.html`에 있습니다.\n\n원문에 더해 라우팅 정확도를 위해 세 가지를 보탰습니다: 설명에 트리거 문구와 제외 조건(`docx`/`pptx`/`xlsx`/`pdf`, 백엔드, 데이터 분석), \"When NOT to Use\" 절, 그리고 Guardrails(수치 날조 금지, 자리표시자 사용, 단일 파일 완결, 이메일 제약 우선, 보내지 말라면 초안만).\n\n85점 이상 \"우수\" 등급까지 몇 가지 손보는 것도 가능한데, 해볼까요?",
+   "out": [
+    0
+   ],
+   "act": "스킬 파일을 저장했습니다."
+  },
+  {
+   "t": "prompt",
+   "time": "오후 2:35",
+   "sep": "2026년 9월 2일 수요일 오후 2:35",
+   "body": "95점 이상이 되도록 해줘"
+  },
+  {
+   "t": "say",
+   "time": "오후 2:36",
+   "body": "Baseline is 79. I'll tune it in the workspace copy and only keep changes that raise the score.",
+   "status": "기준 점수를 확인하는 중",
+   "act": "스킬을 다듬는 중"
+  },
+  {
+   "t": "tools",
+   "label": "작업을 실행하는 중…",
+   "time": "오후 2:38",
+   "status": "다시 채점하는 중",
+   "items": [
+    {
+     "think": true,
+     "body": "Baseline is 79. The weakest axis by far is robustness at 9 out of 25 because the skill has no failure-handling rules at all. I should tune the workspace copy first and re-score before publishing anything, keeping only edits that raise the score."
+    },
+    {
+     "icon": "check",
+     "label": "Re-scoring the tuned draft"
+    },
+    {
+     "think": true,
+     "body": "The tuned draft scores 98. Robustness went 9 to 25 once the exception-handling section landed, and specificity gained 3 from naming the tools. Scope stays at 23 because the grader looks for English delegation phrasing and the delegation lines are written in Korean. That is a grader artifact, not a real gap."
+    }
+   ]
+  },
+  {
+   "t": "say",
+   "time": "오후 2:41",
+   "body": "Score of 98 is excellent, so I'll publish this and move on to generating the improvement log and optimization report.",
+   "status": "게시를 준비하는 중"
+  },
+  {
+   "t": "say",
+   "time": "오후 2:41",
+   "body": "98점입니다. 이제 게시하겠습니다.",
+   "status": "리포트를 만드는 중",
+   "act": "리포트를 만들고 게시하는 중"
+  },
+  {
+   "t": "tools",
+   "label": "작업을 실행하는 중…",
+   "time": "오후 2:46",
+   "status": "파일을 옮기는 중",
+   "items": [
+    {
+     "icon": "check",
+     "label": "Building the improvement report"
+    },
+    {
+     "icon": "check",
+     "label": "Checking the report input shape"
+    },
+    {
+     "icon": "check",
+     "label": "Rebuilding the improvement report"
+    },
+    {
+     "icon": "check",
+     "label": "Refreshing the quality report"
+    },
+    {
+     "icon": "copy",
+     "label": "파일 복사"
+    },
+    {
+     "icon": "copy",
+     "label": "파일 복사"
+    },
+    {
+     "icon": "copy",
+     "label": "파일 복사"
+    },
+    {
+     "icon": "copy",
+     "label": "파일 복사"
+    },
+    {
+     "icon": "check",
+     "label": "Verifying the published skill"
+    },
+    {
+     "icon": "check",
+     "label": "Verifying the published skill"
+    }
+   ]
+  },
+  {
+   "t": "approved",
+   "time": "오후 2:52",
+   "label": "1개 작업 승인됨",
+   "done": "'파일 복사' 완료됨",
+   "status": "마무리 작업을 하는 중"
+  },
+  {
+   "t": "final",
+   "time": "오후 2:53",
+   "body": "**79점 → 98점 (Excellent).** 목표였던 95점을 넘겼습니다. 게시된 파일에서 직접 다시 채점해 확인했습니다.\n\n| 항목 | 이전 | 이후 |\n| --- | --- | --- |\n| 트리거 명확성 | 25 | 25 |\n| 지시 구체성 | 22 | 25 |\n| 범위 경계 | 23 | 23 |\n| 견고성 | 9 | 25 |\n| **합계** | **79** | **98** |\n\n**무엇을 바꿨나** — 원문의 디자인 지침과 한글·Outlook 규칙은 한 줄도 건드리지 않았고, 세 부분을 덧붙였습니다.\n\n- **예외 상황 처리 절 신설** — 견고성 9점의 원인이 \"실패 대응 규칙 없음\"이었습니다. 수치가 없을 때, 원본을 못 찾을 때, 톤이 지정되지 않았을 때, 이메일인지 웹인지 모호할 때, CDN 폰트가 실패할 때 각각 어떻게 할지 규칙으로 적었습니다. 특히 \"판단이 서지 않으면 이메일 제약 쪽으로 기운다\"는 기준을 넣었습니다. 웹 규칙을 이메일에 쓰면 깨지지만 반대는 밋밋할 뿐이라서요.\n- **도구 사용 절 신설** — 파일 생성·수정, 이메일 발송과 초안, 계산, 이미지 생성을 어떤 도구로 할지 이름으로 지정했습니다. 지시 구체성 감점 사유였습니다.\n- **Guardrails 5줄 → 10줄** — 날조 금지와 발송 전 확인(자동 발송 금지), 실제 개인정보를 예시로 쓰지 않기, 추적 비콘 금지, 접근성 확인을 추가했습니다. 이걸로 근거성 검사도 경고에서 통과로 바뀌었습니다.\n\n남은 2점은 범위 경계 항목인데, 채점기가 \"use X instead\" 형태의 영문 위임 문구를 찾는 방식이라 한글로 쓴 위임 문장(\"image-operations 스킬을 쓴다\")을 인식하지 못한 것입니다. 실제 동작에는 영향이 없어 그대로 뒀습니다.\n\n리포트 두 개를 남겼습니다. `optimization-report.html`은 이전·변경·이후 비교이고, `skill-quality-report.html`은 현재 품질 상세입니다. OneDrive의 스킬 파일은 30초 정도 뒤 반영됩니다.",
+   "out": [
+    1
+   ],
+   "act": "스킬을 게시했습니다."
+  },
+  {
+   "t": "prompt",
+   "time": "오후 2:42",
+   "sep": "2026년 9월 2일 수요일 오후 2:42",
+   "body": "badge_check.csv 에는 전국 사업장의 임직원 출입 기록이 들어 있습니다. 한 행이 출입증 태그 한 건이고 열은 성명, 출입증번호, 지역, 사업장, 출근일시, 퇴근일시입니다.\n\n퇴근일시가 비어 있으면 그 직원이 퇴근 태그를 하지 않은 것입니다.\n\n다음을 처리해 주세요.\n\n1. 파일을 분석해 사람별로 전체 출입 건수와 퇴근 태그를 빠뜨린 횟수(퇴근일시가 빈 값)를 계산합니다.\n2. 출입증 미태그 건수 기준 상위 10명을 순위로 매깁니다. 성명, 출입증번호, 전체 출입 건수, 출입증 미태그 건수, 미태그 비율(%)을 포함합니다.\n3. /frontend-design 스킬을 써서 단일 파일 반응형 HTML 리포트를 만듭니다. 요약 머리말과 출입증 미태그 건수 내림차순으로 정렬한 상위 10명 표를 넣고 미태그 비율이 50%를 넘는 사람은 빨간색으로 표시합니다.\n\n제목은 \"사업장 출입 - 출입증 미태그 상위 10명\"으로 하고 리포트를 메일 본문에 넣어 저에게 보내주세요."
+  },
+  {
+   "t": "think",
+   "label": "사고 과정",
+   "time": "오후 2:43",
+   "body": "The user is invoking the frontend-design skill I just created. Let me call it directly and see whether the runtime has picked it up yet.",
+   "status": "스킬을 불러오는 중"
+  },
+  {
+   "t": "tool",
+   "icon": "warn",
+   "tag": "실패",
+   "time": "오후 2:43",
+   "label": "사용자 지정 기술",
+   "target": "Frontend design",
+   "status": "까다로운 부분을 처리하는 중"
+  },
+  {
+   "t": "think",
+   "label": "사고 과정",
+   "time": "오후 2:44",
+   "body": "The custom skill failed to load. It was written to the folder minutes ago and the session index has not refreshed, so the runtime cannot resolve it by name. Rather than block the task, I can read SKILL.md from the folder myself and follow the instructions as written. The user gets the same result either way.",
+   "status": "우회 방법을 찾는 중"
+  },
+  {
+   "t": "say",
+   "time": "오후 2:44",
+   "body": "The skill was just created, so it isn't loaded in this session yet — I'll read it from your folder and follow it directly.",
+   "status": "스킬 파일을 직접 읽는 중",
+   "act": "스킬 지침을 따르는 중"
+  },
+  {
+   "t": "tools",
+   "label": "작업을 실행하는 중...",
+   "time": "오후 2:45",
+   "status": "집계하는 중",
+   "items": [
+    {
+     "icon": "file",
+     "label": "Reading",
+     "target": "SKILL.md"
+    },
+    {
+     "icon": "check",
+     "label": "Analyzing the badge data"
+    },
+    {
+     "think": true,
+     "body": "Same aggregation as before: 600 rows, 164 missing, 12 people. For the top 10 I sort by missing count descending, and where counts tie I put the higher ratio first. Three people are over 50 percent, so those rows get the red treatment the user asked for."
+    },
+    {
+     "icon": "copy",
+     "label": "파일 복사"
+    },
+    {
+     "icon": "check",
+     "label": "Confirming the report file"
+    },
+    {
+     "think": true,
+     "body": "The skill says email output overrides the aesthetic guidance, so the report I built for the browser cannot go into the mail body as is. I need a separate table-based, inline-styled version at a fixed 600px, with no web fonts and no gradients."
+    },
+    {
+     "icon": "check",
+     "label": "Checking the email body against constraints"
+    },
+    {
+     "think": true,
+     "body": "Checked the mail body against the constraint list. No CSS variables, no flexbox, no @media, hex colours only, bgcolor attributes alongside inline background-color, and the Korean font stack in both English and Korean names. It passes."
+    },
+    {
+     "icon": "check",
+     "label": "Preparing the email body"
+    }
+   ]
+  },
+  {
+   "t": "tool",
+   "icon": "mail",
+   "tag": "Outlook",
+   "time": "오후 2:46",
+   "label": "Copilot User(으)로",
+   "target": "사업장 출입 - 출입증 미태그 상위 10명 관련…",
+   "status": "메일 초안을 만드는 중",
+   "act": "Outlook 초안을 만드는 중"
+  },
+  {
+   "t": "mail",
+   "time": "오후 2:46",
+   "to": "Copilot User",
+   "subject": "사업장 출입 - 출입증 미태그 상위 10명",
+   "body": "전국 사업장 출입 기록 600건을 점검한 결과입니다. 퇴근 태그가 남지 않은 건은 **164건(전체의 27.3%)**이고, 기록이 있는 12명 전원에게서 최소 한 번씩 발생했습니다. 그중 **3명**은 미태그 비율이 50%를 넘습니다.\n\n### 출입증 미태그 상위 10명\n\n| 순위 | 성명 | 출입증번호 | 전체 출입 | 미태그 | 비율 |\n| --- | --- | --- | --- | --- | --- |\n| 01 | 김도현 | ZK-1000 | 47 | 38 | 80.9% |\n| 02 | 박준서 | ZK-1002 | 40 | 30 | 75.0% |\n| 03 | 이서연 | ZK-1006 | 42 | 27 | 64.3% |\n| 04 | 정우진 | ZK-1007 | 51 | 24 | 47.1% |\n| 05 | 최지아 | ZK-1011 | 59 | 9 | 15.3% |\n| 06 | 한소영 | ZK-1009 | 50 | 8 | 16.0% |\n| 07 | 오민석 | ZK-1004 | 54 | 8 | 14.8% |\n| 08 | 강예린 | ZK-1005 | 57 | 6 | 10.5% |\n| 09 | 김나윤 | ZK-1001 | 49 | 5 | 10.2% |\n| 10 | 윤재호 | ZK-1008 | 52 | 4 | 7.7% |\n\n상위 3명은 미태그 비율이 50%를 넘어 빨간색으로 표시했습니다. 상위 4명이 전체 미태그의 119건, 곧 72.6%를 차지합니다.\n\n집계 기간 2026-06-01 ~ 2026-08-20 · 원본 badge_check.csv 600행",
+   "files": [
+    "badge_report.html"
+   ],
+   "status": "보내기 승인을 기다리는 중",
+   "act": "사용자 승인을 기다리는 중"
+  },
+  {
+   "t": "approved",
+   "time": "오후 2:46",
+   "label": "1개 작업 승인됨",
+   "sent": "보낸 이메일",
+   "status": "메일을 보내는 중"
+  },
+  {
+   "t": "cost",
+   "time": "오후 2:47",
+   "credit": 566
+  },
+  {
+   "t": "final",
+   "time": "오후 2:48",
+   "body": "메일을 보냈습니다. 리포트는 본문에 넣었고, 웹용 단일 파일 HTML도 첨부했습니다.\n\n**1. 사람별 집계** — 600행, 12명. 퇴근 태그 누락 총 164건(27.3%). 12명 전원에게서 최소 1건씩 발생했습니다.\n\n**2. 출입증 미태그 상위 10명**\n\n| 순위 | 성명 | 출입증번호 | 전체 출입 | 미태그 | 비율 |\n| --- | --- | --- | --- | --- | --- |\n| 1 | 김도현 | ZK-1000 | 47 | 38 | 80.9% |\n| 2 | 박준서 | ZK-1002 | 40 | 30 | 75.0% |\n| 3 | 이서연 | ZK-1006 | 42 | 27 | 64.3% |\n| 4 | 정우진 | ZK-1007 | 51 | 24 | 47.1% |\n| 5 | 최지아 | ZK-1011 | 59 | 9 | 15.3% |\n| 6 | 한소영 | ZK-1009 | 50 | 8 | 16.0% |\n| 7 | 오민석 | ZK-1004 | 54 | 8 | 14.8% |\n| 8 | 강예린 | ZK-1005 | 57 | 6 | 10.5% |\n| 9 | 김나윤 | ZK-1001 | 49 | 5 | 10.2% |\n| 10 | 윤재호 | ZK-1008 | 52 | 4 | 7.7% |\n\n50%를 넘는 3명(김도현·박준서·이서연)은 리포트에서 빨간색으로 표시했습니다. 6위와 7위는 미태그가 8건으로 같아서 비율이 높은 한소영을 앞에 뒀습니다.\n\n**3~4. 리포트와 메일** — `badge_report.html`을 만들었습니다. 다크 계열 산업용 톤에 Pretendard와 JetBrains Mono를 짝지었고, 한글 줄바꿈(`word-break: keep-all`), 글줄 폭 `em` 기준, 표 숫자 `tabular-nums`를 적용했습니다. 데스크톱·태블릿·모바일 모두 대응합니다.\n\n메일 본문은 같은 내용을 Outlook 제약에 맞춰 따로 짰습니다. 표 기반 레이아웃, 인라인 스타일만, 고정 폭 600px, 맑은 고딕 스택, 그러데이션 없이 단색만. 웹 버전을 그대로 넣으면 Outlook에서 무너지기 때문입니다.\n\n눈에 띄는 점 하나. 미태그가 을지로 영업지원센터 47건, 수성 대경지사 33건에 몰려 있습니다. 개인 습관보다는 해당 사업장 퇴근 리더기 문제일 수 있어 리포트에 함께 적어 뒀습니다.",
+   "out": [
+    2
+   ],
+   "act": "리포트를 만들었습니다."
+  },
+  {
+   "t": "cost",
+   "time": "오후 2:49",
+   "credit": 576
+  },
+  {
+   "t": "prompt",
+   "time": "오후 2:51",
+   "sep": "2026년 9월 2일 수요일 오후 2:51",
+   "body": "밝은 계열의 깔끔한 디자인으로 변경한 리포트도 보내줘"
+  },
+  {
+   "t": "tools",
+   "label": "작업을 실행하는 중...",
+   "time": "오후 2:53",
+   "status": "모든 것을 정리하는 중",
+   "act": "밝은 판본을 만드는 중",
+   "items": [
+    {
+     "think": true,
+     "body": "The user wants the same report in a light theme. The skill says to pick one aesthetic direction and execute it precisely, so this is not just inverting the colours. Warm off-white ground, one red accent kept for the over-50% rows, and the mono numerals stay so the table still reads as an audit."
+    },
+    {
+     "icon": "copy",
+     "label": "파일 복사"
+    },
+    {
+     "think": true,
+     "body": "The email body needs rebuilding too. Outlook constraints override the aesthetic guidance, so the light version gets its own table-based body with hex colours and bgcolor attributes rather than a recoloured copy of the web file."
+    },
+    {
+     "icon": "check",
+     "label": "Building the light email version"
+    },
+    {
+     "icon": "check",
+     "label": "Spot-checking the light email"
+    }
+   ]
+  },
+  {
+   "t": "tool",
+   "icon": "mail",
+   "tag": "Outlook",
+   "time": "오후 2:55",
+   "label": "Copilot User(으)로",
+   "target": "사업장 출입 - 출입증 미태그 상위 10명 (밝은 디자인) 관련…",
+   "status": "메일 초안을 만드는 중",
+   "act": "Outlook 초안을 만드는 중"
+  },
+  {
+   "t": "mail",
+   "time": "오후 2:55",
+   "to": "Copilot User",
+   "subject": "사업장 출입 - 출입증 미태그 상위 10명 (밝은 디자인)",
+   "body": "**ACCESS CONTROL / BADGE AUDIT**\n사업장 출입 – 출입증 미태그 상위 10명\n집계 기간 2026-06-01 ~ 2026-08-20 · 원본 badge_check.csv 600행\n\n전국 사업장 출입 기록 **600건**을 점검했습니다. 퇴근 태그가 남지 않은 건은 **164건**으로 전체의 **27.3%**입니다. 기록이 있는 **12명** 전원에게서 최소 한 번씩 발생했고, 그중 **3명**은 미태그 비율이 **50%를 넘습니다**. 상위 4명이 전체 미태그의 119건, 곧 **72.6%**를 차지합니다.\n\n| 순위 | 성명 | 출입증번호 | 전체 출입 | 미태그 | 비율 |\n| --- | --- | --- | --- | --- | --- |\n| 1 | 김도현 | ZK-1000 | 47 | 38 | 80.9% |\n| 2 | 박준서 | ZK-1002 | 40 | 30 | 75.0% |\n| 3 | 이서연 | ZK-1006 | 42 | 27 | 64.3% |\n| 4 | 정우진 | ZK-1007 | 51 | 24 | 47.1% |\n| 5 | 최지아 | ZK-1011 | 59 | 9 | 15.3% |\n| 6 | 한소영 | ZK-1009 | 50 | 8 | 16.0% |\n| 7 | 오민석 | ZK-1004 | 54 | 8 | 14.8% |\n| 8 | 강예린 | ZK-1005 | 57 | 6 | 10.5% |\n| 9 | 김나윤 | ZK-1001 | 49 | 5 | 10.2% |\n| 10 | 윤재호 | ZK-1008 | 52 | 4 | 7.7% |\n\n밝은 계열로 다시 짠 판본입니다. 따뜻한 오프화이트 바탕에 붉은 강조 하나만 남기고, 50%를 넘는 세 명만 붉게 칠했습니다. 웹용 단일 파일 HTML을 첨부했습니다.",
+   "files": [
+    "badge_report_light.html"
+   ],
+   "status": "보내기 승인을 기다리는 중",
+   "act": "사용자 승인을 기다리는 중"
+  },
+  {
+   "t": "approved",
+   "time": "오후 2:57",
+   "label": "1개 작업 승인됨",
+   "sent": "보낸 이메일",
+   "status": "메일을 보내는 중"
+  },
+  {
+   "t": "final",
+   "time": "오후 2:58",
+   "body": "밝은 버전을 보냈습니다. 제목은 \"사업장 출입 - 출입증 미태그 상위 10명 (밝은 디자인)\"이고, 본문에 리포트를 넣고 `badge_report_light.html`을 첨부했습니다.\n\n**무엇이 달라졌나** — 데이터와 구조는 그대로 두고 미감만 바꿨습니다. 어두운 산업용 톤에서 잡지 편집형 밝은 톤으로 옮겼습니다.\n\n- **배경**: 순백 대신 따뜻한 종이색(#FBFAF7)에 아주 옅은 종이 질감을 얹었습니다. 흰 화면보다 눈이 덜 피로하고 인쇄물처럼 읽힙니다.\n- **타이포그래피**: 제목에 나눔명조를 써서 본문 Pretendard와 짝지었습니다. 명조와 고딕의 대비가 편집 디자인의 인상을 만듭니다. 숫자는 그대로 JetBrains Mono로 세로 정렬을 유지했습니다.\n- **강조색**: 형광 주황 대신 차분한 주홍(#C8442A)과 황토(#A8842C) 두 가지로 줄였습니다. 50% 초과 행은 연한 주홍 배경에 왼쪽 굵은 선으로 표시해, 어두운 버전만큼 눈에 띄면서 덜 요란합니다.\n- **헤더**: 상단에 굵은 먹색 괘선을 넣고 그 일부만 주홍으로 끊었습니다. 밝은 화면에서 무게중심을 잡아 주는 장치입니다.\n\n메일 본문은 밝은 톤에 맞춰 다시 짜되 Outlook 제약은 그대로 지켰습니다. 표 머리행을 먹색에서 종이색과 먹색 글자로 바꾸고, 제목에는 바탕체 스택을 넣어 웹 버전의 명조 인상을 살렸습니다. 바탕체가 없는 환경에서는 맑은 고딕으로 자연스럽게 내려갑니다.\n\n어두운 버전(`badge_report.html`)도 그대로 남아 있으니 두 개를 비교해 보시고, 한쪽으로 정리할지 알려 주세요.",
+   "out": [
+    3
+   ],
+   "act": "밝은 판본을 보냈습니다."
+  }
+ ],
+ "artifacts": [
+  {
+   "name": "skill-quality-report.html",
+   "kind": "HTML 파일",
+   "meta": "스킬 품질 98점 / Excellent",
+   "file": "assets/artifacts/skill/skill-quality-report.html",
+   "thumb": "assets/artifacts/skill/skill-quality-report_01.png",
+   "pages": [
+    "assets/artifacts/skill/skill-quality-report_01.png"
+   ]
+  },
+  {
+   "name": "optimization-report.html",
+   "kind": "HTML 파일",
+   "meta": "79점 → 98점 · 무엇을 바꿨나",
+   "file": "assets/artifacts/skill/optimization-report.html",
+   "thumb": "assets/artifacts/skill/optimization-report_01.png",
+   "pages": [
+    "assets/artifacts/skill/optimization-report_01.png"
+   ]
+  },
+  {
+   "name": "badge_report.html",
+   "kind": "HTML 파일",
+   "meta": "만든 스킬로 뽑은 리포트 · 다크 톤",
+   "file": "assets/artifacts/skill/badge_report.html",
+   "thumb": "assets/artifacts/skill/badge_report_01.png",
+   "pages": [
+    "assets/artifacts/skill/badge_report_01.png"
+   ]
+  },
+  {
+   "name": "badge_report_light.html",
+   "kind": "HTML 파일",
+   "meta": "같은 리포트 · 밝은 톤",
+   "file": "assets/artifacts/skill/badge_report_light.html",
+   "thumb": "assets/artifacts/skill/badge_report_light_01.png",
+   "pages": [
+    "assets/artifacts/skill/badge_report_light_01.png"
+   ]
+  }
+ ]
+}
