@@ -449,9 +449,8 @@
         '<div class="count" id="cnt">0/' + (run.log.length + 1) + '</div>' +
       '</div>' +
       '<div class="notice"><span class="ic">' + I.info + '</span><span>' +
-        '실제 Copilot Cowork 실행 기록을 재생합니다. 회사명과 담당자명은 예시 값으로 바꿨고, ' +
-        '크레딧은 <code>/cost</code>로 확인한 실측값입니다.' +
-        (run.note ? '<br>' + esc(run.note) : '') + '</span></div>' +
+        '실제 실행 기록입니다. 개인정보는 마스킹했고, 크레딧은 <code>/cost</code> 실측값입니다.' +
+        (run.note ? ' <b>볼 것</b> — ' + esc(run.note) : '') + '</span></div>' +
       '<div class="stream" id="stream"><div class="wrap" id="w">' +
         '<div class="daysep"><span>' + esc(run.date) + ' · KST</span></div></div></div>' +
       '<div class="composer"><div class="cbox">' +
