@@ -176,7 +176,8 @@ data = {
     'log': LOG_REAL,
     'artifacts': [
         {'name': '밀린 메일·Teams 정리 추적표 (2026-08-21~09-03).xlsx',
-         'kind': 'Excel 스프레드시트', 'meta': '시트 4개 · 38행 · 차트 1개', 'pages': []},
+         'kind': 'Excel 스프레드시트', 'meta': '시트 4개 · 38행 · 차트 1개',
+         'pages': [], 'labeled': True},
     ],
 }
 

@@ -1370,12 +1370,19 @@
     var a = run.artifacts[i], v = document.getElementById('viewer');
     v.querySelector('.vn').textContent = a.name;
     v.querySelector('.vm').textContent = a.kind + ' · ' + a.meta;
+    /* 미리보기가 없는 이유는 셋이다. 뭉뚱그리지 않고 그대로 적는다.
+       labeled  민감도 레이블이 걸려 열 수 없음. 복호화해 싣지 않는다
+       메일     파일이 아니라 임시보관함에 남은 초안
+       그 외    아직 파일을 받아 두지 못함 */
+    var why = a.labeled
+      ? '이 파일은 민감도 레이블이 걸려 있어 열지 않았습니다. ' +
+        '복호화해 공개 저장소에 싣지 않습니다. 대화의 최종 답변에 담긴 내용으로 확인하세요.'
+      : a.kind.indexOf('메일') > -1
+        ? '메일 초안은 파일이 아니라 임시보관함에 남아 있습니다. 대화에서 초안 카드를 확인하세요.'
+        : '이 산출물은 아직 파일을 받아 두지 못했습니다.';
     v.querySelector('.vbody').innerHTML = (a.pages || []).length
       ? a.pages.map(function (p) { return '<img src="' + p + '" alt="" loading="lazy">'; }).join('')
-      : '<div class="vnone">' +
-        (a.kind.indexOf('메일') > -1
-          ? '메일 초안은 파일이 아니라 임시보관함에 남아 있습니다. 대화에서 초안 카드를 확인하세요.'
-          : '이 산출물은 미리보기를 만들어 두지 않았습니다.') +
+      : '<div class="vnone">' + why +
         (a.file ? '<a href="' + a.file + '" target="_blank" rel="noopener">파일 열기</a>' : '') +
         '</div>';
     v.classList.add('on');

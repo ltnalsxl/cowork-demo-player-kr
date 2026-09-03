@@ -184,7 +184,7 @@ data = {
     'log': LOG,
     'artifacts': [
         {'name': '주간업무보고_2026-08-27_2026-09-03.docx', 'kind': 'Word 문서',
-         'meta': '1쪽 · 732단어 · 표 2개', 'pages': []},
+         'meta': '1쪽 · 732단어 · 표 2개', 'pages': [], 'labeled': True},
     ],
 }
 

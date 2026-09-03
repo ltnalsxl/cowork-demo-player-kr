@@ -129,6 +129,15 @@ RUNS.forEach((r) => {
   if (ex.arts) {
     ok(tag + '출력 항목 클릭 가능', $$('#outs .outbtn').length === ex.arts,
       $$('#outs .outbtn').length);
+    /* 미리보기가 없는 산출물은 왜 없는지 그대로 적는다. 뭉뚱그리지 않는다. */
+    (r.artifacts || []).forEach((a, i) => {
+      if ((a.pages || []).length) { return; }
+      $$('#outs .outbtn')[i].dispatchEvent(new w.Event('click', { bubbles: true }));
+      const t = $('#viewer .vnone')?.textContent || '';
+      const want = a.labeled ? /민감도 레이블/
+        : a.kind.indexOf('메일') > -1 ? /임시보관함/ : /받아 두지 못했습니다/;
+      ok(tag + '미리보기 없는 이유 ' + (i + 1), want.test(t), t.slice(0, 40));
+    });
   }
   ok(tag + '비용 패널', !!$('#costrow .cost'));
   ok(tag + '벤치 행', $$('.brow').length === r.bench.models.length, $$('.brow').length);
