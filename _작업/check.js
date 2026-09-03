@@ -28,16 +28,16 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
   const $$ = (s) => [...w.document.querySelectorAll(s)];
 
   ok('홈 히어로', $('.hero-q')?.textContent === '지금 무엇을 작업하고 있나요?');
-  ok('재생 항목 11개', $$('.ritem').length === 11, $$('.ritem').length);
+  ok('재생 항목 12개', $$('.ritem').length === 12, $$('.ritem').length);
   ok('타일 3개', $$('.tile').length === 3);
   ok('입력 힌트 줄', /팁:/.test($('.tipline')?.textContent || ''), $('.tipline')?.textContent);
   ok('컴포저 마이크', !!$('#homeCrow .micb'));
   ok('대기 중엔 보내기 없음', !$('#homeCrow .rnd'));
   ok('계정 Copilot User', /Copilot User/.test($('.me')?.textContent));
-  ok('사이드바 시나리오 11개', $$('#chats button[data-id]').length === 11,
+  ok('사이드바 시나리오 12개', $$('#chats button[data-id]').length === 12,
     $$('#chats button[data-id]').length);
   ok('홈 타일 제목이 회차별로 구분됨',
-    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 11);
+    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 12);
   w.close();
 }
 
@@ -73,7 +73,8 @@ const EXPECT = {
   'isms-audit': { steps: 4, arts: 4, credit: '1,130' },
   'brief-real': { steps: 0, arts: 0, credit: '107' },
   'brief-demo': { steps: 0, arts: 0, credit: '95' },
-  'skill-proofread': { steps: 0, arts: 0, credit: null }
+  'skill-proofread': { steps: 0, arts: 0, credit: '25' },
+  'weekly-team': { steps: 4, arts: 1, credit: '271' }
 };
 
 RUNS.forEach((r) => {
@@ -219,6 +220,32 @@ RUNS.forEach((r) => {
   } else {
     ok(tag + '예약 없으면 섹션 없음',
       !/예약된 작업/.test(w.document.getElementById('panel').textContent));
+  }
+  if (r.variants) {
+    const names = Object.keys(r.variants);
+    ok(tag + '모델별 결과 ' + names.length, $$('.varybox').length >= 1);
+    ok(tag + '기본 모델 표시', $('.vmdl')?.textContent === r.model, $('.vmdl')?.textContent);
+    ok(tag + '벤치 행이 모델 수와 같음', $$('.brow').length === names.length);
+    const body0 = $('.varybox .asay').textContent;
+    /* 모델을 바꾸면 답변과 크레딧이 함께 바뀐다. */
+    const other = names.filter((n) => n !== r.model)[0];
+    $$('#crow .pop-wrap')[1].querySelector('.pill')
+      .dispatchEvent(new w.Event('click', { bubbles: true }));
+    $$('#crow .pop.on .mi').find((m) => m.textContent.indexOf(other) === 0)
+      .dispatchEvent(new w.Event('click', { bubbles: true }));
+    ok(tag + '모델 바꾸면 답변 교체', $('.varybox .asay').textContent !== body0);
+    ok(tag + '바뀐 모델 이름', $('.vmdl')?.textContent === other, $('.vmdl')?.textContent);
+    ok(tag + '바뀐 모델 크레딧',
+      $('#costrow .cost .l1 b')?.textContent === String(r.variants[other].credit),
+      $('#costrow .cost .l1 b')?.textContent);
+    ok(tag + '바뀐 모델 기본 노력',
+      $('#effLabel')?.textContent === r.variants[other].effort, $('#effLabel')?.textContent);
+    /* 측정하지 않은 모델은 답을 만들지 않는다. */
+    $$('#crow .pop-wrap')[1].querySelector('.pill')
+      .dispatchEvent(new w.Event('click', { bubbles: true }));
+    $$('#crow .pop.on .mi').find((m) => m.textContent.indexOf('자동') === 0)
+      .dispatchEvent(new w.Event('click', { bubbles: true }));
+    ok(tag + '미측정 모델은 답변 비움', !!$('.vnone2'));
   }
   if (types.stage) {
     ok(tag + '설치 화면 ' + types.stage, $$('.stage').length === types.stage, $$('.stage').length);

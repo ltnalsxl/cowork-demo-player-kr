@@ -12,7 +12,7 @@ ROOT = os.path.abspath(os.path.join(BASE, '..'))
 
 ORDER = ['tc04-auto', 'tc04-sonnet', 'tc04-terra', 'tc01-real', 'tc01-demo',
          'rfp-report', 'badge-check', 'isms-audit', 'brief-real', 'brief-demo',
-         'skill-proofread']
+         'skill-proofread', 'weekly-team']
 
 
 def key(path):

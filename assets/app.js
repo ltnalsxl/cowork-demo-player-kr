@@ -275,6 +275,7 @@
           picked = name;
           effortPick = defaultEffort(name);
           if (costShown) { redrawCost(); }
+          redrawVary();
           rebuildComposer();
         } else {
           var lab = document.getElementById('mdlLabel');
@@ -856,11 +857,50 @@
       (s.note ? '<div class="sgnote">' + esc(s.note) + '</div>' : '') + '</div>';
   }
 
+  /* ── 모델별 결과 ──
+     같은 프롬프트를 모델만 바꿔 여러 번 돌린 회차는 위쪽 선택기로 답변을 갈아 끼운다.
+     측정하지 않은 모델을 고르면 없는 답을 만들지 않고 그렇다고 말한다. */
+  function variant() {
+    return (run.variants || {})[picked || run.model] || null;
+  }
+
+  function varyHead() {
+    var v = variant(), pick = picked || run.model;
+    var bits = v
+      ? [v.grade ? '등급 ' + v.grade : '', v.counts || '', v.change ? '변경 ' + v.change : '']
+      : [];
+    return '<div class="vhead"><span class="vmdl">' + esc(pick) + '</span>' +
+      bits.filter(Boolean).map(function (b) {
+        return '<span class="vpill">' + esc(b) + '</span>';
+      }).join('') +
+      '<span class="vhint">위 모델 선택기를 바꾸면 답변이 바뀝니다</span></div>';
+  }
+
+  function varyBody(s) {
+    var v = variant();
+    if (v) { return rich(v.body); }
+    return '<div class="vnone2">이 모델로는 돌려 보지 않았습니다. ' +
+      '위 선택기에서 실제로 측정한 모델을 고르면 그때의 답변이 그대로 나옵니다.</div>';
+  }
+
+  function redrawVary() {
+    [].forEach.call(document.querySelectorAll('.turn[data-vary]'), function (t, i) {
+      var s = run.log.filter(function (x) { return x.vary; })[i];
+      if (!s) { return; }
+      t.querySelector('.vhead').outerHTML = varyHead();
+      t.querySelector('.asay').innerHTML = varyBody(s);
+    });
+  }
+
   function emit(s) {
     var w = document.getElementById('w'), node;
 
     if (s.t === 'say' || s.t === 'final') {
-      node = el('<div class="turn"><div class="asay">' + rich(s.body) + '</div>' +
+      /* 같은 프롬프트를 모델만 바꿔 돌린 회차는 답변까지 바뀐다. */
+      var inner = s.vary
+        ? '<div class="varybox">' + varyHead() + '<div class="asay">' + varyBody(s) + '</div></div>'
+        : '<div class="asay">' + rich(s.body) + '</div>';
+      node = el('<div class="turn"' + (s.vary ? ' data-vary="1"' : '') + '>' + inner +
         (s.t === 'final' ? '<div class="fin"></div>' : '') + '</div>');
 
     } else if (s.t === 'think') {

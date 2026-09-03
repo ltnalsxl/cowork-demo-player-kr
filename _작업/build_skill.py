@@ -9,6 +9,8 @@
 import json
 import os
 
+from proofread_variants import VARIANTS
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(BASE, 'runs', 'skill-proofread.json')
 
@@ -150,20 +152,20 @@ T2 = ('The skill splits the work in two: 어문 규범 (spelling, spacing, subje
 
 LOG = INSTALL + [
     {'t': 'tool', 'icon': 'newfile', 'label': '사용자 지정 기술', 'target': 'Korean proofread',
-     'tag': '검토 완료', 'time': '오후 1:07',
+     'tag': '검토 완료', 'time': '오후 1:12',
      'status': '스킬 지침을 읽는 중', 'act': '커스텀 스킬을 불러오는 중'},
 
-    {'t': 'tool', 'icon': 'folder', 'label': '참고 자료 확인', 'time': '오후 1:07',
+    {'t': 'tool', 'icon': 'folder', 'label': '참고 자료 확인', 'time': '오후 1:12',
      'status': '참고 파일을 여는 중', 'act': 'references 폴더를 읽는 중'},
 
-    {'t': 'think', 'label': '생각 중...', 'time': '오후 1:07', 'body': T1,
+    {'t': 'think', 'label': '생각 중...', 'time': '오후 1:12', 'body': T1,
      'status': '요청을 처리하는 중'},
 
-    {'t': 'think', 'label': '생각 중...', 'time': '오후 1:08', 'body': T2,
+    {'t': 'think', 'label': '생각 중...', 'time': '오후 1:13', 'body': T2,
      'status': '어느 모드로 볼지 정하는 중'},
 
-    {'t': 'cut', 'time': '오후 1:08',
-     'body': '여기까지가 지금 확보한 기록입니다. 교열 결과와 /cost가 들어오면 이어 붙입니다.'},
+    {'t': 'final', 'vary': True, 'time': '오후 1:13', 'body': '',
+     'status': '완료', 'act': '작업 완료'},
 ]
 
 data = {
@@ -171,32 +173,36 @@ data = {
     'tc': '실습-05',
     'folder': '실습',
     'title': '커스텀 스킬 설치와 문서 교열',
-    'chatTitle': '커스텀 스킬 · 사내 공지 교열',
-    'subtitle': '스킬 파일을 올려 설치하고 슬래시로 불러 쓴 실행. '
-                '설치 여덟 단계를 화면 그대로 재생한다',
-    'model': '자동',
+    'chatTitle': '커스텀 스킬 · 모델 다섯으로 같은 교열',
+    'subtitle': '스킬 파일을 올려 설치하고, 같은 사내 공지를 모델 다섯으로 교열한 실행. '
+                '위 선택기를 바꾸면 그 모델의 실제 답변이 나온다',
+    'model': 'Sonnet 5',
     'effort': '보통',
     'date': '2026년 9월 3일 목요일',
-    'credit': None,
-    'note': '스킬은 숨은 설정이 아니라 내 OneDrive에 놓인 지침 파일입니다.',
+    'credit': 25,
+    'costTime': '오후 1:14',
+    'note': '모델을 바꿔 보십시오. 크레딧과 답변이 함께 바뀝니다.',
+    'variants': VARIANTS,
     'bench': {
-        'n': 2, 'people': 1, 'min': 95, 'max': 107,
-        'head': '참고 · 같은 자동·보통 설정으로 측정한 회차',
-        'lead': '이 회차는 아직 크레딧을 재지 않았습니다. 아래는 같은 설정으로 잰 다른 작업입니다.',
-        'condition': '작업 종류가 달라 이 회차의 값으로 읽지 마십시오. '
-                     '교열 결과가 들어오면 실측값으로 바꿉니다.',
+        'n': 5, 'people': 1,
+        'min': min(v['credit'] for v in VARIANTS.values()),
+        'max': max(v['credit'] for v in VARIANTS.values()),
+        'head': '같은 공지를 모델만 바꿔 교열시키면',
+        'lead': '스킬과 프롬프트를 고정하고 모델만 바꿔 새 작업으로 다섯 번 돌린 실측값입니다.',
+        'condition': '노력은 모델별 기본값을 그대로 뒀습니다. GPT 5.5와 GPT 5.6 Terra는 '
+                     '매우 높음이 기본이고 나머지 셋은 보통입니다. '
+                     '다섯 번 모두 새 작업에서 같은 원문을 붙여 넣었습니다.',
         'models': [
-            {'name': '아침 브리핑 · 일정 없는 계정', 'avg': 95, 'n': 1, 'effort': '보통',
-             'meta': '자동·보통 · 읽기만 함'},
-            {'name': '아침 브리핑 · 일정 있는 계정', 'avg': 107, 'n': 1, 'effort': '보통',
-             'meta': '자동·보통 · 읽기만 함'},
+            {'name': n, 'avg': v['credit'], 'n': 1, 'effort': v['effort'],
+             'meta': '등급 %s · %s · 변경 %s' % (v['grade'], v['counts'], v['change'])}
+            for n, v in sorted(VARIANTS.items(), key=lambda kv: kv[1]['credit'])
         ],
     },
     'steps': [],
     'skills': ['korean-proofread'],
     'tools': [],
     'prompt': PROMPT,
-    'promptTime': '오후 1:07',
+    'promptTime': '오후 1:12',
     'promptAt': len(INSTALL),
     'log': LOG,
     'artifacts': [],
