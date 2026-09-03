@@ -4898,5 +4898,443 @@ window.COWORK_RUNS = [
   "allowed": [
    "메시지 보내기"
   ]
+ },
+ {
+  "id": "skill-proofread",
+  "tc": "실습-05",
+  "folder": "실습",
+  "title": "커스텀 스킬 설치와 문서 교열",
+  "chatTitle": "커스텀 스킬 · 사내 공지 교열",
+  "subtitle": "스킬 파일을 올려 설치하고 슬래시로 불러 쓴 실행. 설치 여덟 단계를 화면 그대로 재생한다",
+  "model": "자동",
+  "effort": "보통",
+  "date": "2026년 9월 3일 목요일",
+  "credit": null,
+  "note": "스킬은 숨은 설정이 아니라 내 OneDrive에 놓인 지침 파일입니다.",
+  "bench": {
+   "n": 2,
+   "people": 1,
+   "min": 95,
+   "max": 107,
+   "head": "참고 · 같은 자동·보통 설정으로 측정한 회차",
+   "lead": "이 회차는 아직 크레딧을 재지 않았습니다. 아래는 같은 설정으로 잰 다른 작업입니다.",
+   "condition": "작업 종류가 달라 이 회차의 값으로 읽지 마십시오. 교열 결과가 들어오면 실측값으로 바꿉니다.",
+   "models": [
+    {
+     "name": "아침 브리핑 · 일정 없는 계정",
+     "avg": 95,
+     "n": 1,
+     "effort": "보통",
+     "meta": "자동·보통 · 읽기만 함"
+    },
+    {
+     "name": "아침 브리핑 · 일정 있는 계정",
+     "avg": 107,
+     "n": 1,
+     "effort": "보통",
+     "meta": "자동·보통 · 읽기만 함"
+    }
+   ]
+  },
+  "steps": [],
+  "skills": [
+   "korean-proofread"
+  ],
+  "tools": [],
+  "prompt": "/korean-proofread 아래 사내 공지를 교열해 주세요.\n\n📢 차세대 재고관리 시스템 오픈 안내: 새로운 도약의 시작\n\n안녕하세요, 임직원 여러분. IT지원팀입니다.\n\n금번 프로젝트를 통해 준비되어진 차세대 재고관리 시스템이 — 오랜 준비 끝에 — 드디어 3월 2일 오픈하게 되었음을 안내드리게 되었습니다. 이는 우리 회사의 디지털 전환에 있어 매우 중요한 신호탄이며, 시사하는 바가 크다고 하겠습니다.\n\n이번 오픈의 핵심 사항은 크게 세 가지로 나눌 수 있습니다.\n\n• 데이터 이관: 기존 데이터는 2월 20일부터 2월 28일까지 IT지원팀에 의해 순차적으로 이관되어질 예정입니다. • 서비스 제한: 해당 기간 중 재고 조회 · 입출고 등록 · 리포트 출력 기능이 제한되어질 수 있음을 참고 부탁드립니다. • 사용자 교육: 교육 일정에 대해서는 추후 별도로 공지드릴 예정에 있습니다.\n\n또한 본 시스템의 가장 큰 특징은 실시간으로 재고 현황을 확인할 수 있습니다. 기존 대비 획기적인 처리 속도를 가지고 있으며, 이를 통해 업무 효율성이 극대화되어질 것으로 기대되어집니다. 단순한 시스템 교체가 아니라, 일하는 방식 자체의 혁신적 변화입니다.\n\n따라서 임직원 여러분의 많은 관심과 협조를 부탁드립니다. 결론적으로 이번 오픈은 우리 모두가 함께 만들어가야 하는 여정이라는 것입니다.\n\n※ 문의사항이 있으실 경우 IT지원팀으로 연락 주시기 바랍니다. 🙏",
+  "promptTime": "오후 1:07",
+  "promptAt": 8,
+  "log": [
+   {
+    "t": "stage",
+    "n": 1,
+    "cap": "왼쪽 사이드바에서 사용자 지정을 연다",
+    "screen": {
+     "nav": "사용자 지정",
+     "hl": "nav",
+     "title": "사용자 지정",
+     "act": "플러그인 추가",
+     "tabs": [
+      {
+       "t": "플러그인",
+       "on": true
+      },
+      {
+       "t": "기술"
+      }
+     ],
+     "desc": "플러그인을 사용하면 외부 도구, 서비스, 번들된 기술에 연결해 Cowork의 기능을 확장할 수 있습니다.",
+     "secs": [
+      {
+       "h": "설치됨",
+       "d": "Cowork는 관련 작업에 대해 사용하도록 설정된 플러그인을 참조합니다.",
+       "rows": [
+        {
+         "n": "Dynamics 365 Sales"
+        },
+        {
+         "n": "Dynamics 365 ERP 앱"
+        },
+        {
+         "n": "Dynamics 365 Customer Service"
+        }
+       ]
+      }
+     ]
+    },
+    "time": "오후 1:05",
+    "status": "스킬을 넣는 중",
+    "act": "커스텀 스킬을 설치하는 중",
+    "note": "플러그인과 기술은 다른 것이다. 플러그인은 외부 도구에 연결하고, 기술은 일하는 방법을 가르친다."
+   },
+   {
+    "t": "stage",
+    "n": 2,
+    "cap": "기술 탭으로 넘어간다",
+    "screen": {
+     "nav": "사용자 지정",
+     "title": "사용자 지정",
+     "act": "추가",
+     "tabs": [
+      {
+       "t": "플러그인"
+      },
+      {
+       "t": "기술",
+       "on": true,
+       "hl": true
+      }
+     ],
+     "desc": "기술은 Cowork에게 특정 작업을 수행하는 방법을 가르칩니다.",
+     "secs": [
+      {
+       "h": "내 기술",
+       "d": "Cowork는 관련 작업에 대해 사용하도록 설정된 기술을 참조합니다.",
+       "rows": [
+        {
+         "n": "Dynamics 365 ERP Business Operations Router",
+         "s": "Routes business-operation requests to Dynamics 365 ERP tools when they concern…"
+        },
+        {
+         "n": "Dynamics 365 Sales",
+         "s": "The Dynamics 365 Sales data-access skill — looks up and reports Sales records…"
+        },
+        {
+         "n": "Activity Synthesis",
+         "s": "Builds one interpreted, deduplicated engagement view for a sales record…"
+        }
+       ]
+      },
+      {
+       "h": "기본 제공",
+       "d": "Cowork에 포함된 기술입니다. 이 기술은 비활성화할 수 없습니다.",
+       "rows": [
+        {
+         "n": "PDF",
+         "s": "Read, create, and manipulate PDF documents"
+        },
+        {
+         "n": "Word",
+         "s": "Read, create, and edit Word documents"
+        },
+        {
+         "n": "Excel",
+         "s": "Read, create, and manipulate Excel spreadsheets"
+        }
+       ]
+      }
+     ]
+    },
+    "time": "오후 1:05",
+    "status": "스킬을 넣는 중",
+    "act": "커스텀 스킬을 설치하는 중"
+   },
+   {
+    "t": "stage",
+    "n": 3,
+    "cap": "오른쪽 위 추가를 누른다",
+    "screen": {
+     "nav": "사용자 지정",
+     "title": "사용자 지정",
+     "act": "추가",
+     "hl": "act",
+     "tabs": [
+      {
+       "t": "플러그인"
+      },
+      {
+       "t": "기술",
+       "on": true
+      }
+     ],
+     "desc": "기술은 Cowork에게 특정 작업을 수행하는 방법을 가르칩니다.",
+     "secs": [
+      {
+       "h": "내 기술",
+       "rows": [
+        {
+         "n": "Dynamics 365 ERP Business Operations Router",
+         "s": "Routes business-operation requests to Dynamics 365 ERP tools when they concern…"
+        },
+        {
+         "n": "Dynamics 365 Sales",
+         "s": "The Dynamics 365 Sales data-access skill — looks up and reports Sales records…"
+        },
+        {
+         "n": "Activity Synthesis",
+         "s": "Builds one interpreted, deduplicated engagement view for a sales record…"
+        }
+       ]
+      }
+     ],
+     "menu": [
+      "새 기술",
+      "기술 업로드"
+     ],
+     "menuHl": 1
+    },
+    "time": "오후 1:05",
+    "status": "스킬을 넣는 중",
+    "act": "커스텀 스킬을 설치하는 중",
+    "note": "새 기술은 화면에서 직접 쓰는 것이고, 기술 업로드는 만들어 둔 파일을 올리는 것이다."
+   },
+   {
+    "t": "stage",
+    "n": 4,
+    "cap": "기술 추가 창이 뜬다",
+    "screen": {
+     "nav": "사용자 지정",
+     "title": "사용자 지정",
+     "tabs": [
+      {
+       "t": "플러그인"
+      },
+      {
+       "t": "기술",
+       "on": true
+      }
+     ],
+     "secs": [
+      {
+       "h": "내 기술",
+       "rows": [
+        {
+         "n": "Dynamics 365 ERP Business Operations Router",
+         "s": "Routes business-operation requests to Dynamics 365 ERP tools when they concern…"
+        },
+        {
+         "n": "Dynamics 365 Sales",
+         "s": "The Dynamics 365 Sales data-access skill — looks up and reports Sales records…"
+        },
+        {
+         "n": "Activity Synthesis",
+         "s": "Builds one interpreted, deduplicated engagement view for a sales record…"
+        }
+       ]
+      }
+     ],
+     "modal": {
+      "title": "기술 추가"
+     }
+    },
+    "time": "오후 1:05",
+    "status": "스킬을 넣는 중",
+    "act": "커스텀 스킬을 설치하는 중",
+    "note": "받는 형식은 .MD, .ZIP, .SKILL 셋이다. 참고 파일이 딸린 스킬은 폴더째 압축해 올린다."
+   },
+   {
+    "t": "stage",
+    "n": 5,
+    "cap": "만들어 둔 스킬 압축 파일을 고른다",
+    "screen": {
+     "nav": "사용자 지정",
+     "title": "사용자 지정",
+     "tabs": [
+      {
+       "t": "플러그인"
+      },
+      {
+       "t": "기술",
+       "on": true
+      }
+     ],
+     "secs": [
+      {
+       "h": "내 기술",
+       "rows": [
+        {
+         "n": "Dynamics 365 ERP Business Operations Router",
+         "s": "Routes business-operation requests to Dynamics 365 ERP tools when they concern…"
+        },
+        {
+         "n": "Dynamics 365 Sales",
+         "s": "The Dynamics 365 Sales data-access skill — looks up and reports Sales records…"
+        },
+        {
+         "n": "Activity Synthesis",
+         "s": "Builds one interpreted, deduplicated engagement view for a sales record…"
+        }
+       ]
+      }
+     ],
+     "modal": {
+      "title": "기술 추가",
+      "file": "skill-korean-proofread.zip"
+     }
+    },
+    "time": "오후 1:05",
+    "status": "스킬을 넣는 중",
+    "act": "커스텀 스킬을 설치하는 중"
+   },
+   {
+    "t": "stage",
+    "n": 6,
+    "cap": "내 기술 맨 위에 들어온다",
+    "screen": {
+     "nav": "사용자 지정",
+     "title": "사용자 지정",
+     "act": "추가",
+     "tabs": [
+      {
+       "t": "플러그인"
+      },
+      {
+       "t": "기술",
+       "on": true
+      }
+     ],
+     "desc": "기술은 Cowork에게 특정 작업을 수행하는 방법을 가르칩니다.",
+     "secs": [
+      {
+       "h": "내 기술",
+       "d": "Cowork는 관련 작업에 대해 사용하도록 설정된 기술을 참조합니다.",
+       "rows": [
+        {
+         "n": "korean-proofread",
+         "s": "회사에서 쓰는 한국어 문서를 두 축으로 다듬는 교열 스킬. (1) 회사 문서답게 정확하게: 국립국어원 어문 규범과 공공언...",
+         "hl": true
+        },
+        {
+         "n": "Dynamics 365 ERP Business Operations Router",
+         "s": "Routes business-operation requests to Dynamics 365 ERP tools when they concern…"
+        },
+        {
+         "n": "Dynamics 365 Sales",
+         "s": "The Dynamics 365 Sales data-access skill — looks up and reports Sales records…"
+        }
+       ]
+      },
+      {
+       "h": "기본 제공",
+       "rows": [
+        {
+         "n": "PDF",
+         "s": "Read, create, and manipulate PDF documents"
+        },
+        {
+         "n": "Word",
+         "s": "Read, create, and edit Word documents"
+        },
+        {
+         "n": "Excel",
+         "s": "Read, create, and manipulate Excel spreadsheets"
+        }
+       ]
+      }
+     ]
+    },
+    "time": "오후 1:05",
+    "status": "스킬을 넣는 중",
+    "act": "커스텀 스킬을 설치하는 중"
+   },
+   {
+    "t": "stage",
+    "n": 7,
+    "cap": "눌러서 안내를 확인한다",
+    "screen": {
+     "nav": "사용자 지정",
+     "title": "korean-proofread",
+     "desc": "회사에서 쓰는 한국어 문서를 두 축으로 다듬는 교열 스킬. (1) 회사 문서답게 정확하게: 국립국어원 어문 규범과 공공언...",
+     "body": "당신은 국립국어원 어문 규범과 공공언어 감수 기준을 숙지한 한국어 교열 전문가다. 목적은 두 가지다. **회사 문서답게 정확하게** 다듬고, 동시에 **AI가 쓴 티가 나지 않게** 자연스러운 한국어로 만든다.\n\n**0. 언제 쓰나**\n\n- 사용자가 한국어 텍스트의 \"맞춤법, 문법, 띄어쓰기, 교열, 검수, 윤문, 가독성, 표기, 문체, AI 티 제거\"를 요청할 때\n- 한글 산출물을 만든 뒤 출고 전 최종 점검으로 적용한다\n- 대상이 불명확하면 무엇을, 어떤 문체로, 누구를 위한 글인지 먼저 확인한다\n- 한국어가 아니면 \"한국어 텍스트만 처리합니다\"를 안내하고 종료한다\n\n**1. 대상 읽어 오기**\n\n| 대상 | 방법 |\n| --- | --- |\n| 붙여넣은 텍스트 | 그대로 원문으로 삼는다 |\n| 첨부한 Word 문서 | Word 스킬로 본문을 읽는다 |\n| 첨부한 PowerPoint | PowerPoint 스킬로 슬라이드별 텍스트를 읽는다 |\n| 첨부한 Excel | Excel 스킬로 대상 열이나 시트를 읽는다 |\n| OneDrive나 SharePoint 파일 | 파일을 지정받아 읽는다 |"
+    },
+    "time": "오후 1:05",
+    "status": "스킬을 넣는 중",
+    "act": "커스텀 스킬을 설치하는 중",
+    "note": "스킬은 결국 지침 문서다. 화면에서 그대로 읽히고, 고칠 수도 있다."
+   },
+   {
+    "t": "stage",
+    "n": 8,
+    "cap": "올린 파일은 내 OneDrive에 그대로 남는다",
+    "screen": {
+     "crumb": [
+      "내 파일",
+      "문서",
+      "Cowork",
+      "skills",
+      "korean-proofread"
+     ],
+     "rows": [
+      {
+       "ic": "folder",
+       "n": "references",
+       "meta": "4개 항목"
+      },
+      {
+       "ic": "file",
+       "n": "README.md",
+       "meta": "5.00KB"
+      },
+      {
+       "ic": "file",
+       "n": "SKILL.md",
+       "meta": "9.45KB"
+      }
+     ]
+    },
+    "time": "오후 1:05",
+    "status": "스킬을 넣는 중",
+    "act": "커스텀 스킬을 설치하는 중",
+    "note": "숨은 저장소가 아니라 내 OneDrive 폴더다. 파일을 고치면 스킬이 따라 바뀐다."
+   },
+   {
+    "t": "tool",
+    "icon": "newfile",
+    "label": "사용자 지정 기술",
+    "target": "Korean proofread",
+    "tag": "검토 완료",
+    "time": "오후 1:07",
+    "status": "스킬 지침을 읽는 중",
+    "act": "커스텀 스킬을 불러오는 중"
+   },
+   {
+    "t": "tool",
+    "icon": "folder",
+    "label": "참고 자료 확인",
+    "time": "오후 1:07",
+    "status": "참고 파일을 여는 중",
+    "act": "references 폴더를 읽는 중"
+   },
+   {
+    "t": "think",
+    "label": "생각 중...",
+    "time": "오후 1:07",
+    "body": "The user typed the skill name as a slash command, so the instruction file is loaded before anything else. It tells me to keep the original text intact and only touch wording, and to list what changed rather than hand back a silent rewrite.",
+    "status": "요청을 처리하는 중"
+   },
+   {
+    "t": "think",
+    "label": "생각 중...",
+    "time": "오후 1:08",
+    "body": "The skill splits the work in two: 어문 규범 (spelling, spacing, subject-predicate agreement, honorifics) and AI 티 (double passives, translationese, filler closers, em-dashes, decorative emoji). This notice has both kinds, so I need the full pass, not the quick one.",
+    "status": "어느 모드로 볼지 정하는 중"
+   },
+   {
+    "t": "cut",
+    "time": "오후 1:08",
+    "body": "여기까지가 지금 확보한 기록입니다. 교열 결과와 /cost가 들어오면 이어 붙입니다."
+   }
+  ],
+  "artifacts": []
  }
 ];

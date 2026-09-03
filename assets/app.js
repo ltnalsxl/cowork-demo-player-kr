@@ -37,6 +37,7 @@
     mic: '<svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="7.6" y="2.4" width="4.8" height="9" rx="2.4"/><path d="M4.6 9.4a5.4 5.4 0 0010.8 0M10 14.8v2.8"/></svg>',
     homeI: '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M3 9.2L10 3.4l7 5.8V16a1 1 0 01-1 1h-3.4v-4.4H7.4V17H4a1 1 0 01-1-1z"/></svg>',
     x: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></svg>',
+    upload: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15.4V4.6M5.8 8.8L10 4.6l4.2 4.2"/></svg>',
     play: '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M5.5 3.5l11 6.5-11 6.5z"/></svg>',
     pause: '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><rect x="5" y="3.5" width="3.6" height="13" rx="1"/><rect x="11.4" y="3.5" width="3.6" height="13" rx="1"/></svg>',
     restart: '<svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 10a6.6 6.6 0 1 0 2-4.7"/><path d="M3 3.2v3.4h3.4"/></svg>',
@@ -543,8 +544,10 @@
       seek(Math.round((e.clientX - r.left) / r.width * (run.log.length + 1)));
     });
 
-    var ub = userBubble(run.prompt, run.promptTime, run.promptFiles, true);
-    document.getElementById('w').appendChild(ub);
+    /* 설치 화면이 앞에 붙는 회차는 그 단계가 지난 뒤에 프롬프트가 나온다. */
+    if (!run.promptAt) {
+      document.getElementById('w').appendChild(userBubble(run.prompt, run.promptTime, run.promptFiles, true));
+    }
     markSide(id);
     tick();
   }
@@ -771,6 +774,88 @@
         esc(t.tag) + '</span>' : '') + '</div>';
   }
 
+  /* ── 설치 화면 ──
+     스킬을 넣는 일은 대화 밖 설정 화면에서 일어난다. 캡처를 붙이지 않고
+     같은 방식으로 다시 그린다. sc.hl에 적힌 자리에 붉은 테두리가 간다. */
+  var NAVS = ['새 작업', '내 작업', '자동화', '사용자 지정'];
+
+  function hlc(sc, k) { return sc.hl === k ? ' hl' : ''; }
+
+  function stageRow(r) {
+    return '<div class="sgrow' + (r.hl ? ' hl' : '') + '">' +
+      '<span class="sgi ' + esc(r.ic || 'skill') + '">' +
+      (r.ic === 'folder' ? I.folder : r.ic === 'file' ? I.file : I.newfile) + '</span>' +
+      '<span class="sgx"><span class="sgn">' + esc(r.n) + '</span>' +
+      (r.s ? '<span class="sgs">' + esc(r.s) + '</span>' : '') + '</span>' +
+      (r.meta ? '<span class="sgm">' + esc(r.meta) + '</span>' : '') +
+      '<span class="sgc">' + I.arrowR + '</span></div>';
+  }
+
+  function stageBlock(s) {
+    var sc = s.screen || {};
+    /* OneDrive 화면은 제품이 달라 왼쪽 목록도 다르게 그린다. */
+    var side = sc.crumb
+      ? '<div class="sgside od"><div class="sgbrand">OneDrive</div>' +
+        ['홈', '내 파일', '공유됨', '휴지통'].map(function (n) {
+          return '<div class="sgnav' + (n === '내 파일' ? ' on' : '') + '">' + esc(n) + '</div>';
+        }).join('') + '</div>'
+      : '<div class="sgside"><div class="sgbrand">Copilot</div>' +
+        '<div class="sgseg"><span>채팅</span><span class="on">Cowork</span></div>' +
+        NAVS.map(function (n) {
+          return '<div class="sgnav' + (sc.nav === n ? ' on' : '') +
+            (sc.hl === 'nav' && sc.nav === n ? ' hl' : '') + '">' + esc(n) + '</div>';
+        }).join('') + '</div>';
+
+    var body = '';
+    if (sc.crumb) {
+      /* OneDrive 폴더. 스킬이 결국 파일 몇 개라는 걸 보여주는 자리다. */
+      body = '<div class="sgcrumb">' + sc.crumb.map(esc).join('<span>›</span>') + '</div>' +
+        '<div class="sglist">' + (sc.rows || []).map(stageRow).join('') + '</div>';
+    } else {
+      body =
+        '<div class="sghead"><h3>' + esc(sc.title || '사용자 지정') + '</h3>' +
+        (sc.act ? '<button class="sgact' + hlc(sc, 'act') + '">' + esc(sc.act) +
+          I.caret + '</button>' : '') + '</div>' +
+        (sc.tabs
+          ? '<div class="sgtabs">' + sc.tabs.map(function (t) {
+              return '<span class="sgtab' + (t.on ? ' on' : '') + (t.hl ? ' hl' : '') + '">' +
+                esc(t.t) + '</span>';
+            }).join('') + '</div>'
+          : '') +
+        (sc.desc ? '<p class="sgdesc">' + esc(sc.desc) + '</p>' : '') +
+        (sc.secs || []).map(function (g) {
+          return '<div class="sgsec"><div class="sgh">' + esc(g.h) + '</div>' +
+            (g.d ? '<div class="sgd">' + esc(g.d) + '</div>' : '') +
+            '<div class="sglist">' + (g.rows || []).map(stageRow).join('') + '</div></div>';
+        }).join('') +
+        (sc.body ? '<div class="sgbody">' + rich(sc.body) + '</div>' : '');
+    }
+
+    var over = '';
+    if (sc.menu) {
+      over = '<div class="sgmenu">' + sc.menu.map(function (m, i) {
+        return '<div class="sgmi' + (i === sc.menuHl ? ' hl' : '') + '">' + esc(m) + '</div>';
+      }).join('') + '</div>';
+    }
+    if (sc.modal) {
+      over += '<div class="sgmask"><div class="sgmodal">' +
+        '<div class="sgmh">' + esc(sc.modal.title) + '<span class="sgx2">' + I.x + '</span></div>' +
+        '<div class="sgdrop"><span class="up">' + I.upload + '</span>' +
+        '<div>끌어서 놓거나 <u>파일 선택</u>하여 업로드</div>' +
+        '<small>' + esc(sc.modal.kinds || '.MD, .ZIP 또는 .SKILL') + '</small></div>' +
+        (sc.modal.file
+          ? '<div class="sgpick"><span class="sgi zip">' + I.file + '</span>' +
+            esc(sc.modal.file) + '<button class="sgopen">열기</button></div>'
+          : '<div class="sgmn">스킬을 처음 사용하시나요? <u>자세히 알아보기</u></div>') +
+        '</div></div>';
+    }
+
+    return '<div class="stage"><div class="sgcap"><span class="sgn2">' +
+      esc(s.n || '') + '</span>' + esc(s.cap) + '</div>' +
+      '<div class="sgframe">' + side + '<div class="sgmain">' + body + over + '</div></div>' +
+      (s.note ? '<div class="sgnote">' + esc(s.note) + '</div>' : '') + '</div>';
+  }
+
   function emit(s) {
     var w = document.getElementById('w'), node;
 
@@ -939,6 +1024,9 @@
       node = el('<div class="turn"></div>');
       if (s.sep) { node.appendChild(el('<div class="daysep"><span>' + esc(s.sep) + '</span></div>')); }
       node.appendChild(userBubble(s.body, s.time, s.files, false));
+
+    } else if (s.t === 'stage') {
+      node = el(stageBlock(s));
 
     } else if (s.t === 'schedule') {
       /* 되풀이 작업 승인 카드. 반복 주기와 실행 위치를 정하고 예약한다.
@@ -1168,25 +1256,37 @@
   }
   function done() { return idx >= run.log.length && costShown; }
 
+  /* 한 단계 나아간다. promptAt이 있으면 그 자리에서 프롬프트 말풍선을 끼운다. */
+  function advance() {
+    emit(run.log[idx]);
+    idx++;
+    if (run.promptAt && idx === run.promptAt) {
+      document.getElementById('w')
+        .appendChild(userBubble(run.prompt, run.promptTime, run.promptFiles, true));
+    }
+  }
+
   /* 특정 지점으로 옮긴다. 뒤로 가려면 처음부터 다시 그려야 해서 통째로 새로 만든다. */
   function seek(n) {
     stop();
     stick = true;
     var w = document.getElementById('w');
     w.innerHTML = '<div class="daysep"><span>' + esc(run.date) + ' · KST</span></div>';
-    w.appendChild(userBubble(run.prompt, run.promptTime, run.promptFiles, true));
+    if (!run.promptAt) {
+      w.appendChild(userBubble(run.prompt, run.promptTime, run.promptFiles, true));
+    }
     var outs = document.getElementById('outs');
     if (outs) { outs.innerHTML = ''; }
     idx = 0; costShown = false;
     n = Math.max(0, Math.min(n, run.log.length + 1));
-    while (idx < n && idx < run.log.length) { emit(run.log[idx]); idx++; }
+    while (idx < n && idx < run.log.length) { advance(); }
     if (n > run.log.length) { showCost(); }
     if (!n) { setStatus(null); }
     tick();
     scroll();
   }
   function step() {
-    if (idx < run.log.length) { emit(run.log[idx]); idx++; tick(); return; }
+    if (idx < run.log.length) { advance(); tick(); return; }
     if (!costShown) { showCost(); tick(); return; }
     stop();
   }
@@ -1213,7 +1313,7 @@
   function skipAll() {
     stop();
     stick = true;
-    while (idx < run.log.length) { emit(run.log[idx]); idx++; }
+    while (idx < run.log.length) { advance(); }
     setStatus(null);
     if (!costShown) { showCost(); }
     tick(); stop();

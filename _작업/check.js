@@ -28,16 +28,16 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
   const $$ = (s) => [...w.document.querySelectorAll(s)];
 
   ok('홈 히어로', $('.hero-q')?.textContent === '지금 무엇을 작업하고 있나요?');
-  ok('재생 항목 10개', $$('.ritem').length === 10, $$('.ritem').length);
+  ok('재생 항목 11개', $$('.ritem').length === 11, $$('.ritem').length);
   ok('타일 3개', $$('.tile').length === 3);
   ok('입력 힌트 줄', /팁:/.test($('.tipline')?.textContent || ''), $('.tipline')?.textContent);
   ok('컴포저 마이크', !!$('#homeCrow .micb'));
   ok('대기 중엔 보내기 없음', !$('#homeCrow .rnd'));
   ok('계정 Copilot User', /Copilot User/.test($('.me')?.textContent));
-  ok('사이드바 시나리오 10개', $$('#chats button[data-id]').length === 10,
+  ok('사이드바 시나리오 11개', $$('#chats button[data-id]').length === 11,
     $$('#chats button[data-id]').length);
   ok('홈 타일 제목이 회차별로 구분됨',
-    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 10);
+    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 11);
   w.close();
 }
 
@@ -72,7 +72,8 @@ const EXPECT = {
   'badge-check': { steps: 0, arts: 4, credit: '789' },
   'isms-audit': { steps: 4, arts: 4, credit: '1,130' },
   'brief-real': { steps: 0, arts: 0, credit: '107' },
-  'brief-demo': { steps: 0, arts: 0, credit: '95' }
+  'brief-demo': { steps: 0, arts: 0, credit: '95' },
+  'skill-proofread': { steps: 0, arts: 0, credit: null }
 };
 
 RUNS.forEach((r) => {
@@ -86,8 +87,12 @@ RUNS.forEach((r) => {
   btn.dispatchEvent(new w.Event('click', { bubbles: true }));
 
   ok(tag + '상단 제목', $('.tb-title h1')?.textContent === r.chatTitle);
-  ok(tag + '프롬프트 말풍선', !!$('.ubub'));
-  if (r.prompt.split('\n').length > 6) {
+  if (r.promptAt) {
+    ok(tag + '설치 단계 뒤에 프롬프트', !$('.ubub'));
+  } else {
+    ok(tag + '프롬프트 말풍선', !!$('.ubub'));
+  }
+  if (r.prompt.split('\n').length > 6 && !r.promptAt) {
     ok(tag + '더 보기 버튼', $('#pfold')?.textContent === '더 보기');
   } else {
     ok(tag + '짧은 프롬프트는 더 보기 없음', !$('#pfold'));
@@ -214,6 +219,21 @@ RUNS.forEach((r) => {
   } else {
     ok(tag + '예약 없으면 섹션 없음',
       !/예약된 작업/.test(w.document.getElementById('panel').textContent));
+  }
+  if (types.stage) {
+    ok(tag + '설치 화면 ' + types.stage, $$('.stage').length === types.stage, $$('.stage').length);
+    ok(tag + '설치 화면마다 설명', $$('.stage .sgcap').length === types.stage);
+    const hl = r.log.filter((s) => s.t === 'stage').filter((s) => {
+      const sc = s.screen || {};
+      return sc.hl || sc.menuHl !== undefined || (sc.secs || []).some((g) =>
+        (g.rows || []).some((x) => x.hl)) || (sc.tabs || []).some((t) => t.hl);
+    }).length;
+    ok(tag + '누른 자리 표시 ' + hl, $$('.stage .hl').length >= hl, $$('.stage .hl').length);
+    ok(tag + '설치 뒤 프롬프트 나옴', !!$('.ubub'));
+    const stages = $$('.stage');
+    const bubbles = $$('.uwrap');
+    ok(tag + '프롬프트가 설치 뒤에 옴',
+      stages[stages.length - 1].compareDocumentPosition(bubbles[0]) === 4);
   }
   if (r.allowed) {
     ok(tag + '항상 허용됨 ' + r.allowed.length,
