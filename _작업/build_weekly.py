@@ -13,6 +13,8 @@
 import json
 import os
 
+import ladder
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(BASE, 'runs', 'weekly-team.json')
 
@@ -155,21 +157,9 @@ data = {
     'credit': 271,
     'costTime': '오후 2:11',
     'note': '캘린더와 Teams가 비자 채우지 않고 확인 필요로 남깁니다.',
-    'bench': {
-        'n': 3, 'people': 1, 'min': 95, 'max': 1178,
-        'head': '읽기만 하는 일과 문서를 만드는 일',
-        'lead': '모두 자동·보통으로 돌린 실측값입니다.',
-        'condition': '세 회차 모두 모델과 노력이 같습니다. 차이는 읽고 끝나느냐, '
-                     '서식을 지켜 문서를 만드느냐입니다.',
-        'models': [
-            {'name': '아침 브리핑', 'avg': 95, 'n': 1, 'effort': '보통',
-             'meta': '읽고 Teams 메시지 하나 · 산출물 없음'},
-            {'name': '주간보고 · 사내 표준 서식', 'avg': 271, 'n': 1, 'effort': '보통',
-             'meta': '서식 확인 + Word 1건 + Teams 요약 · 표 1개'},
-            {'name': '주간보고 · 활동 많은 계정', 'avg': 1178, 'n': 1, 'effort': '보통',
-             'meta': '프로젝트 7건 · 표 8개 · 편집 실패 14회'},
-        ],
-    },
+    'bench': ladder.bench('주간보고 · 사내 표준 서식',
+                          '271은 서식을 확인하고 Word 하나를 만든 값입니다. '
+                          '같은 주간보고라도 프로젝트가 7건이면 1,178까지 갑니다.'),
     'steps': [
         '사내 표준 서식 규칙과 양식 파일 확인',
         '지난 7일 메일·Teams·일정·문서 수집',

@@ -1268,7 +1268,8 @@
             '같은 프롬프트를 모델만 바꿔 돌린 실측값입니다.') + ' 범위는 ' +
             fmt(b.min) + '부터 ' + fmt(b.max) + '까지입니다.</div>' +
           b.models.map(function (m) {
-            var on = m.name === pick;
+            /* 모델 비교 표는 고른 모델을, 작업 비교 표는 self로 찍은 행을 강조한다. */
+            var on = m.self === true || m.name === pick;
             return '<div class="brow"><div class="bnm' + (on ? ' self' : '') + '">' + esc(m.name) +
               (m.effort ? '<span class="beff">' + esc(m.effort) + '</span>' : '') + '</div>' +
               '<div class="btrack"><div class="bfill' + (on ? ' self' : '') + '" style="width:' +

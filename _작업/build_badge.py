@@ -8,6 +8,8 @@
 import json
 import os
 
+import ladder
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(BASE, 'runs', 'badge-check.json')
 
@@ -638,19 +640,9 @@ data = {
     'credit': 789,
     'costTime': '오후 2:59',
     'note': '메일 발송과 파일 복사는 승인을 받은 뒤에 실행됩니다.',
-    'bench': {
-        'n': 1, 'people': 1, 'min': 219, 'max': 1178,
-        'head': '참고 · 같은 자동·보통 설정으로 측정한 회차',
-        'lead': '아래는 모델과 노력을 같게 두고 다른 작업을 돌렸을 때의 실측값입니다.',
-        'condition': '789는 다섯 번 이어 시킨 작업의 누적값입니다. 12분 사이에 세 번 찍었더니 '
-                     '566 → 576 → 789로 올랐습니다. 아래 둘은 작업 종류가 달라 직접 비교하지 마십시오.',
-        'models': [
-            {'name': '주간보고 · 활동 없는 계정', 'avg': 219, 'n': 1, 'effort': '보통',
-             'meta': '자동·보통 · 데이터 0건'},
-            {'name': '주간보고 · 활동 많은 계정', 'avg': 1178, 'n': 1, 'effort': '보통',
-             'meta': '자동·보통 · 프로젝트 7건'},
-        ],
-    },
+    'bench': ladder.bench('출입기록 점검 · 스킬 만들기',
+                          '789는 다섯 번 이어 시킨 작업의 누적값입니다. '
+                          '12분 사이에 세 번 찍었더니 566 → 576 → 789로 올랐습니다.'),
     'steps': [],
     'skills': ['frontend-design'],
     'skillsButton': True,

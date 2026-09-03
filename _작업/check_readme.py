@@ -62,7 +62,33 @@ def main():
             bad.append('검증 항목 수가 다름 (README %s, 실제 %s)'
                        % (said.group(1), m.group(2)))
 
-    # 5) 시나리오 수 표현
+    # 5) 사다리 값이 회차의 실측 크레딧과 같은지
+    #    한쪽만 고치면 화면에 서로 다른 숫자가 뜬다.
+    try:
+        import ladder
+        pair = {
+            '아침 브리핑': 'daily-brief',
+            '주간보고 · 활동 없는 계정': 'tc01-demo',
+            '주간보고 · 사내 표준 서식': 'weekly-team',
+            '밀린 메일 정리': 'inbox-triage',
+            '출입기록 점검 · 스킬 만들기': 'badge-check',
+            'ISMS-P 심사 대응': 'isms-audit',
+            '주간보고 · 활동 많은 계정': 'tc01-real',
+        }
+        by_id = {r['id']: r for r in runs}
+        for m in ladder.LADDER:
+            rid = pair.get(m['name'])
+            if not rid:
+                bad.append('사다리에 짝지을 회차가 없음: ' + m['name'])
+            elif by_id[rid]['credit'] != m['avg']:
+                bad.append('%s 사다리 %d, 실측 %s'
+                           % (m['name'], m['avg'], by_id[rid]['credit']))
+            elif ('| %s | %s |' % (m['name'], '{:,}'.format(m['avg']))) not in md:
+                bad.append('README 사다리 표에 없거나 값이 다름: ' + m['name'])
+    except ImportError:
+        pass
+
+    # 6) 시나리오 수 표현
     said_n = re.search(r'뒤의 (\S+)은 실습용', md)
     if said_n:
         practice = len([r for r in runs if r['folder'] == '실습'])

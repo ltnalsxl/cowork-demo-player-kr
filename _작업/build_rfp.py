@@ -7,6 +7,8 @@
 import json
 import os
 
+import ladder
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(BASE, 'runs', 'rfp-report.json')
 
@@ -203,20 +205,9 @@ data = {
     'date': '2026년 9월 2일 수요일',
     'credit': None,
     'note': '문서에 없는 값을 지어내지 않고 세 가지를 되묻습니다.',
-    'bench': {
-        'n': 1, 'people': 1, 'min': 219, 'max': 1178,
-        'head': '참고 · 같은 자동·보통 설정으로 측정한 회차',
-        'lead': '이 회차는 크레딧을 확인하지 않았습니다. 아래는 모델과 노력을 같게 두고 '
-                '다른 작업을 돌렸을 때의 실측값입니다.',
-        'condition': '이 회차는 크레딧을 재지 않았습니다. '
-                     '아래 둘은 작업 종류가 달라 직접 비교하지 마십시오.',
-        'models': [
-            {'name': '주간보고 · 활동 없는 계정', 'avg': 219, 'n': 1, 'effort': '보통',
-             'meta': '자동·보통 · 데이터 0건'},
-            {'name': '주간보고 · 활동 많은 계정', 'avg': 1178, 'n': 1, 'effort': '보통',
-             'meta': '자동·보통 · 프로젝트 7건'},
-        ],
-    },
+    'bench': ladder.bench('', '이 회차는 /cost를 찍지 않아 사다리에 자리가 없습니다. '
+                              '문서 하나를 만드는 작업이라 200~300 언저리로 보이지만, '
+                              '재지 않은 값은 적지 않습니다.'),
     'steps': [
         'RFP 원문 분석 및 핵심 정보 정리',
         '배점·가격 시뮬레이션 및 전략 분석',

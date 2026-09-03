@@ -8,6 +8,8 @@ Word 편집이 자주 거부되는 모습이 그대로 남아 있다.
 import json
 import os
 
+import ladder
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(BASE, 'runs', 'isms-audit.json')
 
@@ -574,19 +576,8 @@ data = {
     'credit': 1130,
     'costTime': '오후 5:56',
     'note': '주소록에 없는 수신자는 짐작해 채우지 않고 비운 채 초안으로 남깁니다.',
-    'bench': {
-        'n': 1, 'people': 1, 'min': 219, 'max': 1178,
-        'head': '참고 · 같은 자동·보통 설정으로 측정한 회차',
-        'lead': '아래는 모델과 노력을 같게 두고 다른 작업을 돌렸을 때의 실측값입니다.',
-        'condition': '1,130은 한 번 시켜 산출물 넷을 만든 값입니다. '
-                     '아래 둘은 작업 종류가 달라 직접 비교하지 마십시오.',
-        'models': [
-            {'name': '주간보고 · 활동 없는 계정', 'avg': 219, 'n': 1, 'effort': '보통',
-             'meta': '자동·보통 · 데이터 0건'},
-            {'name': '주간보고 · 활동 많은 계정', 'avg': 1178, 'n': 1, 'effort': '보통',
-             'meta': '자동·보통 · 프로젝트 7건'},
-        ],
-    },
+    'bench': ladder.bench('ISMS-P 심사 대응',
+                          '1,130은 한 번 시켜 산출물 넷을 만든 값입니다.'),
     'steps': [
         '경영진 요약 문서 작성',
         'Gap 분석 워크북 작성',
