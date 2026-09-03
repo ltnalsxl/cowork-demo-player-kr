@@ -189,7 +189,7 @@ data = {
         'max': max(v['credit'] for v in VARIANTS.values()),
         'head': '같은 공지를 모델만 바꿔 교열시키면',
         'lead': '스킬과 프롬프트를 고정하고 모델만 바꿔 새 작업으로 다섯 번 돌린 실측값입니다.',
-        'condition': '노력은 모델별 기본값을 그대로 뒀습니다. GPT 5.5와 GPT 5.6 Terra는 '
+        'condition': '작업 수준은 모델마다 기본값을 그대로 뒀습니다. GPT 5.5와 GPT 5.6 Terra는 '
                      '매우 높음이 기본이고 나머지 셋은 보통입니다. '
                      '다섯 번 모두 새 작업에서 같은 원문을 붙여 넣었습니다.',
         'models': [

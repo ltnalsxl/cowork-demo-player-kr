@@ -268,7 +268,7 @@ data = {
     'folder': '딥리서치',
     'title': '국내 피지컬 AI 시장 12개월 동향 딥리서치',
     'chatTitle': '피지컬AI 딥리서치 · GPT 5.6 Terra',
-    'subtitle': '같은 프롬프트를 GPT 5.6 Terra로 돌린 실행. 노력 기본값이 매우 높음이고, '
+    'subtitle': '같은 프롬프트를 GPT 5.6 Terra로 돌린 실행. 작업 수준 기본값이 매우 높음이다. '
                 '표지 이미지를 직접 만들어 넣었다',
     'model': 'GPT 5.6 Terra',
     'effort': '매우 높음',
