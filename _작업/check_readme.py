@@ -73,7 +73,6 @@ def main():
         pair = {
             '아침 브리핑': 'daily-brief',
             '주간보고 · 사내 표준 서식': 'weekly-team',
-            '제안요청서 분석 · 제안요약서': 'rfp-deck',
             '밀린 메일 정리': 'inbox-triage',
             '출입기록 점검 · 스킬 만들기': 'badge-check',
             'ISMS-P 심사 대응': 'isms-audit',

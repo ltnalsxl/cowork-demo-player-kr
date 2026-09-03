@@ -129,6 +129,7 @@ const EXPECT = {
   'skill-proofread': { steps: 0, arts: 0, credit: '25' },
   'weekly-team': { steps: 4, arts: 1, credit: '271' },
   'rfp-deck': { steps: 0, arts: 2, credit: '348' },
+  'rfp-sonnet': { steps: 0, arts: 2, credit: '253' },
   'inbox-triage': { steps: 4, arts: 1, credit: '755' }
 };
 

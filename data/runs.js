@@ -1813,7 +1813,7 @@ window.COWORK_RUNS = [
   "costTime": "오후 2:11",
   "note": "캘린더와 Teams에 아무것도 없자 채우지 않고 확인 필요로 남깁니다.",
   "bench": {
-   "n": 6,
+   "n": 5,
    "people": 1,
    "min": 107,
    "max": 1130,
@@ -1835,13 +1835,6 @@ window.COWORK_RUNS = [
      "n": 1,
      "effort": "보통",
      "self": true
-    },
-    {
-     "name": "제안요청서 분석 · 제안요약서",
-     "avg": 348,
-     "meta": "2턴 · HTML 보고서 + PPTX 10장",
-     "n": 1,
-     "effort": "보통"
     },
     {
      "name": "밀린 메일 정리",
@@ -2076,7 +2069,7 @@ window.COWORK_RUNS = [
   "tc": "실습-07",
   "folder": "실습",
   "title": "제안요청서 분석과 제안요약서 작성",
-  "chatTitle": "제안요청서 분석 · 제안요약서",
+  "chatTitle": "제안요청서 분석 · 자동",
   "subtitle": "제안요청서를 읽어 HTML 보고서를 만들고, 그 내용으로 사내 표준 서식 제안요약서를 만든 실행. 만들기 전에 목차 열 장을 먼저 보여주고 승인을 받았다",
   "model": "자동",
   "effort": "보통",
@@ -2085,56 +2078,27 @@ window.COWORK_RUNS = [
   "costTime": "오후 11:06",
   "note": "근거가 없는 자리는 지어내지 않고 대괄호로 비웁니다.",
   "bench": {
-   "n": 6,
+   "n": 2,
    "people": 1,
-   "min": 107,
-   "max": 1130,
-   "head": "자동·보통으로 잰 회차를 한 줄에 세우면",
-   "lead": "모델과 작업 수준을 고정하고 작업만 바꿔 돌린 실측값입니다.",
-   "condition": "모두 자동·보통입니다. 값은 읽을 양만으로 정해지지 않습니다. 읽을 양과 만들 것이 함께 작용합니다. 아침 브리핑은 읽고 메시지 하나를 보내고 끝나서 가장 적게 들었고 문서를 여러 개 만든 회차가 위로 갑니다. 348은 두 턴을 합친 값입니다. HTML 보고서 하나와 PPTX 열 장을 만들었습니다.",
+   "min": 253,
+   "max": 348,
+   "head": "같은 제안요약서를 모델만 바꿔 만들면",
+   "lead": "스킬과 프롬프트를 고정하고 모델만 바꿔 돌린 실측값입니다.",
+   "condition": "두 회차 모두 두 턴입니다. HTML 분석 보고서를 만든 뒤 그 내용으로 PPTX 열 장을 만들었고, 만들기 전에 목차를 보여주고 승인을 받았습니다. Sonnet 5 회차만 턴마다 크레딧을 재 85와 168로 나뉩니다.",
    "models": [
     {
-     "name": "아침 브리핑",
-     "avg": 107,
-     "meta": "읽고 Teams 메시지 하나 · 산출물 없음",
-     "n": 1,
-     "effort": "보통"
-    },
-    {
-     "name": "주간보고 · 사내 표준 서식",
-     "avg": 271,
-     "meta": "서식 확인 + Word 1건 + Teams 요약",
-     "n": 1,
-     "effort": "보통"
-    },
-    {
-     "name": "제안요청서 분석 · 제안요약서",
-     "avg": 348,
-     "meta": "2턴 · HTML 보고서 + PPTX 10장",
+     "name": "Sonnet 5",
+     "avg": 253,
      "n": 1,
      "effort": "보통",
-     "self": true
+     "meta": "분석 85 + 제안요약서 168"
     },
     {
-     "name": "밀린 메일 정리",
-     "avg": 755,
-     "meta": "400건 훑음 + Excel 1건 + 회신 초안 5건",
+     "name": "자동",
+     "avg": 348,
      "n": 1,
-     "effort": "보통"
-    },
-    {
-     "name": "출입기록 점검 · 스킬 만들기",
-     "avg": 789,
-     "meta": "5턴 누적 · 메일 + 커스텀 스킬 + HTML 4개",
-     "n": 1,
-     "effort": "보통"
-    },
-    {
-     "name": "ISMS-P 심사 대응",
-     "avg": 1130,
-     "meta": "문서 4종 · Word 편집 15회 거부",
-     "n": 1,
-     "effort": "보통"
+     "effort": "보통",
+     "meta": "두 턴 누계"
     }
    ]
   },
@@ -2318,7 +2282,297 @@ window.COWORK_RUNS = [
     "meta": "10장 · 사내 표준 서식",
     "pages": []
    }
-  ]
+  ],
+  "group": "rfp",
+  "tab": "자동",
+  "groupLabel": "제안요청서 분석과 제안요약서",
+  "groupSub": "제안요청서를 읽어 HTML 보고서를 만들고 그 내용으로 제안요약서를 만든 실행. 만들기 전에 목차 열 장을 보여주고 승인을 받았다"
+ },
+ {
+  "id": "rfp-sonnet",
+  "tc": "실습-07",
+  "folder": "실습",
+  "title": "제안요청서 분석과 제안요약서 작성",
+  "chatTitle": "제안요청서 분석 · Sonnet 5",
+  "subtitle": "같은 프롬프트를 Sonnet 5로 돌린 실행. 슬라이드 XML을 직접 써서 만들고 렌더링해 눈으로 확인했다. 두 턴 다 크레딧을 재 턴별 값이 남았다",
+  "model": "Sonnet 5",
+  "effort": "보통",
+  "date": "2026년 9월 3일 목요일",
+  "credit": 253,
+  "costTime": "오후 11:39",
+  "note": "분석 85, 제안요약서 168. 두 턴을 나눠 잰 유일한 회차입니다.",
+  "bench": {
+   "n": 2,
+   "people": 1,
+   "min": 253,
+   "max": 348,
+   "head": "같은 제안요약서를 모델만 바꿔 만들면",
+   "lead": "스킬과 프롬프트를 고정하고 모델만 바꿔 돌린 실측값입니다.",
+   "condition": "두 회차 모두 두 턴입니다. HTML 분석 보고서를 만든 뒤 그 내용으로 PPTX 열 장을 만들었고, 만들기 전에 목차를 보여주고 승인을 받았습니다. Sonnet 5 회차만 턴마다 크레딧을 재 85와 168로 나뉩니다.",
+   "models": [
+    {
+     "name": "Sonnet 5",
+     "avg": 253,
+     "n": 1,
+     "effort": "보통",
+     "meta": "분석 85 + 제안요약서 168"
+    },
+    {
+     "name": "자동",
+     "avg": 348,
+     "n": 1,
+     "effort": "보통",
+     "meta": "두 턴 누계"
+    }
+   ]
+  },
+  "steps": [],
+  "skills": [
+   "company-template"
+  ],
+  "tools": [
+   "SharePoint"
+  ],
+  "prompt": "첨부한 제안요청서를 분석해서 HTML 형식의 분석 보고서를 만들어 줘.\n\n결과물: 사업 개요 · 추진 일정 · 평가 배점과 가격 항목 구조 · 유의해야 할 조항과 대응 방향 · 제출 서류 체크리스트\n\n자료: 첨부한 파일만 사용\n\n완료 기준: HTML 파일 한 건을 OneDrive에 저장\n\n제약: 각 항목을 순서대로 진행하고 추측이 필요한 곳은 지어내지 말고 표시해 줘.\n\n승인 범위: 추가 정보가 꼭 필요하면 나에게 물어보고 진행해.",
+  "promptTime": "오후 11:12",
+  "promptFiles": [
+   "rfp-public-ai-procurement.pdf"
+  ],
+  "log": [
+   {
+    "t": "say",
+    "time": "오후 11:12",
+    "body": "Now extracting the PDF content to analyze the RFP.",
+    "status": "원문을 추출하는 중"
+   },
+   {
+    "t": "tools",
+    "label": "작업을 실행하는 중...",
+    "time": "오후 11:13",
+    "status": "텍스트를 뽑는 중",
+    "act": "PDF에서 본문을 추출하는 중",
+    "items": [
+     {
+      "think": true,
+      "body": "The PDF is the only source. Before writing anything I need the text layer out of it, and I want to see whether the schedule table survives extraction or comes through as shapes. pdftotext will tell me which of the two I am dealing with."
+     },
+     {
+      "icon": "file",
+      "label": "PDF 텍스트·표 추출",
+      "target": "rfp-public-ai-procurement.pdf"
+     },
+     {
+      "icon": "search",
+      "label": "pdftotext 변환 확인"
+     }
+    ]
+   },
+   {
+    "t": "say",
+    "time": "오후 11:14",
+    "body": "Good, pdftotext works well. Let me view the whole file.",
+    "status": "전문을 읽는 중"
+   },
+   {
+    "t": "tool",
+    "icon": "file",
+    "label": "문서 전문 확인",
+    "time": "오후 11:14",
+    "status": "남은 쪽을 읽는 중",
+    "act": "건너뛴 구간을 마저 읽는 중"
+   },
+   {
+    "t": "say",
+    "time": "오후 11:15",
+    "body": "이제 HTML 보고서를 생성하고 검증한 뒤 OneDrive(output)에 저장하겠습니다.",
+    "status": "보고서를 쓰는 중"
+   },
+   {
+    "t": "tools",
+    "label": "RFP 분석 보고서 HTML 생성",
+    "time": "오후 11:15",
+    "status": "보고서를 만드는 중",
+    "act": "HTML 보고서를 만드는 중",
+    "items": [
+     {
+      "icon": "newfile",
+      "label": "파일 만들기",
+      "target": "RFP_공공AI사업_추진체계_유연화_분석보고서.html"
+     },
+     {
+      "icon": "copy",
+      "label": "파일 복사",
+      "target": "output/"
+     }
+    ]
+   },
+   {
+    "t": "final",
+    "time": "오후 11:16",
+    "body": "분석 보고서를 만들어 OneDrive에 저장했습니다. 첨부하신 제안요청서 원문(pdftotext 추출)만을 근거로 작성했고, 추측이 필요한 부분은 보고서 안에 명확히 표시해 두었습니다.\n\n**담긴 내용**\n\n- **사업 개요** — 사업명(공공 AI사업 추진체계 유연화 방안 마련), 예산 7천만원(부가세 포함), 사업기간 계약체결일~180일, 주관·발주기관 역할, 배경 3가지 한계점(기술과 사업 주기 불일치, 절차상 비효율, 운영관리 미흡)\n- **추진 일정** — 원문 표가 M~M+5(6개월) 간트차트인데, 월별 막대 배치는 음영과 이미지 정보라 텍스트로 추출이 안 됐습니다. 임의로 배정하지 않고 \"원문 표 확인 필요\"로 표시했고, 대신 확인 가능한 과업 목록(유형화·과제선정, 추진체계 재설계, 법·제도 개선안, 주간·중간·종료보고)만 실었습니다\n- **평가 배점과 가격 항목 구조** — 종합평가(기술 90% + 가격 10%), 85% 미만 시 협상대상 제외, 세부 배점표(일반현황 20, 전략 및 방법론 30, 사업수행 30, PM 관리 18, 안전관리 2 = 총 100점) 전체, 상생협력 가점 기준까지\n- **유의해야 할 조항과 대응 방향** — 공동수급 요건(5개 이하, 지분 10% 이상, 제출 후 변경 불가), PM 변경 제한, 협상적격자 가격 기준, 지식재산권 공동소유, 청렴계약과 하도급법 등 10개 조항별 대응 방향\n- **제출 서류 체크리스트** — PDF, 300MB, 50페이지 권고 등 확인된 요건은 체크리스트로. 다만 제출서류 전체 목록과 일정, 방법은 원문에 \"입찰공고문 참조\"로만 되어 있어 이 제안요청서만으로는 확정할 수 없다는 점을 명시했습니다\n\n추가 정보(입찰공고문 등)가 필요한 부분은 표시해 두었으니, 해당 자료가 있으시면 첨부해 주시면 보완해 드리겠습니다.",
+    "out": [
+     0
+    ],
+    "status": "완료",
+    "act": "작업 완료"
+   },
+   {
+    "t": "cost",
+    "time": "오후 11:17",
+    "credit": 85
+   },
+   {
+    "t": "prompt",
+    "time": "오후 11:24",
+    "sep": "오후 11:24",
+    "body": "등록한 「사내 표준 서식」 Skill을 써서, HTML 분석 보고서 내용으로 제안요약서를 만들어 줘.\n\n목차: 평가 배점표의 항목 순서를 그대로 따라 줘.\n\n분량: 10장 안쪽\n\n순서: 만들기 전에 목차를 먼저 보여 줘."
+   },
+   {
+    "t": "think",
+    "label": "사고 과정",
+    "time": "오후 11:25",
+    "body": "The scoring table gives me the section order for free. Rather than inventing a structure I follow it and give two slides each to the 30-point items. The company profile section has no source in the RFP, so those lines stay as placeholders.",
+    "status": "목차를 짜는 중"
+   },
+   {
+    "t": "say",
+    "time": "오후 11:26",
+    "body": "HTML 분석 보고서를 확인했습니다. 「공공 AI사업 추진체계 유연화 방안 마련」 제안요청서의 평가 배점표(기술 100점, Ⅳ-3-나)를 기준으로 목차를 짰습니다. 배점표 순서 그대로이며, 배점이 큰 항목(전략·방법론 30점, 사업수행 30점)에 장을 더 배분했습니다. 형식은 발표용 제안요약서이므로 PowerPoint(사내 표준 서식)로 만듭니다.\n\n**제안요약서 목차 (총 10장, 표지·마무리 포함)**\n\n| # | 슬라이드 | 레이아웃 | 배점 |\n| --- | --- | --- | --- |\n| 1 | 표지 — 「공공 AI사업 추진체계 유연화 방안 마련」 제안요약서 | 표지 | — |\n| 2 | 목차 — 평가 구조(기술 90% + 가격 10%)와 5개 장 구성 | 제목과 본문 | — |\n| 3 | Ⅰ. 일반현황 — 제안사 일반현황·조직 및 인원·수행조직 및 업무분장 | 제목과 본문 | 20 |\n| 4 | Ⅱ. 전략 및 방법론 ① — 사업 이해도(추진배경·한계점) | 제목과 본문 | 10 |\n| 5 | Ⅱ. 전략 및 방법론 ② — 추진전략·사업 방법론(정량요건) | 제목과 본문 | 20 |\n| 6 | Ⅲ. 사업수행 ① — 유형화 및 유연화 적용 과제 선정, 추진체계 재설계 | 2단 본문 | 20 |\n| 7 | Ⅲ. 사업수행 ② — 법·제도 개선안 마련 | 제목과 본문 | 10 |\n| 8 | Ⅳ. 프로젝트 관리 및 지원 / Ⅴ. 사회적 가치 및 안전관리 | 2단 본문 | 18+2 |\n| 9 | 참고 — 제안 작성 핵심 유의사항(탈락요건·PM 요건) | 제목과 본문 | — |\n| 10 | 마무리 | 마무리 | — |\n\n일반현황(3번) 항목은 원본 보고서가 발주기관 제안요청서 분석 자료라 제안사 고유 정보가 없어, 평가기준 요건만 정리하고 회사 고유 내용은 자리 표시로 남기겠습니다. 이대로 진행할까요?",
+    "status": "목차 승인을 기다리는 중",
+    "act": "사용자 승인을 기다리는 중"
+   },
+   {
+    "t": "confirm",
+    "time": "오후 11:27",
+    "icon": "newfile",
+    "title": "제시한 목차(10장, 배점표 순서)로 제안요약서 PowerPoint를 만들까요?",
+    "rows": [
+     [
+      "서식",
+      "company-template.potx (PowerPoint)"
+     ],
+     [
+      "분량",
+      "10장 (표지·마무리 포함)"
+     ],
+     [
+      "목차 기준",
+      "평가 배점표 Ⅳ-3-나 순서"
+     ]
+    ],
+    "note": "일반현황 장은 회사 고유 정보가 없어 자리 표시로 남습니다.",
+    "ok": "이대로 진행",
+    "status": "승인을 기다리는 중",
+    "act": "사용자 승인을 기다리는 중"
+   },
+   {
+    "t": "approved",
+    "time": "오후 11:30",
+    "label": "1개 작업 승인됨",
+    "status": "제안요약서를 만드는 중"
+   },
+   {
+    "t": "tools",
+    "label": "작업을 실행하는 중...",
+    "time": "오후 11:31",
+    "status": "레이아웃을 확인하는 중",
+    "act": "템플릿 구조를 읽는 중",
+    "items": [
+     {
+      "think": true,
+      "body": "Writing the slide XML directly lets me hold the template layouts exactly as they are. But it also means I can break the package, so I unpack, generate, repack, and then render every slide to an image to see what actually came out."
+     },
+     {
+      "icon": "struct",
+      "label": "레이아웃 XML 확인",
+      "target": "자리 표시자 유형"
+     },
+     {
+      "icon": "struct",
+      "label": "layout1·layout7 idx 확인"
+     }
+    ]
+   },
+   {
+    "t": "tools",
+    "label": "슬라이드 생성",
+    "time": "오후 11:33",
+    "status": "슬라이드를 만드는 중",
+    "act": "PowerPoint 파일을 작성하는 중",
+    "items": [
+     {
+      "icon": "newfile",
+      "label": "생성 스크립트 준비"
+     },
+     {
+      "icon": "file",
+      "label": "슬라이드 XML 생성",
+      "target": "10장"
+     },
+     {
+      "icon": "copy",
+      "label": "패키지 정리와 압축"
+     },
+     {
+      "icon": "check",
+      "label": "검증",
+      "target": "10장 모두 통과"
+     }
+    ]
+   },
+   {
+    "t": "tools",
+    "label": "렌더링 검수",
+    "time": "오후 11:36",
+    "status": "눈으로 확인하는 중",
+    "act": "슬라이드를 그려 보는 중",
+    "items": [
+     {
+      "icon": "file",
+      "label": "렌더 이미지 확인"
+     },
+     {
+      "think": true,
+      "body": "The rendered images show garbled glyphs. That is the preview renderer missing a Korean font, not a problem in the file — the layout, line breaks, and margins all sit correctly. I say so rather than let it look like a defect."
+     }
+    ]
+   },
+   {
+    "t": "tool",
+    "icon": "copy",
+    "label": "파일 복사",
+    "target": "output/",
+    "time": "오후 11:38",
+    "status": "출력 폴더로 옮기는 중",
+    "act": "산출물을 저장하는 중"
+   },
+   {
+    "t": "final",
+    "time": "오후 11:38",
+    "body": "제안요약서를 만들어 output 폴더에 저장했습니다.\n\n**요약**\n\n- 총 10장, 사내 표준 서식 `company-template.potx` 그대로 사용. 레이아웃은 표지 1장, 제목과 본문 6장, 2단 본문 2장, 마무리 1장\n- 목차는 평가 배점표(Ⅳ-3-나, 기술 100점) 순서를 그대로 따랐고, 배점이 큰 전략·방법론 30점과 사업수행 30점에 각 2장씩 배분했습니다\n- 근거는 HTML 분석 보고서의 배점표(2장), 과업 범위 3대 축(3장), 추진 일정과 유의사항 조항(4장), 제안서 목차 구성 요건(5장)에서 가져왔습니다\n- 제안사 고유 정보(연혁, 조직, 인원)는 원본 자료에 없어 `[제안사명]`, `[제안사 연혁·유사사업 실적 기재 필요]` 등 자리 표시로 남겨 두었습니다\n- 슬라이드 9번에 \"참고 — 제안 작성 핵심 유의사항\"을 추가해 85% 컷라인, 소기업 확인서, 공동수급 조건, 제출 형식 등 탈락 위험 요건을 별도로 정리했습니다\n\n검수용 렌더링에서 글자가 깨져 보였는데, 이는 렌더러에 한글 폰트가 없어 생기는 표시 문제입니다. 실제 PowerPoint에서는 맑은 고딕으로 정상 표시되고 레이아웃, 줄바꿈, 여백에는 문제가 없습니다.",
+    "out": [
+     1
+    ],
+    "status": "완료",
+    "act": "작업 완료"
+   }
+  ],
+  "artifacts": [
+   {
+    "name": "RFP_공공AI사업_추진체계_유연화_분석보고서.html",
+    "kind": "HTML 파일",
+    "meta": "5개 절 · 배점표 · 조항 10건",
+    "pages": []
+   },
+   {
+    "name": "공공AI사업_추진체계_유연화_제안요약서.pptx",
+    "kind": "PowerPoint 프레젠테이션",
+    "meta": "10장 · 사내 표준 서식",
+    "pages": []
+   }
+  ],
+  "group": "rfp",
+  "tab": "Sonnet 5"
  },
  {
   "id": "badge-check",
@@ -2334,7 +2588,7 @@ window.COWORK_RUNS = [
   "costTime": "오후 2:59",
   "note": "메일 발송과 파일 복사는 승인을 받은 뒤에 실행됩니다.",
   "bench": {
-   "n": 6,
+   "n": 5,
    "people": 1,
    "min": 107,
    "max": 1130,
@@ -2353,13 +2607,6 @@ window.COWORK_RUNS = [
      "name": "주간보고 · 사내 표준 서식",
      "avg": 271,
      "meta": "서식 확인 + Word 1건 + Teams 요약",
-     "n": 1,
-     "effort": "보통"
-    },
-    {
-     "name": "제안요청서 분석 · 제안요약서",
-     "avg": 348,
-     "meta": "2턴 · HTML 보고서 + PPTX 10장",
      "n": 1,
      "effort": "보통"
     },
@@ -2970,7 +3217,7 @@ window.COWORK_RUNS = [
   "costTime": "오후 5:56",
   "note": "주소록에 없는 수신자는 짐작해 채우지 않고 비운 채 초안으로 남깁니다.",
   "bench": {
-   "n": 6,
+   "n": 5,
    "people": 1,
    "min": 107,
    "max": 1130,
@@ -2989,13 +3236,6 @@ window.COWORK_RUNS = [
      "name": "주간보고 · 사내 표준 서식",
      "avg": 271,
      "meta": "서식 확인 + Word 1건 + Teams 요약",
-     "n": 1,
-     "effort": "보통"
-    },
-    {
-     "name": "제안요청서 분석 · 제안요약서",
-     "avg": 348,
-     "meta": "2턴 · HTML 보고서 + PPTX 10장",
      "n": 1,
      "effort": "보통"
     },
