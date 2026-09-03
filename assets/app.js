@@ -1249,9 +1249,8 @@
       : '<div class="cost"><div class="cic">' + I.clock + '</div><div>' +
         '<div class="l1">' + (unmeasured
           ? '<b>' + esc(pick) + '</b>로는 이 시나리오를 측정하지 않았습니다.'
-          : '이 실행의 크레딧은 아직 확인하지 않았습니다.') + '</div>' +
-        '<div class="l2">아래 표는 같은 프롬프트로 실제 측정한 회차입니다. ' +
-        '없는 값은 만들지 않습니다.</div>' +
+          : '이 회차는 <code>/cost</code>를 찍지 않았습니다.') + '</div>' +
+        '<div class="l2">아래는 같은 프롬프트로 측정한 회차입니다.</div>' +
         '</div></div>';
 
     row.innerHTML =

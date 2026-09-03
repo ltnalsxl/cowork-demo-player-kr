@@ -130,7 +130,7 @@ RUNS.forEach((r) => {
     ok(tag + '작업 누적 안내', /작업 전체를 셉니다/.test($('#costrow .cost .l2')?.textContent || ''));
   } else {
     ok(tag + '크레딧 미확인 안내',
-      /아직 확인하지 않았습니다/.test($('#costrow .cost .l1')?.textContent || ''));
+      /를 찍지 않았습니다/.test($('#costrow .cost .l1')?.textContent || ''));
   }
   ok(tag + '이번 달 누계 없음', !/이번 달/.test(w.document.body.textContent));
   ok(tag + '외부 기준값 없음', !/글로벌 기준값/.test(w.document.body.textContent));
@@ -349,7 +349,7 @@ RUNS.forEach((r) => {
     .dispatchEvent(new w.Event('click', { bubbles: true }));
   $('#skip').dispatchEvent(new w.Event('click', { bubbles: true }));
 
-  ok('전환 전 크레딧 미확인', /아직 확인하지 않았습니다/.test($('.cost .l1')?.textContent || ''));
+  ok('전환 전 크레딧 미확인', /를 찍지 않았습니다/.test($('.cost .l1')?.textContent || ''));
 
   const mdlBtn = $$('#crow .pop-wrap')[1].querySelector('.pill');
   mdlBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
