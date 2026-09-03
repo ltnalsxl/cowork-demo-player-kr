@@ -27,7 +27,7 @@ TC04_BENCH = {
     'models': [
         {'name': 'GPT 5.6 Terra', 'avg': 1614, 'n': 1, 'effort': '매우 높음',
          'meta': '87분 · 단계 3 · Word 26,411자 표 6 · PPT 이미지 1'},
-        {'name': 'Claude Sonnet 5', 'avg': 2126, 'n': 1, 'effort': '보통',
+        {'name': 'Sonnet 5', 'avg': 2126, 'n': 1, 'effort': '보통',
          'meta': '65분 · 단계 5 · Word 14,664자 표 1 · 편집 실패 14회'},
     ],
 }
@@ -106,4 +106,5 @@ ART_TC01 = [
 
 SKILLS_DR = ['깊이 탐구하기', 'Word', 'PowerPoint']
 TOOLS_DR = ['SharePoint', 'Web Search', 'Work IQ']
+
 

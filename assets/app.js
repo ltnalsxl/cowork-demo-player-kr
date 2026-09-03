@@ -84,6 +84,8 @@
         pdfS: '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M11.6 2.8H5.8a1.4 1.4 0 00-1.4 1.4v11.6a1.4 1.4 0 001.4 1.4h8.4a1.4 1.4 0 001.4-1.4V6.8z"/><path d="M11.6 2.8v4h4"/><path d="M6.8 13.4c2.2-.6 3.4-2.6 3.8-4.2.3 2 1.6 3.4 3 3.4" stroke-linecap="round"/></svg>',
         codeS: '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7.2 6.4L3.4 10l3.8 3.6M12.8 6.4L16.6 10l-3.8 3.6M11 4.2l-2 11.6"/></svg>',
         outlookS: '<svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="1.6" y="4.4" width="9.4" height="11.2" rx="1.6" fill="#0f6cbd"/><ellipse cx="6.3" cy="10" rx="2.4" ry="2.9" fill="#fff"/><ellipse cx="6.3" cy="10" rx="1.1" ry="1.5" fill="#0f6cbd"/><path d="M11.6 6.6h6.2a.6.6 0 01.6.6v5.6a.6.6 0 01-.6.6h-6.2z" fill="#28a8ea"/><path d="M11.6 7.1l3.4 2.3 3.4-2.3" stroke="#fff" stroke-width="1"/></svg>',
+        teamsS: '<svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="14.4" cy="5.4" r="2.2" fill="#5b5fc7"/><circle cx="7.6" cy="5" r="2.8" fill="#7b83eb"/><rect x="2.6" y="8.4" width="10" height="8.4" rx="2" fill="#5b5fc7"/><path d="M13.2 8.4h4.2v5.4a2.4 2.4 0 01-2.4 2.4h-1.8z" fill="#7b83eb"/><path d="M5 10.6h5.2M7.6 10.6v4.4" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>',
+        repeat: '<svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 8.6a6.6 6.6 0 0111.3-3.4l1.9 1.9M16.6 11.4a6.6 6.6 0 01-11.3 3.4l-1.9-1.9"/><path d="M16.6 3.6v3.5h-3.5M3.4 16.4v-3.5h3.5"/></svg>',
         send: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M17.4 10L3.2 3.6l2.1 6.4-2.1 6.4z"/><path d="M5.3 10h12.1" stroke-linecap="round"/></svg>',
         bullet: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M7.4 5.6h9M7.4 10h9M7.4 14.4h9"/><circle cx="4" cy="5.6" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="14.4" r="1" fill="currentColor" stroke="none"/></svg>',
         numlist: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M7.4 5.6h9M7.4 10h9M7.4 14.4h9M3.2 4.4l1-.5v3M2.7 9.2c.2-.5 1.8-.7 1.8.3 0 .7-1.6 1.2-1.8 2.1h2M2.8 13.4h1.7l-1.1 1.2c.7 0 1.2.3 1.2.9s-.6 1-1.9.7"/></svg>',
@@ -138,10 +140,18 @@
             return '<tr>' + r.map(function (c) { return '<td>' + inline(c) + '</td>'; }).join('') + '</tr>';
           }).join('') + '</tbody></table>';
       }
-      if (lines.every(function (l) { return /^\s*[-·]\s+/.test(l); })) {
-        return '<ul>' + lines.map(function (l) {
-          return '<li>' + inline(l.replace(/^\s*[-·]\s+/, '')) + '</li>';
-        }).join('') + '</ul>';
+      /* 첫 줄이 글머리표면 목록으로 본다. 글머리표가 없는 다음 줄은
+         앞 항목에 이어 붙는다. 실제 메시지도 한 항목이 여러 줄로 늘어난다. */
+      if (/^\s*[-·]\s+/.test(lines[0])) {
+        var items = [];
+        lines.forEach(function (l) {
+          if (/^\s*[-·]\s+/.test(l)) {
+            items.push(inline(l.replace(/^\s*[-·]\s+/, '')));
+          } else if (items.length) {
+            items[items.length - 1] += '<br><span class="sub">' + inline(l.trim()) + '</span>';
+          }
+        });
+        return '<ul>' + items.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>';
       }
       if (lines.length === 1 && /^#{2,4}\s+/.test(lines[0])) {
         return '<h4>' + inline(lines[0].replace(/^#+\s+/, '')) + '</h4>';
@@ -172,13 +182,6 @@
     { sep: true },
     { ic: 'bag', t: '사용자 지정', s: '기술 및 플러그인 관리' }
   ];
-  var EFFORT = [
-    { t: '가벼움', s: '빠른 응답. 단순한 작업' },
-    { t: '보통', s: '균형. 대부분의 작업' },
-    { t: '높음', s: '더 깊이 생각. 복잡한 분석' },
-    { t: '매우 높음', s: '가장 깊이 생각. 장시간 조사와 다단계 작업' }
-  ];
-
   /* 입력창 아래 팁은 실제 화면에서 여러 개가 번갈아 나온다. */
   var TIPS = [
     ['Ctrl+Shift+U', '을(를) 눌러 OneDrive 또는 SharePoint의 파일을 첨부하세요.'],
@@ -188,7 +191,7 @@
   var tipN = 0;
 
   /* 모델을 바꾸면 노력 기본값이 따라 바뀐다.
-     GPT 계열은 매우 높음, Claude 계열과 자동은 보통이 기본이다. */
+     GPT 계열은 매우 높음, 나머지는 보통이 기본이다. */
   function defaultEffort(model) {
     return /^GPT/i.test(model) ? '매우 높음' : '보통';
   }
@@ -239,13 +242,14 @@
   }
 
   /* 모델 목록은 실제 Cowork 선택기와 같다. 이 시나리오에서 측정한 회차가 있으면
-     설명 줄에 실측 크레딧을 덧붙이고, 없으면 측정하지 않았다고 밝힌다. */
+     설명 줄에 실측 크레딧을 덧붙이고, 없으면 원래 설명을 그대로 둔다. */
   var MODEL_LIST = [
-    ['자동', '작업에 맞는 모델을 고릅니다'],
-    ['Claude Sonnet 5', 'Claude 계열 · 기본 노력 보통'],
-    ['Claude Opus 5', 'Claude 계열 · 기본 노력 보통'],
-    ['GPT 5.6 Terra', 'GPT 계열 · 기본 노력 매우 높음'],
-    ['GPT 5.6 Sol', 'GPT 계열 · 기본 노력 매우 높음']
+    ['자동', '작업에 가장 적합한 모델'],
+    ['GPT 5.6 Sol', '어려운 작업에 적합한 똑똑하고 효율적인 모델'],
+    ['GPT 5.6 Terra', '일반적인 작업을 위한 균형 잡힌 추론'],
+    ['GPT 5.5', '중간 수준 추론에 적합한 모델'],
+    ['Opus 5', '복잡하고 중요한 작업에 적합'],
+    ['Sonnet 5', '일상 작업에 효율적']
   ];
 
   /* 컴포저 한 줄을 만든다. run이 있으면 모델·노력이 실제 데이터와 연동된다. */
@@ -282,14 +286,7 @@
     host.appendChild(mWrap);
 
     var curEffort = live ? (effortPick || run.effort) : '보통';
-    host.appendChild(popover('<span id="effLabel">' + esc(curEffort) + '</span> ' + I.caret, EFFORT, {
-      narrow: true, check: true, current: curEffort, up: !live,
-      onPick: function (t) {
-        if (live) { effortPick = t; }
-        var lab = document.getElementById('effLabel');
-        if (lab) { lab.textContent = t; }
-      }
-    }));
+    host.appendChild(effortPicker(curEffort, live));
 
     host.appendChild(el('<span class="spacer"></span>'));
     /* 오른쪽 묶음. 실제 화면은 다듬기 아이콘과 원형 마이크만 두고,
@@ -301,6 +298,42 @@
       host.appendChild(el('<button class="rnd stop" title="중지">' + I.stopSq + '</button>'));
       host.appendChild(el('<button class="qbtn" disabled>' + I.up + '대기열</button>'));
     }
+  }
+
+  /* 노력 선택기. 실제 화면은 목록이 아니라 눈금 넷짜리 슬라이더다.
+     크레딧이 더 든다는 설명이 함께 붙는다. */
+  var EFFORT_T = ['가벼움', '보통', '높음', '매우 높음'];
+
+  function effortPicker(cur, live) {
+    var wrap = el('<div class="pop-wrap"></div>');
+    var btn = el('<button class="pill" aria-expanded="false">' +
+      '<span id="effLabel">' + esc(cur) + '</span> ' + I.caret + '</button>');
+    var pop = el('<div class="pop eff' + (live ? '' : ' up') + '">' +
+      '<div class="eh" id="effHead">노력 ' + esc(cur) +
+      (cur === '보통' ? ' (기본값)' : '') + '</div>' +
+      '<div class="erow"><span>빠르게</span><span>더 스마트하게</span></div>' +
+      '<input type="range" id="effRange" min="0" max="3" step="1" value="' +
+      Math.max(0, EFFORT_T.indexOf(cur)) + '">' +
+      '<div class="enote">더 많은 노력을 기울이면 더 철저해지지만, 속도는 더 느려지고 ' +
+      '크레딧도 더 많이 소모됩니다.</div></div>');
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var on = pop.classList.contains('on');
+      closePops();
+      if (!on) { pop.classList.add('on'); btn.setAttribute('aria-expanded', 'true'); }
+    });
+    pop.addEventListener('click', function (e) { e.stopPropagation(); });
+    pop.querySelector('#effRange').addEventListener('input', function (e) {
+      var t = EFFORT_T[+e.target.value];
+      if (live) { effortPick = t; }
+      document.getElementById('effLabel').textContent = t;
+      document.getElementById('effHead').textContent =
+        '노력 ' + t + (t === '보통' ? ' (기본값)' : '');
+    });
+    wrap.appendChild(btn);
+    wrap.appendChild(pop);
+    return wrap;
   }
 
   /* 재생 중에는 실제 화면처럼 입력창 문구와 오른쪽 버튼이 바뀐다. */
@@ -605,6 +638,14 @@
     document.getElementById('panel').innerHTML =
       '<div class="p-top"><h2>작업 영역</h2><button class="ib x" id="pClose">' + I.x + '</button></div>' +
       '<div class="p-act" id="pAct" hidden></div>' +
+      /* 되풀이로 예약한 작업이 있으면 맨 위에 붙는다. */
+      (run.scheduled
+        ? '<div class="p-sec"><div class="p-h">예약된 작업 <span class="acts"><button>' + I.caret + '</button></span></div>' +
+          '<div class="schrow"><span class="si">' + I.repeat + '</span>' +
+          '<span class="sx"><span class="sn">' + esc(run.scheduled.name) + '</span>' +
+          '<span class="sw">' + esc(run.scheduled.when) + '</span></span>' +
+          '<button class="sm">' + I.dots + '</button></div></div>'
+        : '') +
       (run.steps.length
         ? '<div class="p-sec"><div class="p-h">단계 <span class="n" id="stepn">0/' + run.steps.length + '</span>' +
           '<span>' + I.caret + '</span></div>' +
@@ -699,7 +740,8 @@
      도구 호출은 아이콘 + 회색 동사 + 굵은 대상으로 한 줄씩 흐른다. */
   var TOOLICON = { folder: 'folder', file: 'file', check: 'checkThin', search: 'search',
                    web: 'globe', newfile: 'newfile', struct: 'struct', warn: 'warn',
-                   mail: 'mail', pen: 'pen', copy: 'copy' };
+                   mail: 'mail', pen: 'pen', copy: 'copy',
+                   clock: 'clock', cal: 'cal', teams: 'teams' };
 
   function toolLine(t) {
     /* 묶음 안에 사고 과정이 섞여 나온다. 실제 화면도 도구 줄 사이에 그대로 낀다. */
@@ -846,23 +888,25 @@
     } else if (s.t === 'mail') {
       /* 메일 발송 승인 카드. 실제 화면은 보내기 전에 편집 가능한 초안을 띄운다.
          받는 사람은 지울 수 있는 pill, 오른쪽에 참조·숨은 참조 링크가 붙는다. */
-      node = el('<div class="mailcard' + (s.disabled ? ' nosend' : '') + '">' +
-        '<div class="mhead"><span class="mico">' + I.outlookS + '</span>' +
-        '<span class="mtitle">전자 메일을 보내시겠습니까?</span>' +
-        '<span class="mdraft">초안 작성</span></div>' +
+      node = el('<div class="mailcard' + (s.disabled ? ' nosend' : '') + (s.chat ? ' chat' : '') + '">' +
+        '<div class="mhead"><span class="mico">' + (s.chat ? I.teamsS : I.outlookS) + '</span>' +
+        '<span class="mtitle">' + (s.chat ? '채팅을 보내시겠습니까?' : '전자 메일을 보내시겠습니까?') + '</span>' +
+        (s.chat ? '' : '<span class="mdraft">초안 작성</span>') + '</div>' +
         '<div class="mrow"><span class="mk">받는 사람:</span>' +
           '<span class="mv">' + (s.to
             ? '<span class="pill-p"><span class="av">' +
-              esc((s.to || ' ').trim().charAt(0)) + '</span>' + esc(s.to) +
+              esc((s.to || ' ').trim().charAt(0)).toUpperCase() + '</span>' + esc(s.to) +
               '<span class="rmx">' + I.x + '</span></span>'
             : '<span class="mempty"></span>') + '</span>' +
-          '<span class="mcc"><button>참조</button><button>숨은 참조</button></span></div>' +
-        '<div class="mrow"><span class="mk">제목:</span>' +
-          '<span class="mv msub">' + esc(s.subject) + '</span></div>' +
+          (s.chat ? '' :
+            '<span class="mcc"><button>참조</button><button>숨은 참조</button></span>') + '</div>' +
+        (s.chat ? '' :
+          '<div class="mrow"><span class="mk">제목:</span>' +
+          '<span class="mv msub">' + esc(s.subject) + '</span></div>') +
         '<div class="mtb"><button><b>B</b></button><button><i>I</i></button>' +
           '<span class="msep"></span>' +
           '<button>' + I.bullet + '</button><button>' + I.numlist + '</button>' +
-          '<span class="msep"></span><button>' + I.clip + '</button></div>' +
+          (s.chat ? '' : '<span class="msep"></span><button>' + I.clip + '</button>') + '</div>' +
         (s.body ? '<div class="mbody">' + rich(s.body) + '</div>' : '') +
         ((s.files || []).length
           ? '<div class="matt">' + s.files.map(function (f) {
@@ -874,7 +918,9 @@
             }).join('') + '</div>'
           : '') +
         '<div class="mbtns"><button class="mb">취소</button>' +
-        '<button class="mb send">' + I.send + '보내기<span class="cv">' + I.caret + '</span></button></div>' +
+        '<button class="mb send">' + I.send +
+        (s.chat ? 'Post message 항상 허용' : '보내기') +
+        '<span class="cv">' + I.caret + '</span></button></div>' +
         '<div class="mnote"><span class="ni">' + I.info + '</span>' +
         '아래에 메시지를 보내면 편집 내용이 삭제되고 위의 작업이 취소됩니다.</div>' +
         '</div>');
@@ -884,6 +930,28 @@
       node = el('<div class="turn"></div>');
       if (s.sep) { node.appendChild(el('<div class="daysep"><span>' + esc(s.sep) + '</span></div>')); }
       node.appendChild(userBubble(s.body, s.time, s.files, false));
+
+    } else if (s.t === 'schedule') {
+      /* 되풀이 작업 승인 카드. 반복 주기와 실행 위치를 정하고 예약한다.
+         "지금 한 번 실행"에 체크하면 예약과 별개로 즉시 한 번 돈다. */
+      node = el('<div class="mailcard confirm sched">' +
+        '<div class="mhead"><span class="mico">' + I.repeat + '</span>' +
+        '<span class="mtitle">되풀이 작업을 만드시겠습니까?</span></div>' +
+        '<div class="mrow"><span class="mk">이름:</span>' +
+          '<span class="mv">' + esc(s.name) + '</span></div>' +
+        '<div class="mrow"><span class="mk">반복:</span>' +
+          '<span class="mv"><span class="selv">' + esc(s.every) + I.caret + '</span>' +
+          '<span class="selv">' + esc(s.at) + I.caret + '</span></span></div>' +
+        '<div class="mrow"><span class="mk">다음에서 실행:</span>' +
+          '<span class="mv"><span class="selv">' + esc(s.where || '새 대화') + I.caret + '</span></span></div>' +
+        '<div class="sdesc"><div class="sk">설명</div>' + esc(s.desc) + '</div>' +
+        '<div class="cfoot"><span class="mbtns">' +
+        '<label class="once"><input type="checkbox" checked> 지금 한 번 실행</label>' +
+        '<button class="mb">취소</button>' +
+        '<button class="mb send">예약<span class="cv">' + I.caret + '</span></button></span></div>' +
+        '<div class="mnote"><span class="ni">' + I.info + '</span>' +
+        '아래에 메시지를 보내면 편집 내용이 삭제되고 위의 작업이 취소됩니다.</div>' +
+        '</div>');
 
     } else if (s.t === 'confirm') {
       /* 도구 실행 승인 카드. 메일 말고도 파일 복사 같은 작업 앞에 이게 뜬다.
@@ -1191,5 +1259,6 @@
   buildSide();
   route();
 })();
+
 
 

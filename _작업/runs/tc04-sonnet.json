@@ -4,8 +4,8 @@
  "folder": "딥리서치",
  "title": "국내 피지컬 AI 시장 12개월 동향 딥리서치",
  "chatTitle": "피지컬AI 딥리서치 · Sonnet 5",
- "subtitle": "같은 프롬프트를 Claude Sonnet 5로 돌린 실행. 편집을 잘게 쪼개다 14번 실패하고 재시도",
- "model": "Claude Sonnet 5",
+ "subtitle": "같은 프롬프트를 Sonnet 5로 돌린 실행. 편집을 잘게 쪼개다 14번 실패하고 재시도",
+ "model": "Sonnet 5",
  "effort": "보통",
  "date": "2026년 9월 2일 수요일",
  "credit": 2126,
@@ -24,7 +24,7 @@
     "meta": "87분 · 단계 3 · Word 26,411자 표 6 · PPT 이미지 1"
    },
    {
-    "name": "Claude Sonnet 5",
+    "name": "Sonnet 5",
     "avg": 2126,
     "n": 1,
     "effort": "보통",

@@ -138,6 +138,12 @@ svg{display:block}
   box-shadow:0 8px 28px rgba(0,0,0,.14),0 2px 6px rgba(0,0,0,.06);
   padding:8px;display:none;
 }
+.pop.eff{min-width:272px;padding:14px 16px;white-space:normal}
+.pop.eff .eh{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:13px}
+.pop.eff .erow{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-2);margin-bottom:2px}
+.pop.eff input{width:100%;accent-color:#1a1a1a;margin:0}
+.pop.eff .enote{margin-top:13px;padding-top:12px;border-top:1px solid var(--line);
+  font-size:12.5px;line-height:1.6;color:var(--ink-3)}
 .pop.up{bottom:auto;top:calc(100% + 10px)}
 .pop.on{display:block}
 .pop .sep{height:1px;background:var(--line-soft);margin:7px 10px}
@@ -336,6 +342,7 @@ svg{display:block}
 .mailcard .mbody h4{font-size:14.5px;font-weight:700;margin:18px 0 9px}
 .mailcard .mbody ul{margin:0 0 11px;padding-left:20px}
 .mailcard .mbody li{margin-bottom:5px}
+.mbody li .sub,.asay li .sub{color:var(--ink-2)}
 .mailcard .mbody table{border-collapse:collapse;margin:9px 0 13px;font-size:12.5px}
 .mailcard .mbody th,.mailcard .mbody td{border:1px solid #bfbfbf;padding:5px 10px;text-align:left}
 .mailcard .mbody th{font-weight:700}
@@ -373,6 +380,31 @@ svg{display:block}
 .cfoot{display:flex;align-items:center;gap:14px;margin-top:15px;flex-wrap:wrap}
 .cfoot .cnote{font-size:13px;color:var(--ink-2)}
 .cfoot .mbtns{margin-left:auto;margin-top:0;display:flex;gap:9px}
+
+/* 예약된 작업 */
+.schrow{display:flex;align-items:flex-start;gap:9px;padding:8px 0 4px}
+.schrow .si{flex:none;color:var(--ink-3);display:grid;place-items:center;margin-top:1px}
+.schrow .sx{min-width:0;flex:1}
+.schrow .sn{display:block;font-size:13px;color:var(--ink);font-weight:500}
+.schrow .sw{display:block;font-size:11.5px;color:var(--ink-3);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.schrow .sm{border:0;background:transparent;color:var(--ink-3);cursor:pointer;
+  padding:2px;border-radius:4px;flex:none}
+.schrow .sm:hover{background:#eaeaea}
+
+/* 되풀이 작업 카드 */
+.mailcard.sched .mrow .mk{width:96px}
+.selv{display:inline-flex;align-items:center;gap:4px;margin-right:10px;
+  padding:3px 8px;border-radius:6px;background:#f2f2f2;font-size:13.5px;color:var(--ink)}
+.sdesc{margin-top:14px;font-size:13.5px;line-height:1.75;color:var(--ink-2)}
+.sdesc .sk{font-size:12.5px;color:var(--ink-3);margin-bottom:6px}
+.once{display:inline-flex;align-items:center;gap:7px;margin-right:auto;
+  font-size:13.5px;color:var(--ink-2);cursor:pointer}
+.once input{accent-color:#1a1a1a;width:15px;height:15px}
+.mailcard.sched .cfoot .mbtns{width:100%;margin-left:0}
+
+/* Teams 채팅 카드 */
+.mailcard.chat .mrow{border-bottom:1px solid var(--line)}
 
 /* 기록이 끊긴 지점 */
 .cutline{display:flex;align-items:center;gap:12px;margin:20px 0 6px;

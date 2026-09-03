@@ -298,8 +298,8 @@ data = {
     'folder': '딥리서치',
     'title': '국내 피지컬 AI 시장 12개월 동향 딥리서치',
     'chatTitle': '피지컬AI 딥리서치 · Sonnet 5',
-    'subtitle': '같은 프롬프트를 Claude Sonnet 5로 돌린 실행. 편집을 잘게 쪼개다 14번 실패하고 재시도',
-    'model': 'Claude Sonnet 5',
+    'subtitle': '같은 프롬프트를 Sonnet 5로 돌린 실행. 편집을 잘게 쪼개다 14번 실패하고 재시도',
+    'model': 'Sonnet 5',
     'effort': '보통',
     'date': '2026년 9월 2일 수요일',
     'credit': 2126,
@@ -321,4 +321,5 @@ data = {
 
 json.dump(data, open(OUT, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 print('tc04-sonnet.json  로그 %d단계' % len(log))
+
 

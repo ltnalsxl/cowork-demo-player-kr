@@ -28,16 +28,16 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
   const $$ = (s) => [...w.document.querySelectorAll(s)];
 
   ok('홈 히어로', $('.hero-q')?.textContent === '지금 무엇을 작업하고 있나요?');
-  ok('재생 항목 8개', $$('.ritem').length === 8, $$('.ritem').length);
+  ok('재생 항목 10개', $$('.ritem').length === 10, $$('.ritem').length);
   ok('타일 3개', $$('.tile').length === 3);
   ok('입력 힌트 줄', /팁:/.test($('.tipline')?.textContent || ''), $('.tipline')?.textContent);
   ok('컴포저 마이크', !!$('#homeCrow .micb'));
   ok('대기 중엔 보내기 없음', !$('#homeCrow .rnd'));
   ok('계정 Copilot User', /Copilot User/.test($('.me')?.textContent));
-  ok('사이드바 시나리오 8개', $$('#chats button[data-id]').length === 8,
+  ok('사이드바 시나리오 10개', $$('#chats button[data-id]').length === 10,
     $$('#chats button[data-id]').length);
   ok('홈 타일 제목이 회차별로 구분됨',
-    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 8);
+    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 10);
   w.close();
 }
 
@@ -70,7 +70,9 @@ const EXPECT = {
   'tc01-demo': { steps: 4, arts: 0, credit: '219' },
   'rfp-report': { steps: 3, arts: 1, credit: null },
   'badge-check': { steps: 0, arts: 4, credit: '789' },
-  'isms-audit': { steps: 4, arts: 4, credit: '1,130' }
+  'isms-audit': { steps: 4, arts: 4, credit: '1,130' },
+  'brief-real': { steps: 0, arts: 0, credit: null },
+  'brief-demo': { steps: 0, arts: 0, credit: null }
 };
 
 RUNS.forEach((r) => {
@@ -174,7 +176,15 @@ RUNS.forEach((r) => {
     if (noSend) {
       ok(tag + '수신자 없으면 보내기 비활성', $$('.mailcard.nosend').length === noSend);
     }
-    ok(tag + '서식 툴바', $$('.mailcard .mtb button').length >= 5);
+    /* 메일 카드는 첨부 버튼까지 5개, Teams 채팅 카드는 첨부가 없어 4개다. */
+    const chatN = r.log.filter((s) => s.t === 'mail' && s.chat).length;
+    ok(tag + '서식 툴바', $$('.mailcard .mtb button').length >= types.mail * 4 + (types.mail - chatN));
+    if (chatN) {
+      ok(tag + 'Teams 채팅 카드 ' + chatN, $$('.mailcard.chat').length === chatN);
+      ok(tag + '채팅엔 제목 없음', !$$('.mailcard.chat .msub').length);
+      ok(tag + '채팅 승인 버튼',
+        /Post message 항상 허용/.test($('.mailcard.chat .mb.send')?.textContent || ''));
+    }
     const att = r.log.filter((s) => s.t === 'mail')
       .reduce((a, s) => a + (s.files || []).length, 0);
     ok(tag + '메일 첨부 ' + att, $$('.matt .attc').length === att, $$('.matt .attc').length);
@@ -188,8 +198,25 @@ RUNS.forEach((r) => {
     const shown = $$('.approved .tool').map((e) => e.textContent.trim());
     ok(tag + '승인 뒤 결과 줄', sent.every((x) => shown.includes(x)), shown.join(' / '));
   }
+  if (types.schedule) {
+    ok(tag + '되풀이 작업 카드 ' + types.schedule,
+      $$('.mailcard.sched').length === types.schedule, $$('.mailcard.sched').length);
+    ok(tag + '반복 주기 선택', $$('.mailcard.sched .selv').length >= types.schedule * 3);
+    ok(tag + '지금 한 번 실행 체크', $$('.mailcard.sched .once input').length === types.schedule);
+    ok(tag + '작업 설명 표시', $$('.mailcard.sched .sdesc').length === types.schedule);
+  }
+  if (r.scheduled) {
+    const panel = w.document.getElementById('panel').textContent;
+    ok(tag + '예약된 작업 섹션', /예약된 작업/.test(panel));
+    ok(tag + '예약 이름', $('.schrow .sn')?.textContent === r.scheduled.name,
+      $('.schrow .sn')?.textContent);
+    ok(tag + '예약 주기', $('.schrow .sw')?.textContent === r.scheduled.when);
+  } else {
+    ok(tag + '예약 없으면 섹션 없음',
+      !/예약된 작업/.test(w.document.getElementById('panel').textContent));
+  }
   if (types.confirm) {
-    ok(tag + '도구 승인 카드', $$('.mailcard.confirm').length === types.confirm);
+    ok(tag + '도구 승인 카드', $$('.mailcard.confirm:not(.sched)').length === types.confirm);
     const rows = r.log.filter((s) => s.t === 'confirm')
       .reduce((a, s) => a + s.rows.length, 0);
     ok(tag + '승인 카드 값 ' + rows, $$('.krow').length === rows, $$('.krow').length);
@@ -320,4 +347,5 @@ console.log(out.join('\n'));
 const fails = out.filter((l) => l.startsWith('  FAIL')).length;
 console.log('\n' + (out.length - fails) + '/' + out.length + ' 통과');
 process.exit(fails ? 1 : 0);
+
 
