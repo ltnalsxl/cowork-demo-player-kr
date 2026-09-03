@@ -28,16 +28,16 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
   const $$ = (s) => [...w.document.querySelectorAll(s)];
 
   ok('홈 히어로', $('.hero-q')?.textContent === '지금 무엇을 작업하고 있나요?');
-  ok('재생 항목 12개', $$('.ritem').length === 12, $$('.ritem').length);
+  ok('재생 항목 14개', $$('.ritem').length === 14, $$('.ritem').length);
   ok('타일 3개', $$('.tile').length === 3);
   ok('입력 힌트 줄', /팁:/.test($('.tipline')?.textContent || ''), $('.tipline')?.textContent);
   ok('컴포저 마이크', !!$('#homeCrow .micb'));
   ok('대기 중엔 보내기 없음', !$('#homeCrow .rnd'));
   ok('계정 Copilot User', /Copilot User/.test($('.me')?.textContent));
-  ok('사이드바 시나리오 12개', $$('#chats button[data-id]').length === 12,
+  ok('사이드바 시나리오 14개', $$('#chats button[data-id]').length === 14,
     $$('#chats button[data-id]').length);
   ok('홈 타일 제목이 회차별로 구분됨',
-    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 12);
+    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 14);
   w.close();
 }
 
@@ -74,7 +74,9 @@ const EXPECT = {
   'brief-real': { steps: 0, arts: 0, credit: '107' },
   'brief-demo': { steps: 0, arts: 0, credit: '95' },
   'skill-proofread': { steps: 0, arts: 0, credit: '25' },
-  'weekly-team': { steps: 4, arts: 1, credit: '271' }
+  'weekly-team': { steps: 4, arts: 1, credit: '271' },
+  'inbox-real': { steps: 4, arts: 1, credit: '755' },
+  'inbox-demo': { steps: 4, arts: 1, credit: '195' }
 };
 
 RUNS.forEach((r) => {
@@ -388,7 +390,7 @@ RUNS.forEach((r) => {
 // ── 4) 개인정보 ────────────────────────────────────────
 {
   const w = boot();
-  const bad = /이수민|Sumin|suminlee|사내 한정|Cloud Solution|롯데|삼성|SK ?플래닛|SK디스커버리|11번가|GO\+|VBD|ROSS|PQMT|NVIDIA|diax|onmicrosoft|MOD Administrator/;
+  const bad = /이수민|Sumin|suminlee|사내 한정|Cloud Solution|롯데|삼성|SK ?플래닛|SK디스커버리|11번가|GO\+|VBD|ROSS|PQMT|NVIDIA|diax|onmicrosoft|MOD Administrator|포스코|카리플렉스|대림|FastTrack|Sang-In|Jinsup|Hyun Ko|Karen Kong|Elaine|박민욱|김지민|박정수|최정우|AX교육팀/;
   RUNS.forEach((r) => {
     w.document.querySelector('#chats button[data-id="' + r.id + '"]')
       .dispatchEvent(new w.Event('click', { bubbles: true }));
