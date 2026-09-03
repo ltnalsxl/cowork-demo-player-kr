@@ -6,17 +6,45 @@ const { JSDOM } = require('jsdom');
 const root = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const runsSrc = fs.readFileSync(path.join(root, 'data', 'runs.js'), 'utf8');
+const fxSrc = fs.existsSync(path.join(root, 'data', 'fx.js'))
+  ? fs.readFileSync(path.join(root, 'data', 'fx.js'), 'utf8') : 'window.COWORK_FX=null;';
 const appSrc = fs.readFileSync(path.join(root, 'assets', 'app.js'), 'utf8');
 
 const out = [];
 const ok = (label, cond, extra) =>
   out.push((cond ? '  OK   ' : '  FAIL ') + label + (extra ? '  → ' + extra : ''));
 
-function boot() {
-  const dom = new JSDOM(html, { runScripts: 'outside-only' });
+function boot(hash) {
+  const dom = new JSDOM(html, { runScripts: 'outside-only', url: 'https://x/' + (hash || '') });
+  dom.window.eval(fxSrc);
   dom.window.eval(runsSrc);
   dom.window.eval(appSrc);
   return dom.window;
+}
+
+/* 묶인 회차는 홈에 대표 하나만 있으므로 탭을 거쳐 연다.
+   실행 화면에서 부를 수도 있어 홈으로 먼저 돌아간다. */
+function openRun(w, id) {
+  const tab = w.document.querySelector('.gt[data-go="' + id + '"]');
+  if (tab) {
+    tab.dispatchEvent(new w.Event('click', { bubbles: true }));
+    return;
+  }
+  const home = w.document.getElementById('goHome');
+  if (home) { home.dispatchEvent(new w.Event('click', { bubbles: true })); }
+
+  const btn = w.document.querySelector('.ritem[data-id="' + id + '"]');
+  if (btn) {
+    btn.dispatchEvent(new w.Event('click', { bubbles: true }));
+    return;
+  }
+  /* 대표를 먼저 연 뒤 탭으로 옮긴다. */
+  const g = RUNS.find((x) => x.id === id).group;
+  const lead = RUNS.find((x) => x.group === g && x.groupLabel);
+  w.document.querySelector('.ritem[data-id="' + lead.id + '"]')
+    .dispatchEvent(new w.Event('click', { bubbles: true }));
+  w.document.querySelector('.gt[data-go="' + id + '"]')
+    .dispatchEvent(new w.Event('click', { bubbles: true }));
 }
 
 const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, ''));
@@ -28,16 +56,21 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
   const $$ = (s) => [...w.document.querySelectorAll(s)];
 
   ok('홈 히어로', $('.hero-q')?.textContent === '지금 무엇을 작업하고 있나요?');
-  ok('재생 항목 12개', $$('.ritem').length === 12, $$('.ritem').length);
+  ok('재생 항목 9개', $$('.ritem').length === 9, $$('.ritem').length);
   ok('타일 3개', $$('.tile').length === 3);
   ok('입력 힌트 줄', /팁:/.test($('.tipline')?.textContent || ''), $('.tipline')?.textContent);
   ok('컴포저 마이크', !!$('#homeCrow .micb'));
   ok('대기 중엔 보내기 없음', !$('#homeCrow .rnd'));
   ok('계정 Copilot User', /Copilot User/.test($('.me')?.textContent));
-  ok('사이드바 시나리오 12개', $$('#chats button[data-id]').length === 12,
+  ok('사이드바 시나리오 9개', $$('#chats button[data-id]').length === 9,
     $$('#chats button[data-id]').length);
   ok('홈 타일 제목이 회차별로 구분됨',
-    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 12);
+    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 9);
+  /* 묶인 회차는 대표 하나만 홈에 세운다. */
+  const groups = new Set(RUNS.filter((r) => r.group).map((r) => r.group));
+  ok('묶음은 대표만 홈에',
+    $$('.ritem[data-id]').length === RUNS.length - (RUNS.filter((r) => r.group).length - groups.size),
+    $$('.ritem[data-id]').length);
   /* 모델을 바꿔 여러 번 잰 회차는 한 값이 아니라 범위로 적는다. */
   const vr = RUNS.find((r) => r.variants);
   if (vr) {
@@ -94,8 +127,7 @@ RUNS.forEach((r) => {
   const ex = EXPECT[r.id];
   const tag = r.id.padEnd(12);
 
-  const btn = w.document.querySelector('.ritem[data-id="' + r.id + '"]');
-  btn.dispatchEvent(new w.Event('click', { bubbles: true }));
+  openRun(w, r.id);
 
   ok(tag + '상단 제목', $('.tb-title h1')?.textContent === r.chatTitle);
   if (r.promptAt) {
@@ -364,8 +396,7 @@ RUNS.forEach((r) => {
   const $ = (s) => w.document.querySelector(s);
   const $$ = (s) => [...w.document.querySelectorAll(s)];
 
-  w.document.querySelector('.ritem[data-id="tc04-auto"]')
-    .dispatchEvent(new w.Event('click', { bubbles: true }));
+  openRun(w, 'tc04-auto');
   $('#skip').dispatchEvent(new w.Event('click', { bubbles: true }));
 
   ok('전환 전 크레딧 미확인', /를 찍지 않았습니다/.test($('.cost .l1')?.textContent || ''));
@@ -388,8 +419,7 @@ RUNS.forEach((r) => {
   const $ = (s) => w.document.querySelector(s);
   const $$ = (s) => [...w.document.querySelectorAll(s)];
 
-  w.document.querySelector('.ritem[data-id="tc01-real"]')
-    .dispatchEvent(new w.Event('click', { bubbles: true }));
+  openRun(w, 'tc01-real');
   $('#skip').dispatchEvent(new w.Event('click', { bubbles: true }));
   ok('전환 전 실측 1,178', $('.cost .l1 b')?.textContent === '1,178', $('.cost .l1 b')?.textContent);
 
@@ -409,8 +439,7 @@ RUNS.forEach((r) => {
   const w = boot();
   const bad = /이수민|Sumin|suminlee|사내 한정|Cloud Solution|롯데|삼성|SK ?플래닛|SK디스커버리|11번가|GO\+|VBD|ROSS|PQMT|NVIDIA|diax|onmicrosoft|MOD Administrator|포스코|카리플렉스|대림|FastTrack|Sang-In|Jinsup|Hyun Ko|Karen Kong|Elaine|박민욱|김지민|박정수|최정우|AX교육팀/;
   RUNS.forEach((r) => {
-    w.document.querySelector('#chats button[data-id="' + r.id + '"]')
-      .dispatchEvent(new w.Event('click', { bubbles: true }));
+    openRun(w, r.id);
     w.document.getElementById('skip').dispatchEvent(new w.Event('click', { bubbles: true }));
     const hits = w.document.body.textContent.split('\n').filter((l) => bad.test(l));
     ok('식별 정보 없음 ' + r.id, hits.length === 0, hits.slice(0, 2).join(' / '));
@@ -424,12 +453,55 @@ RUNS.forEach((r) => {
   const w = boot();
   const leak = /고객사 [A-H]|고객 [A-H]\b|도입 프로그램|내부 교육 과정|고객 워크숍|업무 배정 시스템|품질 측정|파트너사|지원 프로그램|요청번호 R-0000/;
   RUNS.forEach((r) => {
-    w.document.querySelector('#chats button[data-id="' + r.id + '"]')
-      .dispatchEvent(new w.Event('click', { bubbles: true }));
+    openRun(w, r.id);
     w.document.getElementById('skip').dispatchEvent(new w.Event('click', { bubbles: true }));
     const hits = w.document.body.textContent.split('\n').filter((l) => leak.test(l));
     ok('대체어 잔재 없음 ' + r.id, hits.length === 0, hits.slice(0, 2).join(' / '));
   });
+  w.close();
+}
+
+/* 4-3) 회차 묶음 — 계정이나 모델이 다른 실행을 한 창에서 오간다. */
+{
+  const w = boot();
+  const $$ = (s) => [...w.document.querySelectorAll(s)];
+  const groups = {};
+  RUNS.forEach((r) => { if (r.group) { (groups[r.group] = groups[r.group] || []).push(r); } });
+  Object.keys(groups).forEach((g) => {
+    const set = groups[g];
+    const lead = set.find((r) => r.groupLabel);
+    ok('묶음 대표 하나 ' + g, set.filter((r) => r.groupLabel).length === 1);
+    openRun(w, lead.id);
+    ok('탭 ' + g + ' ' + set.length + '개', $$('.gt').length === set.length, $$('.gt').length);
+    ok('현재 탭 표시 ' + g, $$('.gt.on').length === 1);
+    /* 다른 탭을 누르면 그 회차로 갈아탄다. */
+    const other = set.find((r) => r.id !== lead.id);
+    w.document.querySelector('.gt[data-go="' + other.id + '"]')
+      .dispatchEvent(new w.Event('click', { bubbles: true }));
+    ok('탭 전환 ' + g,
+      w.document.querySelector('.tb-title h1').textContent === other.chatTitle,
+      w.document.querySelector('.tb-title h1').textContent);
+    ok('탭마다 크레딧 표시 ' + g,
+      $$('.gt .gc').length === set.length, $$('.gt .gc').length);
+  });
+  w.close();
+}
+
+/* 4-4) 크레딧 옆 원화 — 환율을 받아 둔 날만 붙는다. */
+{
+  const w = boot();
+  const fx = w.COWORK_FX;
+  openRun(w, 'isms-audit');
+  w.document.getElementById('skip').dispatchEvent(new w.Event('click', { bubbles: true }));
+  const t = w.document.querySelector('#costrow .cost .l1')?.textContent || '';
+  if (fx) {
+    const want = Math.round(1130 / 100 * fx.usdkrw).toLocaleString('ko-KR');
+    ok('원화 병기', t.indexOf('약 ' + want + '원') > -1, t);
+    ok('환율 출처 표기', /환율/.test(w.document.querySelector('.bnote')?.textContent || ''));
+  } else {
+    ok('환율 없으면 달러만', !/원/.test(t), t);
+  }
+  ok('작업 수준 라벨', /작업 수준/.test(w.document.querySelector('.tb-title .sub')?.textContent || ''));
   w.close();
 }
 

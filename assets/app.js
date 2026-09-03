@@ -15,6 +15,19 @@
   var fmt = function (n) { return Number(n).toLocaleString('ko-KR'); };
   var usd = function (c) { return '$' + (c / 100).toFixed(2); };
 
+  /* 크레딧당 $0.01로 환산한다. 원화는 그날 받아 둔 환율로 함께 적는다.
+     환율을 받지 못한 날은 달러만 보여주고 없는 값을 만들지 않는다. */
+  var FX = window.COWORK_FX || null;
+  function krw(c) {
+    if (!FX) { return ''; }
+    var w = c / 100 * FX.usdkrw;
+    return '약 ' + Math.round(w).toLocaleString('ko-KR') + '원';
+  }
+  function money(c) {
+    var k = krw(c);
+    return usd(c) + (k ? ' · ' + k : '');
+  }
+
   /* ── 아이콘 (Fluent 계열 선 아이콘) ── */
   var I = {
     grid: '<svg width="17" height="17" viewBox="0 0 20 20" fill="currentColor"><circle cx="4" cy="4" r="1.4"/><circle cx="10" cy="4" r="1.4"/><circle cx="16" cy="4" r="1.4"/><circle cx="4" cy="10" r="1.4"/><circle cx="10" cy="10" r="1.4"/><circle cx="16" cy="10" r="1.4"/><circle cx="4" cy="16" r="1.4"/><circle cx="10" cy="16" r="1.4"/><circle cx="16" cy="16" r="1.4"/></svg>',
@@ -37,6 +50,7 @@
     mic: '<svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="7.6" y="2.4" width="4.8" height="9" rx="2.4"/><path d="M4.6 9.4a5.4 5.4 0 0010.8 0M10 14.8v2.8"/></svg>',
     homeI: '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M3 9.2L10 3.4l7 5.8V16a1 1 0 01-1 1h-3.4v-4.4H7.4V17H4a1 1 0 01-1-1z"/></svg>',
     x: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></svg>',
+    arrowDown: '<svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4.4v11.2M5.4 11l4.6 4.6L14.6 11"/></svg>',
     upload: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15.4V4.6M5.8 8.8L10 4.6l4.2 4.2"/></svg>',
     play: '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M5.5 3.5l11 6.5-11 6.5z"/></svg>',
     pause: '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><rect x="5" y="3.5" width="3.6" height="13" rx="1"/><rect x="11.4" y="3.5" width="3.6" height="13" rx="1"/></svg>',
@@ -269,8 +283,7 @@
     var curModel = live ? (picked || run.model) : '자동';
 
     var mWrap = popover('<span id="mdlLabel">' + esc(curModel) + '</span> ' + I.caret, models, {
-      narrow: true, check: true, current: curModel, up: !live,
-      onPick: function (name) {
+      narrow: true, check: true, current: curModel, up: !live,      onPick: function (name) {
         if (live) {
           picked = name;
           effortPick = defaultEffort(name);
@@ -285,6 +298,8 @@
         }
       }
     });
+    /* 모델별 결과가 있는 회차는 선택기에 테두리를 둘러 눌러 보게 안내한다. */
+    if (live && run.variants) { mWrap.classList.add('ring'); }
     host.appendChild(mWrap);
 
     var curEffort = live ? (effortPick || run.effort) : '보통';
@@ -308,7 +323,7 @@
 
   function effortPicker(cur, live) {
     var wrap = el('<div class="pop-wrap"></div>');
-    var btn = el('<button class="pill" aria-expanded="false">' +
+    var btn = el('<button class="pill" aria-expanded="false">작업 수준 ' +
       '<span id="effLabel">' + esc(cur) + '</span> ' + I.caret + '</button>');
     var pop = el('<div class="pop eff' + (live ? '' : ' up') + '">' +
       '<div class="eh" id="effHead">노력 ' + esc(cur) +
@@ -386,8 +401,9 @@
 
     var box = document.getElementById('chats');
     box.innerHTML = '';
-    RUNS.forEach(function (r) {
-      var b = el('<button data-id="' + r.id + '"><span class="lbl">' + esc(r.chatTitle || r.title) + '</span></button>');
+    listed().forEach(function (r) {
+      var b = el('<button data-id="' + r.id + '"><span class="lbl">' +
+        esc(r.groupLabel || r.chatTitle || r.title) + '</span></button>');
       b.addEventListener('click', function () { open(r.id); });
       box.appendChild(b);
     });
@@ -406,8 +422,11 @@
   }
 
   function markSide(id) {
+    /* 묶인 회차는 사이드바에 대표 하나만 있으므로 그 대표를 켠다. */
+    var r = RUNS.filter(function (x) { return x.id === id; })[0];
+    var mark = r && groupOf(r) ? peers(r)[0].id : id;
     [].forEach.call(document.querySelectorAll('#chats button'), function (b) {
-      b.classList.toggle('on', b.dataset.id === id);
+      b.classList.toggle('on', b.dataset.id === mark);
     });
   }
 
@@ -422,15 +441,17 @@
     var tip = TIPS[tipN % TIPS.length];
     tipN++;
 
-    var resume = RUNS.map(function (r) {
+    var resume = listed().map(function (r) {
       var chips = r.artifacts.slice(0, 1).map(function (a) { return fileChip(a.name); }).join('');
       var extra = r.artifacts.length > 1 ? '<span class="plus">+' + (r.artifacts.length - 1) + '</span>' : '';
       /* 고르기 전에 비용을 가늠할 수 있게 크레딧을 함께 보여준다.
-         모델을 바꿔 여러 번 잰 회차는 한 값이 아니라 범위로 적는다. */
+         모델이나 계정을 바꿔 여러 번 잰 회차는 한 값이 아니라 범위로 적는다. */
       var vals = r.variants
         ? Object.keys(r.variants).map(function (k) { return r.variants[k].credit; })
-        : null;
-      var cost = vals
+        : peers(r).length > 1
+          ? peers(r).map(function (x) { return x.credit; }).filter(Boolean)
+          : null;
+      var cost = vals && vals.length > 1
         ? '<span class="rcost">' + fmt(Math.min.apply(null, vals)) + '~' +
           fmt(Math.max.apply(null, vals)) + ' 크레딧</span>'
         : r.credit
@@ -438,8 +459,9 @@
           : '<span class="rcost none">크레딧 미측정</span>';
       return '<button class="ritem" data-id="' + r.id + '">' +
         '<span class="rico">' + I.circleCheck + '</span>' +
-        '<span class="rbody"><span class="rtitle">' + esc(r.chatTitle || r.title) + '</span>' +
-        '<span class="rsub">' + cost + esc(r.subtitle) + '</span></span>' +
+        '<span class="rbody"><span class="rtitle">' +
+        esc(r.groupLabel || r.chatTitle || r.title) + '</span>' +
+        '<span class="rsub">' + cost + esc(r.groupSub || r.subtitle) + '</span></span>' +
         '<span class="rchips">' + chips + extra + '</span></button>';
     }).join('');
 
@@ -482,6 +504,42 @@
     markSide(null);
   }
 
+  /* ── 회차 묶음 ──
+     계정이나 모델을 바꾸면 로그 전체가 달라진다. 답변만 갈아 끼울 수 없어서
+     회차를 통째로 바꾼다. 홈에는 대표 하나만 세우고, 안에서 탭으로 오간다. */
+  function groupOf(r) { return r && r.group ? r.group : null; }
+
+  function peers(r) {
+    var g = groupOf(r);
+    if (!g) { return []; }
+    return RUNS.filter(function (x) { return groupOf(x) === g; });
+  }
+
+  /* 홈과 사이드바에 세울 목록. 묶인 회차는 대표 하나만 남긴다. */
+  function listed() {
+    var seen = {};
+    return RUNS.filter(function (r) {
+      var g = groupOf(r);
+      if (!g) { return true; }
+      if (seen[g]) { return false; }
+      seen[g] = 1;
+      return true;
+    });
+  }
+
+  function groupTabs() {
+    var p = peers(run);
+    if (p.length < 2) { return ''; }
+    return '<div class="gtabs"><span class="gt-l">' + esc(run.groupLabel || '비교') + '</span>' +
+      p.map(function (x) {
+        return '<button class="gt' + (x.id === run.id ? ' on' : '') +
+          '" data-go="' + esc(x.id) + '">' + esc(x.tab || x.chatTitle) +
+          (x.credit ? '<span class="gc">' + fmt(x.credit) + '</span>'
+                    : '<span class="gc none">미측정</span>') +
+          '</button>';
+      }).join('') + '</div>';
+  }
+
   /* ── 실행 화면 ── */
   function open(id, fromHash) {
     run = RUNS.filter(function (r) { return r.id === id; })[0];
@@ -498,7 +556,8 @@
       '<div class="mtop bordered">' +
         '<button class="home" id="goHome">' + I.homeI + '</button>' +
         '<div class="tb-title"><h1>' + esc(run.chatTitle || run.title) + '</h1>' +
-        '<div class="sub">' + esc(run.model) + ' · ' + esc(run.effort) + ' · ' + esc(run.tc) + '</div></div>' +
+        '<div class="sub">' + esc(run.model) + ' · 작업 수준 ' + esc(run.effort) +
+        ' · ' + esc(run.tc) + '</div></div>' +
         '<div class="right">' +
           '<button class="ib shield">' + I.shield + '</button>' +
           '<button class="ib" id="tgPanel">' + I.panel + '</button>' +
@@ -518,8 +577,14 @@
       '<div class="notice"><span class="ic">' + I.info + '</span><span>' +
         '실제 실행 기록입니다. 개인정보는 마스킹했고, 크레딧은 <code>/cost</code> 실측값입니다.' +
         (run.note ? ' <b>볼 것</b> — ' + esc(run.note) : '') +
+        (run.variants
+          ? '<span class="pickhint">' + I.arrowDown +
+            '아래 <b>모델 선택기</b>를 누르면 그 모델이 실제로 낸 답변으로 바뀝니다. ' +
+            '크레딧과 작업 수준도 함께 따라갑니다.</span>'
+          : '') +
         '<span class="keys">스페이스 재생·정지 · ← → 한 단계씩 · 진행 바를 눌러 이동</span>' +
         '</span></div>' +
+      groupTabs() +
       '<div class="stream" id="stream"><div class="wrap" id="w">' +
         '<div class="daysep"><span>' + esc(run.date) + ' · KST</span></div></div></div>' +
       '<div class="composer"><div class="cbox">' +
@@ -537,6 +602,9 @@
     composerRow(document.getElementById('crow'), true);
 
     document.getElementById('goHome').addEventListener('click', renderHome);
+    [].forEach.call(document.querySelectorAll('.gt[data-go]'), function (b) {
+      b.addEventListener('click', function () { open(b.dataset.go); });
+    });
     document.getElementById('tgPanel').addEventListener('click', function () { app.classList.toggle('panel-open'); });
     document.getElementById('play').addEventListener('click', toggle);
     document.getElementById('restart').addEventListener('click', function () { seek(0); });
@@ -874,13 +942,14 @@
   function varyHead() {
     var v = variant(), pick = picked || run.model;
     var bits = v
-      ? [v.grade ? '등급 ' + v.grade : '', v.counts || '', v.change ? '변경 ' + v.change : '']
+      ? [v.grade ? '등급 ' + v.grade : '', v.counts || '',
+         v.change ? '변경 ' + v.change : '']
       : [];
     return '<div class="vhead"><span class="vmdl">' + esc(pick) + '</span>' +
+      (v && v.effort ? '<span class="veff">작업 수준 ' + esc(v.effort) + '</span>' : '') +
       bits.filter(Boolean).map(function (b) {
         return '<span class="vpill">' + esc(b) + '</span>';
-      }).join('') +
-      '<span class="vhint">위 모델 선택기를 바꾸면 답변이 바뀝니다</span></div>';
+      }).join('') + '</div>';
   }
 
   function varyBody(s) {
@@ -1125,7 +1194,7 @@
         '</div></div>'));
       node.appendChild(el('<div class="cost"><div class="cic">' + I.clock + '</div><div>' +
         '<div class="l1">이 작업에 크레딧 <b>' + fmt(s.credit) + '</b>개가 사용되었습니다. ' +
-        '<span style="font-weight:400;color:var(--ink-3)">(' + usd(s.credit) + ')</span></div>' +
+        '<span style="font-weight:400;color:var(--ink-3)">(' + money(s.credit) + ')</span></div>' +
         '<div class="l2">이 시점까지의 누적입니다. 이어서 시키면 값이 올라갑니다.</div>' +
         '</div></div>'));
 
@@ -1246,7 +1315,7 @@
     var head = credit
       ? '<div class="cost"><div class="cic">' + I.clock + '</div><div>' +
         '<div class="l1">이 작업에 크레딧 <b>' + fmt(credit) + '</b>개가 사용되었습니다. ' +
-        '<span style="font-weight:400;color:var(--ink-3)">(' + usd(credit) + ')</span></div>' +
+        '<span style="font-weight:400;color:var(--ink-3)">(' + money(credit) + ')</span></div>' +
         '<div class="l2">' + (isReal
           ? '이 작업에서 실제로 나온 값입니다. <code>/cost</code>는 프롬프트 하나가 아니라 ' +
             '그 작업 전체를 셉니다.'
@@ -1271,11 +1340,11 @@
             /* 모델 비교 표는 고른 모델을, 작업 비교 표는 self로 찍은 행을 강조한다. */
             var on = m.self === true || m.name === pick;
             return '<div class="brow"><div class="bnm' + (on ? ' self' : '') + '">' + esc(m.name) +
-              (m.effort ? '<span class="beff">' + esc(m.effort) + '</span>' : '') + '</div>' +
+              (m.effort ? '<span class="beff">작업 수준 ' + esc(m.effort) + '</span>' : '') + '</div>' +
               '<div class="btrack"><div class="bfill' + (on ? ' self' : '') + '" style="width:' +
               Math.max(2, m.avg / max * 100).toFixed(1) + '%"></div></div>' +
               '<div class="bval">' + fmt(Math.round(m.avg)) +
-              '<small>' + usd(m.avg) + (m.n > 1 ? ' · ' + m.n + '회' : '') + '</small></div></div>' +
+              '<small>' + money(m.avg) + (m.n > 1 ? ' · ' + m.n + '회' : '') + '</small></div></div>' +
               (m.meta ? '<div class="bmeta">' + esc(m.meta) + '</div>' : '');
           }).join('') +
           '<div class="bnote">' + (credit
@@ -1287,6 +1356,8 @@
             : '가장 적게 든 <b>' + esc(cheapest.name) + '</b>와 가장 많이 든 쪽의 차이는 <b>' +
               (max / cheapest.avg).toFixed(1) + '배</b>입니다.') +
             ' 위 숫자는 이 데모에서 직접 잰 값이고, 상대 비교용입니다. 견적의 근거로 쓰지 않습니다.' +
+            (FX ? ' 원화는 크레딧당 $0.01로 보고 ' + esc(FX.date) + ' 환율 ' +
+              fmt(Math.round(FX.usdkrw)) + '원을 적용한 값입니다.' : '') +
           '</div>' +
           (b.condition ? '<div class="bcond"><b>측정 조건</b> ' + esc(b.condition) + '</div>' : '') +
         '</div>' +

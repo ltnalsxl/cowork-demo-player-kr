@@ -1,0 +1,36 @@
+name: 환율 갱신
+
+# 크레딧 옆에 원화를 함께 보여주려면 환율이 필요하다.
+# 정적 사이트라 브라우저에서 매번 부르지 않고 하루 한 번 받아 심는다.
+on:
+  schedule:
+    - cron: '0 22 * * *'   # UTC 22:00 = KST 07:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 환율 받기
+        run: python _작업/fetch_fx.py
+
+      - name: 바뀐 것이 있으면 커밋
+        run: |
+          if git diff --quiet -- data/fx.js; then
+            echo "환율이 그대로라 커밋하지 않습니다."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/fx.js
+          git commit -m "환율 갱신 $(date -u +%Y-%m-%d)"
+          git push
