@@ -102,7 +102,8 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
   w.document.querySelector('.ritem[data-id]').dispatchEvent(new w.Event('click', { bubbles: true }));
   const sp = $('#sp');
   ok('속도 단계 18개', sp.min === '0' && sp.max === '17', sp.min + '~' + sp.max);
-  ok('기본 2.0배', $('#spv')?.textContent === '2.0×', $('#spv')?.textContent);
+  ok('기본 1.2배', $('#spv')?.textContent === '1.2×', $('#spv')?.textContent);
+  ok('기본값이 슬라이더 위치와 맞음', sp.value === '7', sp.value);
   const set = (v) => {
     sp.value = String(v);
     sp.dispatchEvent(new w.Event('input', { bubbles: true }));
@@ -112,6 +113,9 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
   ok('1.0배 지점', set(5) === '1.0×');
   ok('0.1 간격', set(6) === '1.1×' && set(14) === '1.9×');
   ok('가장 빠름 3.0배', set(17) === '3.0×');
+  /* 단계마다 화면에 붙는 양이 달라 머무는 시간도 달라야 한다.
+     도구 한 줄과 최종 답변에 같은 시간을 주면 한쪽은 지루하고 한쪽은 못 읽는다. */
+  ok('내용 길이에 따라 대기 시간이 다름', /dwell/.test(appSrc) && !/setInterval/.test(appSrc));
   w.close();
 }
 

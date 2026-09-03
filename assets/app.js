@@ -5,12 +5,24 @@
   var RUNS = window.COWORK_RUNS || [];
   var app = document.getElementById('app');
   var stream = null;
-  var run = null, idx = 0, timer = null, speed = 2, costShown = false,
+  /* 기본 1.2배. dwell()을 1.0배에서 편하게 읽히도록 맞췄고, 발표자가 말을
+     얹으며 보여 주는 자리라 조금 빠른 쪽이 낫다. 가장 긴 회차가 1분 남짓이다. */
+  var run = null, idx = 0, timer = null, speed = 1.2, costShown = false,
       picked = null, effortPick = null, running = false;
 
   /* 재생 속도. 1.0 근처를 촘촘히 두고 양끝만 성기게 잡는다. */
   var SPEEDS = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4,
                 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.5, 3.0];
+
+  /* 단계마다 화면에 붙는 양이 다르다. 도구 한 줄은 스무 자, 최종 답변은
+     팔백 자가 넘는다. 같은 시간을 주면 짧은 줄은 지루하고 긴 답변은 못 읽는다.
+     그래서 방금 붙은 글자 수로 머무는 시간을 정한다.
+     1.0배에서 한 줄은 0.9초, 긴 답변은 4초까지 간다. */
+  var lastAdded = null;
+  function dwell(node) {
+    var n = node ? (node.textContent || '').length : 0;
+    return Math.min(4000, Math.max(700, 620 + n * 3.4));
+  }
 
   var fmt = function (n) { return Number(n).toLocaleString('ko-KR'); };
   var usd = function (c) { return '$' + (c / 100).toFixed(2); };
@@ -647,7 +659,7 @@
     document.title = 'Copilot Cowork 시나리오 데모';
     app.classList.remove('panel-open');
     run = null;
-    clearInterval(timer); timer = null;
+    clearTimeout(timer); timer = null;
     if (!fromHash && location.hash) { location.hash = ''; }
     /* 팁은 실제 화면처럼 열 때마다 바뀐다. */
     var tip = TIPS[tipN % TIPS.length];
@@ -746,7 +758,7 @@
     document.title = run.chatTitle + ' · Copilot Cowork 데모';
     app.classList.add('panel-open');
     idx = 0; costShown = false;
-    clearInterval(timer); timer = null;
+    clearTimeout(timer); timer = null;
 
     document.getElementById('main').innerHTML =
       '<div class="mtop bordered">' +
@@ -808,7 +820,8 @@
     document.getElementById('sp').addEventListener('input', function (e) {
       speed = SPEEDS[+e.target.value];
       document.getElementById('spv').textContent = speed.toFixed(1) + '×';
-      if (timer) { start(); }
+      /* 재생 중이면 남은 대기를 새 속도로 다시 잡는다. 처음으로 돌아가지 않는다. */
+      if (timer) { queue(); }
     });
     /* 진행 바를 누르면 그 지점으로 옮긴다. */
     document.getElementById('prog').addEventListener('click', function (e) {
@@ -1435,7 +1448,7 @@
         '<span class="ar">' + I.arrowR + '</span></div>');
     }
 
-    if (node) { w.appendChild(node); }
+    if (node) { w.appendChild(node); lastAdded = node; }
 
     if (s.t === 'final') {
       /* 여러 턴이 있으면 id가 겹치므로 방금 붙인 노드 안에서 찾는다. */
@@ -1591,7 +1604,7 @@
     }
     var outs = document.getElementById('outs');
     if (outs) { outs.innerHTML = ''; }
-    idx = 0; costShown = false;
+    idx = 0; costShown = false; lastAdded = null;
     n = Math.max(0, Math.min(n, run.log.length + 1));
     while (idx < n && idx < run.log.length) { advance(); }
     if (n > run.log.length) { showCost(); }
@@ -1604,17 +1617,27 @@
     if (!costShown) { showCost(); tick(); return; }
     stop();
   }
+  /* 다음 단계까지 기다린다. 방금 붙은 내용이 길수록 오래 머문다.
+     step()이 끝에 닿으면 stop()이 timer를 비우므로 그때 멈춘다. */
+  function queue() {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      step();
+      if (timer) { queue(); }
+    }, dwell(lastAdded) / speed);
+  }
   function start() {
     /* 끝까지 본 뒤에 다시 누르면 처음부터 돌린다. 죽은 버튼을 만들지 않는다. */
     if (done()) { seek(0); }
-    clearInterval(timer);
-    timer = setInterval(step, 1600 / speed);
+    clearTimeout(timer);
+    timer = 1;
+    queue();
     document.getElementById('play').innerHTML = I.pause + '<span>일시정지</span>';
     document.getElementById('play').addEventListener('click', toggle, { once: true });
     setRunningUI(true);
   }
   function stop() {
-    clearInterval(timer); timer = null;
+    clearTimeout(timer); timer = null;
     var p = document.getElementById('play');
     if (p) {
       p.innerHTML = I.play + '<span>' + (done() ? '다시 재생' : '재생') + '</span>';
