@@ -71,8 +71,8 @@ const EXPECT = {
   'rfp-report': { steps: 3, arts: 1, credit: null },
   'badge-check': { steps: 0, arts: 4, credit: '789' },
   'isms-audit': { steps: 4, arts: 4, credit: '1,130' },
-  'brief-real': { steps: 0, arts: 0, credit: null },
-  'brief-demo': { steps: 0, arts: 0, credit: null }
+  'brief-real': { steps: 0, arts: 0, credit: '107' },
+  'brief-demo': { steps: 0, arts: 0, credit: '95' }
 };
 
 RUNS.forEach((r) => {
@@ -214,6 +214,15 @@ RUNS.forEach((r) => {
   } else {
     ok(tag + '예약 없으면 섹션 없음',
       !/예약된 작업/.test(w.document.getElementById('panel').textContent));
+  }
+  if (r.allowed) {
+    ok(tag + '항상 허용됨 ' + r.allowed.length,
+      $$('.allow li').length === r.allowed.length, $$('.allow li').length);
+    ok(tag + '항상 허용 섹션 제목',
+      /항상 허용됨/.test(w.document.getElementById('panel').textContent));
+  } else {
+    ok(tag + '허용 목록 없으면 섹션 없음',
+      !/항상 허용됨/.test(w.document.getElementById('panel').textContent));
   }
   if (types.confirm) {
     ok(tag + '도구 승인 카드', $$('.mailcard.confirm:not(.sched)').length === types.confirm);

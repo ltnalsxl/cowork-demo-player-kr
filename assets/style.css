@@ -391,6 +391,9 @@ svg{display:block}
 .schrow .sm{border:0;background:transparent;color:var(--ink-3);cursor:pointer;
   padding:2px;border-radius:4px;flex:none}
 .schrow .sm:hover{background:#eaeaea}
+.allow{list-style:none;margin:0;padding:0}
+.allow li{display:flex;align-items:center;gap:9px;padding:6px 0;font-size:12.5px;color:var(--ink-2)}
+.allow .ai{flex:none;color:#3f8f4a;display:grid;place-items:center}
 
 /* 되풀이 작업 카드 */
 .mailcard.sched .mrow .mk{width:96px}

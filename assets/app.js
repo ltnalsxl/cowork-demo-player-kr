@@ -646,6 +646,15 @@
           '<span class="sw">' + esc(run.scheduled.when) + '</span></span>' +
           '<button class="sm">' + I.dots + '</button></div></div>'
         : '') +
+      /* 승인 카드에서 "항상 허용"을 누르면 그 도구가 여기에 쌓인다.
+         다음부터 같은 작업은 승인 없이 바로 실행된다. */
+      ((run.allowed || []).length
+        ? '<div class="p-sec"><div class="p-h">항상 허용됨 <span class="n">' +
+          run.allowed.length + '</span><span>' + I.caret + '</span></div>' +
+          '<ul class="allow">' + run.allowed.map(function (a) {
+            return '<li><span class="ai">' + I.checkThin + '</span>' + esc(a) + '</li>';
+          }).join('') + '</ul></div>'
+        : '') +
       (run.steps.length
         ? '<div class="p-sec"><div class="p-h">단계 <span class="n" id="stepn">0/' + run.steps.length + '</span>' +
           '<span>' + I.caret + '</span></div>' +

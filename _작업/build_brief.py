@@ -62,17 +62,17 @@ T_RULE = ('The user said not to invent anything that is not confirmed. That has 
           'the briefing. I will spell out 확인 필요 and 없음 as required outputs.')
 
 BENCH = {
-    'n': 2, 'people': 1, 'min': 219, 'max': 1178,
-    'head': '참고 · 같은 자동·보통 설정으로 측정한 회차',
-    'lead': '이 회차는 크레딧을 재지 않았습니다. 아래는 모델과 노력을 같게 두고 '
-            '계정만 바꿔 돌린 다른 작업의 실측값입니다.',
-    'condition': '작업 종류가 달라 이 회차의 값으로 읽지 마십시오. '
-                 '데이터 양이 크레딧을 얼마나 움직이는지만 보십시오.',
+    'n': 2, 'people': 1, 'min': 95, 'max': 107,
+    'head': '같은 브리핑을 데이터가 다른 계정에서 시키면',
+    'lead': '모델과 노력을 고정하고 계정만 바꿔 돌린 실측값입니다.',
+    'condition': '모델과 노력을 고정하고 계정만 바꿨습니다. 한쪽은 오늘 일정이 0건인 계정, '
+                 '다른 쪽은 회의 4건에 메일이 쌓여 있는 계정입니다. '
+                 '둘 다 읽기만 하고 문서는 만들지 않습니다.',
     'models': [
-        {'name': '주간보고 · 활동 없는 계정', 'avg': 219, 'n': 1, 'effort': '보통',
-         'meta': '자동·보통 · 데이터 0건'},
-        {'name': '주간보고 · 활동 많은 계정', 'avg': 1178, 'n': 1, 'effort': '보통',
-         'meta': '자동·보통 · 프로젝트 7건'},
+        {'name': '일정 없는 계정', 'avg': 95, 'n': 1, 'effort': '보통',
+         'meta': '일정 0건 · 메일 2건 · 산출물 없음'},
+        {'name': '일정 있는 계정', 'avg': 107, 'n': 1, 'effort': '보통',
+         'meta': '회의 4건 · 회신 대기 3건 · 산출물 없음'},
     ],
 }
 
@@ -210,6 +210,14 @@ BRIEF_DEMO = """**오늘의 브리핑 — 9월 3일 (목)**
 
 근거: 오늘 캘린더, 최근 메일(8/25 이후). Teams 채팅은 조회 결과 없음."""
 
+FINAL_DEMO = """오늘의 브리핑을 Teams 자기 채팅으로 보냈습니다.
+
+- **회의** — 오늘 캘린더에 등록된 일정이 없습니다.
+- **급한 메일** — ISMS-P 사후심사 대응 자료 검토 요청(미읽음, R-001 목표일 9/30 · R-002 암호화 미적용), 출입증 미태그 점검 결과(미읽음) 두 건을 올렸습니다. 회신 기한이 메일에 명시돼 있지 않아 '확인 필요'로 표시했습니다.
+- **이번 주 기한** — 확인된 항목이 없어 '없음'으로 적고, 대신 9/30과 10/12~16 일정을 참고로 붙였습니다.
+
+Teams 채팅은 조회 결과가 없어 그 부분은 근거로 쓰지 않았습니다."""
+
 LOG_DEMO = [
     {'t': 'think', 'label': '사고 과정', 'time': '오후 12:32', 'body': T_SCHED,
      'status': '되풀이 작업으로 만드는 중'},
@@ -225,7 +233,7 @@ LOG_DEMO = [
      'desc': DESC_DEMO,
      'status': '예약 승인을 기다리는 중', 'act': '사용자 승인을 기다리는 중'},
 
-    {'t': 'approved', 'time': '오후 12:33', 'label': '1개 작업 승인됨',
+    {'t': 'approved', 'time': '오후 12:33', 'label': '1개 작업 건너뜀',
      'status': '예약을 등록하는 중'},
 
     {'t': 'prompt', 'time': '오후 12:33', 'sep': '지금 한 번 실행', 'body': DESC_DEMO},
@@ -249,13 +257,16 @@ LOG_DEMO = [
      'to': 'me', 'body': BRIEF_DEMO,
      'status': '요청 작업 중', 'act': '사용자 승인을 기다리는 중'},
 
-    {'t': 'cut', 'time': '오후 12:36',
-     'body': '실제 기록은 여기까지입니다. 승인 대기 상태로 멈춰 있습니다.'},
+    {'t': 'approved', 'time': '오후 12:36', 'label': '1개 작업 승인됨',
+     'status': '메시지를 보내는 중'},
+
+    {'t': 'final', 'time': '오후 12:36', 'body': FINAL_DEMO,
+     'status': '완료', 'act': '작업 완료'},
 ]
 
 
-def build(rid, chat_title, subtitle, note, sched_name, log, tools):
-    return {
+def build(rid, chat_title, subtitle, note, sched_name, credit, log, tools, allowed=None):
+    d = {
         'id': rid,
         'tc': '실습-04',
         'folder': '실습',
@@ -265,7 +276,7 @@ def build(rid, chat_title, subtitle, note, sched_name, log, tools):
         'model': '자동',
         'effort': '보통',
         'date': '2026년 9월 3일 목요일',
-        'credit': None,
+        'credit': credit,
         'note': note,
         'scheduled': {
             'name': sched_name,
@@ -280,6 +291,9 @@ def build(rid, chat_title, subtitle, note, sched_name, log, tools):
         'log': log,
         'artifacts': [],
     }
+    if allowed:
+        d['allowed'] = allowed
+    return d
 
 
 runs = [
@@ -287,13 +301,14 @@ runs = [
           '짧은 요청을 상세 작업 설명으로 늘려 평일 오전 7시 30분 되풀이 작업으로 남긴 실행. '
           '회의 4건과 회신 대기 3건을 찾아 한 화면에 담았다',
           '근거가 없는 준비물은 채우지 않고 확인 필요로 남깁니다.',
-          '평일 아침 브리핑 (Teams)', LOG_REAL, ['일정', 'Outlook', 'Teams']),
+          '평일 아침 브리핑 (Teams)', 107, LOG_REAL, ['일정', 'Outlook', 'Teams']),
 
     build('brief-demo', '평일 아침 브리핑 · 일정 없는 계정',
           '같은 프롬프트를 캘린더가 빈 계정에서 돌린 실행. 없는 일정을 지어내지 않고 '
-          '없다고 적었다',
-          '찾을 게 없으면 없다고 적습니다. 빈 자리를 메우지 않습니다.',
-          '평일 아침 브리핑', LOG_DEMO, ['일정', 'Outlook', 'Teams']),
+          '없다고 적었다. 데이터가 없는데도 크레딧은 12만 적게 든다',
+          '읽기만 하는 작업은 데이터 양이 늘어도 크레딧이 거의 그대로입니다.',
+          '평일 아침 브리핑', 95, LOG_DEMO, ['일정', 'Outlook', 'Teams'],
+          allowed=['메시지 보내기']),
 ]
 
 for r in runs:
