@@ -38,6 +38,16 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
     $$('#chats button[data-id]').length);
   ok('홈 타일 제목이 회차별로 구분됨',
     new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 12);
+  /* 모델을 바꿔 여러 번 잰 회차는 한 값이 아니라 범위로 적는다. */
+  const vr = RUNS.find((r) => r.variants);
+  if (vr) {
+    const vals = Object.keys(vr.variants).map((k) => vr.variants[k].credit);
+    const want = Math.min(...vals).toLocaleString('ko-KR') + '~' +
+      Math.max(...vals).toLocaleString('ko-KR') + ' 크레딧';
+    ok('여러 모델 회차는 크레딧 범위로',
+      $('.ritem[data-id="' + vr.id + '"] .rcost')?.textContent === want,
+      $('.ritem[data-id="' + vr.id + '"] .rcost')?.textContent);
+  }
   w.close();
 }
 

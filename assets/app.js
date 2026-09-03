@@ -425,10 +425,17 @@
     var resume = RUNS.map(function (r) {
       var chips = r.artifacts.slice(0, 1).map(function (a) { return fileChip(a.name); }).join('');
       var extra = r.artifacts.length > 1 ? '<span class="plus">+' + (r.artifacts.length - 1) + '</span>' : '';
-      /* 고르기 전에 비용을 가늠할 수 있게 크레딧을 함께 보여준다. */
-      var cost = r.credit
-        ? '<span class="rcost">' + fmt(r.credit) + ' 크레딧</span>'
-        : '<span class="rcost none">크레딧 미측정</span>';
+      /* 고르기 전에 비용을 가늠할 수 있게 크레딧을 함께 보여준다.
+         모델을 바꿔 여러 번 잰 회차는 한 값이 아니라 범위로 적는다. */
+      var vals = r.variants
+        ? Object.keys(r.variants).map(function (k) { return r.variants[k].credit; })
+        : null;
+      var cost = vals
+        ? '<span class="rcost">' + fmt(Math.min.apply(null, vals)) + '~' +
+          fmt(Math.max.apply(null, vals)) + ' 크레딧</span>'
+        : r.credit
+          ? '<span class="rcost">' + fmt(r.credit) + ' 크레딧</span>'
+          : '<span class="rcost none">크레딧 미측정</span>';
       return '<button class="ritem" data-id="' + r.id + '">' +
         '<span class="rico">' + I.circleCheck + '</span>' +
         '<span class="rbody"><span class="rtitle">' + esc(r.chatTitle || r.title) + '</span>' +

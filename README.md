@@ -189,6 +189,9 @@ _작업/build_inbox.py    실습-07 밀린 메일 정리
 _작업/build_all.py      위 열 + build.py 를 순서대로
 _작업/build.py          runs/*.json → data/runs.js
 _작업/check.js          jsdom 검증
+_작업/check_readme.py   README와 데이터 대조
+_작업/render_doc.py     Word 산출물 → 미리보기 PNG
+_작업/fix_tc01_doc.py   TC-01 산출물 문서의 대체어 정리
 _작업/anon_meta.py      산출물 메타데이터 익명화
 _작업/rewrite_tc01.py   TC-01 문서 내용을 가상 업무로 재작성(구조는 그대로)
 _작업/frames/           실제 화면 녹화 참고 프레임 (저장소에 없음)
@@ -418,12 +421,16 @@ https://ltnalsxl.github.io/cowork-demo-player-kr/#isms-audit
 cd _작업
 npm install jsdom --no-save
 node check.js
+python check_readme.py
 ```
 
 시나리오마다 렌더링, 재생 완료, 단계 상태, 편집 실패 배지 수, 검색 URL 수,
 되묻기 질문 수, 승인 카드 두 종류, 멀티턴 프롬프트, 첨부와 참조, 빈 섹션 숨김, 크레딧 표시,
-식별 정보 노출을 확인합니다. 현재 461개 항목입니다.
+식별 정보 노출을 확인합니다. 현재 474개 항목입니다.
 로그를 고치면 기대값이 JSON에서 자동으로 따라오므로 check.js를 손볼 일은 거의 없습니다.
+
+`check_readme.py`는 이 문서가 데이터와 어긋나지 않는지 봅니다. 없는 회차를 인용했는지,
+표에서 빠진 회차가 있는지, 표의 크레딧이 실측값과 같은지, 검증 항목 수가 맞는지를 대조합니다.
 
 `jsdom`은 검증에만 쓰므로 확인이 끝나면 `node_modules`를 지워도 됩니다.
 
