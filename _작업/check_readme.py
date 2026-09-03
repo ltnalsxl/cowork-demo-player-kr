@@ -27,10 +27,14 @@ def main():
     bad = []
 
     # 1) README가 인용한 id가 실제로 있는지
-    #    스킬 이름도 같은 모양이라 미리 빼 둔다.
+    #    스킬 이름과 빼 둔 회차는 미리 제외한다.
     skills = {'company-template', 'frontend-design', 'korean-proofread'}
+    held = set()
+    hold_dir = os.path.join(BASE, '_보류')
+    if os.path.isdir(hold_dir):
+        held = {f[:-5] for f in os.listdir(hold_dir) if f.endswith('.json')}
     cited = set(re.findall(r'`([a-z][a-z0-9]+(?:-[a-z0-9]+)+)`', md))
-    cited = {c for c in cited if not c.endswith(('.py', '.js', '.md'))} - skills
+    cited = {c for c in cited if not c.endswith(('.py', '.js', '.md'))} - skills - held
     ghost = sorted(cited - ids)
     if ghost:
         bad.append('README에만 있는 id: ' + ', '.join(ghost))

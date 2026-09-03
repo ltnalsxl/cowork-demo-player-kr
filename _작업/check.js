@@ -56,7 +56,7 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
   const $$ = (s) => [...w.document.querySelectorAll(s)];
 
   ok('홈 히어로', $('.hero-q')?.textContent === '지금 무엇을 작업하고 있나요?');
-  ok('재생 항목 9개', $$('.ritem').length === 9, $$('.ritem').length);
+  ok('재생 항목 8개', $$('.ritem').length === 8, $$('.ritem').length);
   /* 눌러도 열리지 않는 항목을 두지 않는다. 위쪽 내비게이션(새 작업, 내 작업,
      자동화, 사용자 지정)은 실제 화면 구조라 그대로 두고, 채팅 기록은 실제 회차만 세운다. */
   ok('홈에 죽은 타일 없음', $$('.tile').length === 0, $$('.tile').length);
@@ -70,10 +70,13 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
   ok('컴포저 마이크', !!$('#homeCrow .micb'));
   ok('대기 중엔 보내기 없음', !$('#homeCrow .rnd'));
   ok('계정 Copilot User', /Copilot User/.test($('.me')?.textContent));
-  ok('사이드바 시나리오 9개', $$('#chats button[data-id]').length === 9,
+  ok('사이드바 시나리오 8개', $$('#chats button[data-id]').length === 8,
     $$('#chats button[data-id]').length);
   ok('홈 타일 제목이 회차별로 구분됨',
-    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 9);
+    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 8);
+  /* 크레딧을 재지 않은 회차는 싣지 않는다. */
+  ok('미측정 회차 없음', RUNS.every((r) => r.credit || r.variants),
+    RUNS.filter((r) => !r.credit && !r.variants).map((r) => r.id).join(', '));
   /* 묶인 회차는 대표 하나만 홈에 세운다. */
   const groups = new Set(RUNS.filter((r) => r.group).map((r) => r.group));
   ok('묶음은 대표만 홈에',
@@ -114,12 +117,10 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
 
 // ── 2) 시나리오별 재생 ──────────────────────────────────
 const EXPECT = {
-  'tc04-auto': { steps: 5, arts: 2, credit: null },
   'tc04-sonnet': { steps: 5, arts: 2, credit: '2,126' },
   'tc04-terra': { steps: 3, arts: 2, credit: '1,614' },
   'tc01-real': { steps: 4, arts: 1, credit: '1,178' },
   'tc01-demo': { steps: 4, arts: 0, credit: '219' },
-  'rfp-report': { steps: 3, arts: 1, credit: null },
   'badge-check': { steps: 0, arts: 4, credit: '789' },
   'isms-audit': { steps: 4, arts: 4, credit: '1,130' },
   'daily-brief': { steps: 0, arts: 0, credit: '107' },
@@ -398,16 +399,16 @@ RUNS.forEach((r) => {
   w.close();
 });
 
-// ── 3) 모델 전환 (TC-04 자동 회차) ──────────────────────
+// ── 3) 모델 전환 (TC-04) ────────────────────────────────
 {
   const w = boot();
   const $ = (s) => w.document.querySelector(s);
   const $$ = (s) => [...w.document.querySelectorAll(s)];
 
-  openRun(w, 'tc04-auto');
+  openRun(w, 'tc04-sonnet');
   $('#skip').dispatchEvent(new w.Event('click', { bubbles: true }));
 
-  ok('전환 전 크레딧 미확인', /를 찍지 않았습니다/.test($('.cost .l1')?.textContent || ''));
+  ok('전환 전 실측 2,126', $('.cost .l1 b')?.textContent === '2,126', $('.cost .l1 b')?.textContent);
 
   const mdlBtn = $$('#crow .pop-wrap')[1].querySelector('.pill');
   mdlBtn.dispatchEvent(new w.Event('click', { bubbles: true }));

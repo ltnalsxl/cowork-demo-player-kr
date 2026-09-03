@@ -21,7 +21,6 @@ GROUPS = {
         'sub': '같은 프롬프트를 모델만 바꿔 돌린 실행. '
                '비싼 쪽이 더 두꺼운 문서를 내지 않았다',
         'tabs': [
-            ('tc04-auto', '자동'),
             ('tc04-sonnet', 'Sonnet 5'),
             ('tc04-terra', 'GPT 5.6 Terra'),
         ],
