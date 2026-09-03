@@ -399,6 +399,21 @@ RUNS.forEach((r) => {
   w.close();
 }
 
+/* 4-2) 익명화하며 만든 대체어가 도로 새어 들어오지 않는지 본다.
+   "고객사 A"류는 지웠다는 표시가 남은 것이라 그 자체가 티가 난다. */
+{
+  const w = boot();
+  const leak = /고객사 [A-H]|고객 [A-H]\b|도입 프로그램|내부 교육 과정|고객 워크숍|업무 배정 시스템|품질 측정|파트너사|지원 프로그램|요청번호 R-0000/;
+  RUNS.forEach((r) => {
+    w.document.querySelector('#chats button[data-id="' + r.id + '"]')
+      .dispatchEvent(new w.Event('click', { bubbles: true }));
+    w.document.getElementById('skip').dispatchEvent(new w.Event('click', { bubbles: true }));
+    const hits = w.document.body.textContent.split('\n').filter((l) => leak.test(l));
+    ok('대체어 잔재 없음 ' + r.id, hits.length === 0, hits.slice(0, 2).join(' / '));
+  });
+  w.close();
+}
+
 console.log(out.join('\n'));
 const fails = out.filter((l) => l.startsWith('  FAIL')).length;
 console.log('\n' + (out.length - fails) + '/' + out.length + ' 통과');
