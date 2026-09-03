@@ -28,16 +28,16 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
   const $$ = (s) => [...w.document.querySelectorAll(s)];
 
   ok('홈 히어로', $('.hero-q')?.textContent === '지금 무엇을 작업하고 있나요?');
-  ok('재생 항목 14개', $$('.ritem').length === 14, $$('.ritem').length);
+  ok('재생 항목 12개', $$('.ritem').length === 12, $$('.ritem').length);
   ok('타일 3개', $$('.tile').length === 3);
   ok('입력 힌트 줄', /팁:/.test($('.tipline')?.textContent || ''), $('.tipline')?.textContent);
   ok('컴포저 마이크', !!$('#homeCrow .micb'));
   ok('대기 중엔 보내기 없음', !$('#homeCrow .rnd'));
   ok('계정 Copilot User', /Copilot User/.test($('.me')?.textContent));
-  ok('사이드바 시나리오 14개', $$('#chats button[data-id]').length === 14,
+  ok('사이드바 시나리오 12개', $$('#chats button[data-id]').length === 12,
     $$('#chats button[data-id]').length);
   ok('홈 타일 제목이 회차별로 구분됨',
-    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 14);
+    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 12);
   w.close();
 }
 
@@ -71,12 +71,10 @@ const EXPECT = {
   'rfp-report': { steps: 3, arts: 1, credit: null },
   'badge-check': { steps: 0, arts: 4, credit: '789' },
   'isms-audit': { steps: 4, arts: 4, credit: '1,130' },
-  'brief-real': { steps: 0, arts: 0, credit: '107' },
-  'brief-demo': { steps: 0, arts: 0, credit: '95' },
+  'daily-brief': { steps: 0, arts: 0, credit: '107' },
   'skill-proofread': { steps: 0, arts: 0, credit: '25' },
   'weekly-team': { steps: 4, arts: 1, credit: '271' },
-  'inbox-real': { steps: 4, arts: 1, credit: '755' },
-  'inbox-demo': { steps: 4, arts: 1, credit: '195' }
+  'inbox-triage': { steps: 4, arts: 1, credit: '755' }
 };
 
 RUNS.forEach((r) => {

@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-"""실습-04 평일 아침 브리핑 자동화. 같은 프롬프트를 계정 두 곳에서 돌린 회차 쌍.
+"""실습-04 평일 아침 브리핑 자동화.
 
 앞의 회차들과 다른 점은 한 번 시키고 끝나지 않는다는 것이다. Cowork가 짧은 요청을
 상세 작업 설명으로 늘려 되풀이 작업으로 만들고, 승인하면 그 자리에서 한 번 돌린다.
 
-brief-real  일정과 메일이 있는 계정. 회의 4건, 회신 대기 3건을 실제로 찾아냈다.
-brief-demo  데모 테넌트. 캘린더가 비어 있자 채우지 않고 없다고 적었다.
+같은 프롬프트를 계정 두 곳에서 돌렸다. 화면에 싣는 것은 일정이 많은 쪽이고,
+일정이 0건인 계정에서 잰 95는 크레딧 표에만 남긴다. 그쪽은 캘린더가 비자
+채우지 않고 "등록된 일정 없음"으로 적고 끝냈다.
 
-실계정 회차의 이름, 조직, 고객사, 사내 프로그램명은 예시 값으로 바꿨다.
-바꾸지 않은 것: 도구 호출 순서와 횟수, 시각, 단계 구성, 모델과 노력 설정.
+이름, 조직, 고객사, 사내 프로그램명은 예시 값으로 바꿨다.
+바꾸지 않은 것: 도구 호출 순서와 횟수, 시각, 단계 구성, 모델과 노력 설정, 크레딧.
 """
 import json
 import os
@@ -63,15 +64,15 @@ T_RULE = ('The user said not to invent anything that is not confirmed. That has 
 
 BENCH = {
     'n': 2, 'people': 1, 'min': 95, 'max': 107,
-    'head': '같은 브리핑을 데이터가 다른 계정에서 시키면',
+    'head': '같은 브리핑을 일정이 다른 계정에서 시키면',
     'lead': '모델과 노력을 고정하고 계정만 바꿔 돌린 실측값입니다.',
-    'condition': '모델과 노력을 고정하고 계정만 바꿨습니다. 한쪽은 오늘 일정이 0건인 계정, '
-                 '다른 쪽은 회의 4건에 메일이 쌓여 있는 계정입니다. '
+    'condition': '한쪽은 오늘 일정이 0건이라 "등록된 일정 없음"으로 적고 끝났고, '
+                 '다른 쪽은 회의 4건에 회신 대기 3건을 찾았습니다. '
                  '둘 다 읽기만 하고 문서는 만들지 않습니다.',
     'models': [
-        {'name': '일정 없는 계정', 'avg': 95, 'n': 1, 'effort': '보통',
+        {'name': '일정이 적은 계정', 'avg': 95, 'n': 1, 'effort': '보통',
          'meta': '일정 0건 · 메일 2건 · 산출물 없음'},
-        {'name': '일정 있는 계정', 'avg': 107, 'n': 1, 'effort': '보통',
+        {'name': '일정이 많은 계정', 'avg': 107, 'n': 1, 'effort': '보통',
          'meta': '회의 4건 · 회신 대기 3건 · 산출물 없음'},
     ],
 }
@@ -180,138 +181,38 @@ LOG_REAL = [
 ]
 
 
-# ── 데모 테넌트 회차 ──────────────────────────────────────
-T_DEMO_1 = ('Calendar returns nothing for today. That is not a lookup failure, the day is simply '
-            'empty. Mail has two items that look like they want a decision, and neither states a '
-            'reply deadline. Teams search comes back with nothing.')
-T_DEMO_2 = ('Two of the three sections have no confirmed content. I will say so plainly rather '
-            'than stretch the mail items into filler. Where a reply deadline is not stated in the '
-            'message, I mark it 확인 필요 instead of guessing one.')
+data = {
+    'id': 'daily-brief',
+    'tc': '실습-04',
+    'folder': '실습',
+    'title': '평일 아침 브리핑 자동화',
+    'chatTitle': '평일 아침 브리핑 · 되풀이 예약',
+    'subtitle': '짧은 요청을 상세 작업 설명으로 늘려 평일 오전 7시 30분 되풀이 작업으로 남긴 실행. '
+                '회의 4건과 회신 대기 3건을 찾아 한 화면에 담았다',
+    'model': '자동',
+    'effort': '보통',
+    'date': '2026년 9월 3일 목요일',
+    'credit': 107,
+    'note': '근거가 없는 준비물은 채우지 않고 확인 필요로 남깁니다.',
+    'scheduled': {
+        'name': '평일 아침 브리핑 (Teams)',
+        'when': 'Every week on Monday, Tuesday, Wednesday, Thursday, Friday at 07:30',
+    },
+    'allowed': ['메시지 보내기'],
+    'bench': BENCH,
+    'steps': [],
+    'skills': [],
+    'tools': ['일정', 'Outlook', 'Teams'],
+    'prompt': PROMPT,
+    'promptTime': '오후 12:31',
+    'log': LOG_REAL,
+    'artifacts': [],
+}
 
-BRIEF_DEMO = """**오늘의 브리핑 — 9월 3일 (목)**
-
-**1. 오늘 회의**
-
-- 등록된 일정 없음 (오늘 캘린더 비어 있음)
-
-**2. 답을 기다리는 급한 메일**
-
-- **심사 대응 자료 검토 요청 — 10월 12일 ISMS-P 사후심사** (Copilot User, 9/2)
-  검토 요청 상태, 미읽음. 경영진 판단이 필요한 미비 항목 3건 중 R-001(공용 관리자 계정 14개 잔존)은 목표일 9/30, R-002는 고객 개인신용정보 Azure Blob 컨테이너 3개 암호화 미적용.
-  → 회신 필요 여부·기한은 메일에 명시되지 않음(확인 필요)
-- **사업장 출입 – 출입증 미태그 상위 10명** (Copilot User, 9/2, 미읽음)
-  퇴근 태그 누락 164건(27.3%), 12명 전원 발생. 회신 요청 문구는 확인되지 않음(확인 필요)
-- 나머지는 자동 다이제스트 메일로 회신 불필요
-
-**3. 이번 주 기한 있는 일**
-
-- 이번 주(9/3~9/6) 마감으로 확인된 항목 없음
-- 참고 — 다가오는 기한: R-001 조치 목표일 9/30, ISMS-P 사후심사 10/12~16
-
-근거: 오늘 캘린더, 최근 메일(8/25 이후). Teams 채팅은 조회 결과 없음."""
-
-FINAL_DEMO = """오늘의 브리핑을 Teams 자기 채팅으로 보냈습니다.
-
-- **회의** — 오늘 캘린더에 등록된 일정이 없습니다.
-- **급한 메일** — ISMS-P 사후심사 대응 자료 검토 요청(미읽음, R-001 목표일 9/30 · R-002 암호화 미적용), 출입증 미태그 점검 결과(미읽음) 두 건을 올렸습니다. 회신 기한이 메일에 명시돼 있지 않아 '확인 필요'로 표시했습니다.
-- **이번 주 기한** — 확인된 항목이 없어 '없음'으로 적고, 대신 9/30과 10/12~16 일정을 참고로 붙였습니다.
-
-Teams 채팅은 조회 결과가 없어 그 부분은 근거로 쓰지 않았습니다."""
-
-LOG_DEMO = [
-    {'t': 'think', 'label': '사고 과정', 'time': '오후 12:32', 'body': T_SCHED,
-     'status': '되풀이 작업으로 만드는 중'},
-
-    {'t': 'think', 'label': '사고 과정', 'time': '오후 12:32', 'body': T_RULE,
-     'status': '규칙을 문장으로 옮기는 중'},
-
-    {'t': 'tool', 'icon': 'clock', 'label': '되풀이 작업 만들기', 'time': '오후 12:32',
-     'status': '예약을 준비하는 중', 'act': '되풀이 작업을 만드는 중'},
-
-    {'t': 'schedule', 'time': '오후 12:32',
-     'name': '평일 아침 브리핑', 'every': '평일', 'at': '오전 7:30', 'where': '새 대화',
-     'desc': DESC_DEMO,
-     'status': '예약 승인을 기다리는 중', 'act': '사용자 승인을 기다리는 중'},
-
-    {'t': 'approved', 'time': '오후 12:33', 'label': '1개 작업 건너뜀',
-     'status': '예약을 등록하는 중'},
-
-    {'t': 'prompt', 'time': '오후 12:33', 'sep': '지금 한 번 실행', 'body': DESC_DEMO},
-
-    {'t': 'tools', 'label': '작업을 실행하는 중...', 'time': '오후 12:34',
-     'status': '단계를 추적하는 중', 'act': '일정과 메일을 조회하는 중',
-     'items': [
-         {'think': True, 'body': T_DEMO_1},
-         {'icon': 'cal', 'tag': 'Outlook', 'label': '일정 보기', 'target': '오늘'},
-         {'icon': 'mail', 'tag': 'Outlook', 'label': '메시지 나열', 'target': '최근 메일'},
-         {'icon': 'teams', 'tag': 'Teams', 'label': '채팅 나열'},
-         {'think': True, 'body': T_DEMO_2},
-     ]},
-
-    {'t': 'tool', 'icon': 'teams', 'tag': 'Teams', 'time': '오후 12:36',
-     'label': 'Teams 메시지 보내는 중:',
-     'target': '오늘의 브리핑 — 9월 3일 (목) 1. 오늘 회의 • 등록된 일정 없음…',
-     'status': '메시지를 만드는 중', 'act': 'Teams 메시지를 준비하는 중'},
-
-    {'t': 'mail', 'chat': True, 'time': '오후 12:36',
-     'to': 'me', 'body': BRIEF_DEMO,
-     'status': '요청 작업 중', 'act': '사용자 승인을 기다리는 중'},
-
-    {'t': 'approved', 'time': '오후 12:36', 'label': '1개 작업 승인됨',
-     'status': '메시지를 보내는 중'},
-
-    {'t': 'final', 'time': '오후 12:36', 'body': FINAL_DEMO,
-     'status': '완료', 'act': '작업 완료'},
-]
-
-
-def build(rid, chat_title, subtitle, note, sched_name, credit, log, tools, allowed=None):
-    d = {
-        'id': rid,
-        'tc': '실습-04',
-        'folder': '실습',
-        'title': '평일 아침 브리핑 자동화',
-        'chatTitle': chat_title,
-        'subtitle': subtitle,
-        'model': '자동',
-        'effort': '보통',
-        'date': '2026년 9월 3일 목요일',
-        'credit': credit,
-        'note': note,
-        'scheduled': {
-            'name': sched_name,
-            'when': 'Every week on Monday, Tuesday, Wednesday, Thursday, Friday at 07:30',
-        },
-        'bench': BENCH,
-        'steps': [],
-        'skills': [],
-        'tools': tools,
-        'prompt': PROMPT,
-        'promptTime': '오후 12:31' if rid == 'brief-real' else '오후 12:32',
-        'log': log,
-        'artifacts': [],
-    }
-    if allowed:
-        d['allowed'] = allowed
-    return d
-
-
-runs = [
-    build('brief-real', '평일 아침 브리핑 · 일정 있는 계정',
-          '짧은 요청을 상세 작업 설명으로 늘려 평일 오전 7시 30분 되풀이 작업으로 남긴 실행. '
-          '회의 4건과 회신 대기 3건을 찾아 한 화면에 담았다',
-          '근거가 없는 준비물은 채우지 않고 확인 필요로 남깁니다.',
-          '평일 아침 브리핑 (Teams)', 107, LOG_REAL, ['일정', 'Outlook', 'Teams']),
-
-    build('brief-demo', '평일 아침 브리핑 · 일정 없는 계정',
-          '같은 프롬프트를 캘린더가 빈 계정에서 돌린 실행. 없는 일정을 지어내지 않고 '
-          '없다고 적었다. 데이터가 없는데도 크레딧은 12만 적게 든다',
-          '읽기만 하는 작업은 데이터 양이 늘어도 크레딧이 거의 그대로입니다.',
-          '평일 아침 브리핑', 95, LOG_DEMO, ['일정', 'Outlook', 'Teams'],
-          allowed=['메시지 보내기']),
-]
-
-for r in runs:
-    p = os.path.join(RUNS, r['id'] + '.json')
-    json.dump(r, open(p, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-    print('%-12s 로그 %2d단계' % (r['id'], len(r['log'])))
+json.dump(data, open(os.path.join(RUNS, 'daily-brief.json'), 'w', encoding='utf-8'),
+          ensure_ascii=False, indent=1)
+for old in ('brief-real.json', 'brief-demo.json'):
+    p = os.path.join(RUNS, old)
+    if os.path.exists(p):
+        os.remove(p)
+print('daily-brief.json  로그 %d단계' % len(LOG_REAL))

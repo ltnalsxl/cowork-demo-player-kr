@@ -4545,11 +4545,11 @@ window.COWORK_RUNS = [
   ]
  },
  {
-  "id": "brief-real",
+  "id": "daily-brief",
   "tc": "실습-04",
   "folder": "실습",
   "title": "평일 아침 브리핑 자동화",
-  "chatTitle": "평일 아침 브리핑 · 일정 있는 계정",
+  "chatTitle": "평일 아침 브리핑 · 되풀이 예약",
   "subtitle": "짧은 요청을 상세 작업 설명으로 늘려 평일 오전 7시 30분 되풀이 작업으로 남긴 실행. 회의 4건과 회신 대기 3건을 찾아 한 화면에 담았다",
   "model": "자동",
   "effort": "보통",
@@ -4560,24 +4560,27 @@ window.COWORK_RUNS = [
    "name": "평일 아침 브리핑 (Teams)",
    "when": "Every week on Monday, Tuesday, Wednesday, Thursday, Friday at 07:30"
   },
+  "allowed": [
+   "메시지 보내기"
+  ],
   "bench": {
    "n": 2,
    "people": 1,
    "min": 95,
    "max": 107,
-   "head": "같은 브리핑을 데이터가 다른 계정에서 시키면",
+   "head": "같은 브리핑을 일정이 다른 계정에서 시키면",
    "lead": "모델과 노력을 고정하고 계정만 바꿔 돌린 실측값입니다.",
-   "condition": "모델과 노력을 고정하고 계정만 바꿨습니다. 한쪽은 오늘 일정이 0건인 계정, 다른 쪽은 회의 4건에 메일이 쌓여 있는 계정입니다. 둘 다 읽기만 하고 문서는 만들지 않습니다.",
+   "condition": "한쪽은 오늘 일정이 0건이라 \"등록된 일정 없음\"으로 적고 끝났고, 다른 쪽은 회의 4건에 회신 대기 3건을 찾았습니다. 둘 다 읽기만 하고 문서는 만들지 않습니다.",
    "models": [
     {
-     "name": "일정 없는 계정",
+     "name": "일정이 적은 계정",
      "avg": 95,
      "n": 1,
      "effort": "보통",
      "meta": "일정 0건 · 메일 2건 · 산출물 없음"
     },
     {
-     "name": "일정 있는 계정",
+     "name": "일정이 많은 계정",
      "avg": 107,
      "n": 1,
      "effort": "보통",
@@ -4730,174 +4733,6 @@ window.COWORK_RUNS = [
    }
   ],
   "artifacts": []
- },
- {
-  "id": "brief-demo",
-  "tc": "실습-04",
-  "folder": "실습",
-  "title": "평일 아침 브리핑 자동화",
-  "chatTitle": "평일 아침 브리핑 · 일정 없는 계정",
-  "subtitle": "같은 프롬프트를 캘린더가 빈 계정에서 돌린 실행. 없는 일정을 지어내지 않고 없다고 적었다. 데이터가 없는데도 크레딧은 12만 적게 든다",
-  "model": "자동",
-  "effort": "보통",
-  "date": "2026년 9월 3일 목요일",
-  "credit": 95,
-  "note": "읽기만 하는 작업은 데이터 양이 늘어도 크레딧이 거의 그대로입니다.",
-  "scheduled": {
-   "name": "평일 아침 브리핑",
-   "when": "Every week on Monday, Tuesday, Wednesday, Thursday, Friday at 07:30"
-  },
-  "bench": {
-   "n": 2,
-   "people": 1,
-   "min": 95,
-   "max": 107,
-   "head": "같은 브리핑을 데이터가 다른 계정에서 시키면",
-   "lead": "모델과 노력을 고정하고 계정만 바꿔 돌린 실측값입니다.",
-   "condition": "모델과 노력을 고정하고 계정만 바꿨습니다. 한쪽은 오늘 일정이 0건인 계정, 다른 쪽은 회의 4건에 메일이 쌓여 있는 계정입니다. 둘 다 읽기만 하고 문서는 만들지 않습니다.",
-   "models": [
-    {
-     "name": "일정 없는 계정",
-     "avg": 95,
-     "n": 1,
-     "effort": "보통",
-     "meta": "일정 0건 · 메일 2건 · 산출물 없음"
-    },
-    {
-     "name": "일정 있는 계정",
-     "avg": 107,
-     "n": 1,
-     "effort": "보통",
-     "meta": "회의 4건 · 회신 대기 3건 · 산출물 없음"
-    }
-   ]
-  },
-  "steps": [],
-  "skills": [],
-  "tools": [
-   "일정",
-   "Outlook",
-   "Teams"
-  ],
-  "prompt": "평일 아침 7시 30분에 오늘의 브리핑을 나에게 Teams 메시지로 보내 줘.\n\n담을 내용\n\n하나. 오늘 회의 목록과 회의마다 준비할 것\n\n둘. 답을 기다리는 메일 중 급한 것\n\n셋. 이번 주에 기한이 있는 일\n\n분량: 출근길에 한 번에 읽히게, 화면 한 번 분량\n\n제약: 확인되지 않은 것은 지어내지 말고 표시해 줘.",
-  "promptTime": "오후 12:32",
-  "log": [
-   {
-    "t": "think",
-    "label": "사고 과정",
-    "time": "오후 12:32",
-    "body": "This is a recurring request, not a one-off. Weekday mornings at 7:30 means a scheduled task rather than something I run once now. Let me turn the short brief into a full task description so the same rules apply every morning, then schedule it.",
-    "status": "되풀이 작업으로 만드는 중"
-   },
-   {
-    "t": "think",
-    "label": "사고 과정",
-    "time": "오후 12:32",
-    "body": "The user said not to invent anything that is not confirmed. That has to be written into the task description itself, otherwise a future run with sparse data will pad the briefing. I will spell out 확인 필요 and 없음 as required outputs.",
-    "status": "규칙을 문장으로 옮기는 중"
-   },
-   {
-    "t": "tool",
-    "icon": "clock",
-    "label": "되풀이 작업 만들기",
-    "time": "오후 12:32",
-    "status": "예약을 준비하는 중",
-    "act": "되풀이 작업을 만드는 중"
-   },
-   {
-    "t": "schedule",
-    "time": "오후 12:32",
-    "name": "평일 아침 브리핑",
-    "every": "평일",
-    "at": "오전 7:30",
-    "where": "새 대화",
-    "desc": "오늘의 브리핑을 작성해 사용자 본인에게 Teams 메시지(자기 자신과의 채팅)로 보낸다. 한국어로 작성하며, 출근길에 스마트폰 화면 한 번 분량으로 한 번에 읽히도록 짧고 간결하게 정리한다. 포함할 세 가지 항목: (1) 오늘 일정의 회의 목록 — 시간, 제목, 주요 참석자와 회의별로 미리 준비하거나 확인해야 할 것(관련 메일, 이전 회의 후속 조치, 안건 등 실제 확인된 내용 기준). 비공개(private)로 표시된 일정은 제목 대신 '비공개 일정'으로만 표기한다. (2) 사용자의 답장을 기다리고 있는 메일 중 급한 것 — 보낸 사람, 요지, 왜 급한지. (3) 이번 주 안에 기한이 있는 일 — 메일, 회의, 채팅에서 확인된 마감이나 약속. 근거는 실제로 조회한 일정, 메일, Teams 메시지에서만 가져오고, 확인되지 않았거나 추측이 필요한 부분은 지어내지 말고 '확인 필요' 또는 '근거 없음'으로 명확히 표시한다. 해당 항목에 내용이 없으면 '없음'이라고 적는다.",
-    "status": "예약 승인을 기다리는 중",
-    "act": "사용자 승인을 기다리는 중"
-   },
-   {
-    "t": "approved",
-    "time": "오후 12:33",
-    "label": "1개 작업 건너뜀",
-    "status": "예약을 등록하는 중"
-   },
-   {
-    "t": "prompt",
-    "time": "오후 12:33",
-    "sep": "지금 한 번 실행",
-    "body": "오늘의 브리핑을 작성해 사용자 본인에게 Teams 메시지(자기 자신과의 채팅)로 보낸다. 한국어로 작성하며, 출근길에 스마트폰 화면 한 번 분량으로 한 번에 읽히도록 짧고 간결하게 정리한다. 포함할 세 가지 항목: (1) 오늘 일정의 회의 목록 — 시간, 제목, 주요 참석자와 회의별로 미리 준비하거나 확인해야 할 것(관련 메일, 이전 회의 후속 조치, 안건 등 실제 확인된 내용 기준). 비공개(private)로 표시된 일정은 제목 대신 '비공개 일정'으로만 표기한다. (2) 사용자의 답장을 기다리고 있는 메일 중 급한 것 — 보낸 사람, 요지, 왜 급한지. (3) 이번 주 안에 기한이 있는 일 — 메일, 회의, 채팅에서 확인된 마감이나 약속. 근거는 실제로 조회한 일정, 메일, Teams 메시지에서만 가져오고, 확인되지 않았거나 추측이 필요한 부분은 지어내지 말고 '확인 필요' 또는 '근거 없음'으로 명확히 표시한다. 해당 항목에 내용이 없으면 '없음'이라고 적는다."
-   },
-   {
-    "t": "tools",
-    "label": "작업을 실행하는 중...",
-    "time": "오후 12:34",
-    "status": "단계를 추적하는 중",
-    "act": "일정과 메일을 조회하는 중",
-    "items": [
-     {
-      "think": true,
-      "body": "Calendar returns nothing for today. That is not a lookup failure, the day is simply empty. Mail has two items that look like they want a decision, and neither states a reply deadline. Teams search comes back with nothing."
-     },
-     {
-      "icon": "cal",
-      "tag": "Outlook",
-      "label": "일정 보기",
-      "target": "오늘"
-     },
-     {
-      "icon": "mail",
-      "tag": "Outlook",
-      "label": "메시지 나열",
-      "target": "최근 메일"
-     },
-     {
-      "icon": "teams",
-      "tag": "Teams",
-      "label": "채팅 나열"
-     },
-     {
-      "think": true,
-      "body": "Two of the three sections have no confirmed content. I will say so plainly rather than stretch the mail items into filler. Where a reply deadline is not stated in the message, I mark it 확인 필요 instead of guessing one."
-     }
-    ]
-   },
-   {
-    "t": "tool",
-    "icon": "teams",
-    "tag": "Teams",
-    "time": "오후 12:36",
-    "label": "Teams 메시지 보내는 중:",
-    "target": "오늘의 브리핑 — 9월 3일 (목) 1. 오늘 회의 • 등록된 일정 없음…",
-    "status": "메시지를 만드는 중",
-    "act": "Teams 메시지를 준비하는 중"
-   },
-   {
-    "t": "mail",
-    "chat": true,
-    "time": "오후 12:36",
-    "to": "me",
-    "body": "**오늘의 브리핑 — 9월 3일 (목)**\n\n**1. 오늘 회의**\n\n- 등록된 일정 없음 (오늘 캘린더 비어 있음)\n\n**2. 답을 기다리는 급한 메일**\n\n- **심사 대응 자료 검토 요청 — 10월 12일 ISMS-P 사후심사** (Copilot User, 9/2)\n  검토 요청 상태, 미읽음. 경영진 판단이 필요한 미비 항목 3건 중 R-001(공용 관리자 계정 14개 잔존)은 목표일 9/30, R-002는 고객 개인신용정보 Azure Blob 컨테이너 3개 암호화 미적용.\n  → 회신 필요 여부·기한은 메일에 명시되지 않음(확인 필요)\n- **사업장 출입 – 출입증 미태그 상위 10명** (Copilot User, 9/2, 미읽음)\n  퇴근 태그 누락 164건(27.3%), 12명 전원 발생. 회신 요청 문구는 확인되지 않음(확인 필요)\n- 나머지는 자동 다이제스트 메일로 회신 불필요\n\n**3. 이번 주 기한 있는 일**\n\n- 이번 주(9/3~9/6) 마감으로 확인된 항목 없음\n- 참고 — 다가오는 기한: R-001 조치 목표일 9/30, ISMS-P 사후심사 10/12~16\n\n근거: 오늘 캘린더, 최근 메일(8/25 이후). Teams 채팅은 조회 결과 없음.",
-    "status": "요청 작업 중",
-    "act": "사용자 승인을 기다리는 중"
-   },
-   {
-    "t": "approved",
-    "time": "오후 12:36",
-    "label": "1개 작업 승인됨",
-    "status": "메시지를 보내는 중"
-   },
-   {
-    "t": "final",
-    "time": "오후 12:36",
-    "body": "오늘의 브리핑을 Teams 자기 채팅으로 보냈습니다.\n\n- **회의** — 오늘 캘린더에 등록된 일정이 없습니다.\n- **급한 메일** — ISMS-P 사후심사 대응 자료 검토 요청(미읽음, R-001 목표일 9/30 · R-002 암호화 미적용), 출입증 미태그 점검 결과(미읽음) 두 건을 올렸습니다. 회신 기한이 메일에 명시돼 있지 않아 '확인 필요'로 표시했습니다.\n- **이번 주 기한** — 확인된 항목이 없어 '없음'으로 적고, 대신 9/30과 10/12~16 일정을 참고로 붙였습니다.\n\nTeams 채팅은 조회 결과가 없어 그 부분은 근거로 쓰지 않았습니다.",
-    "status": "완료",
-    "act": "작업 완료"
-   }
-  ],
-  "artifacts": [],
-  "allowed": [
-   "메시지 보내기"
-  ]
  },
  {
   "id": "skill-proofread",
@@ -5659,11 +5494,11 @@ window.COWORK_RUNS = [
   ]
  },
  {
-  "id": "inbox-real",
+  "id": "inbox-triage",
   "tc": "실습-07",
   "folder": "실습",
   "title": "밀린 메일 정리와 회신 초안",
-  "chatTitle": "밀린 메일 정리 · 편지함 400건",
+  "chatTitle": "밀린 메일 정리 · 회신 초안",
   "subtitle": "2주 치 400건을 훑어 38건으로 걸러 낸 실행. 답을 기다리는 10건을 앞에 세우고 초안 다섯을 발송 없이 남겼다",
   "model": "자동",
   "effort": "보통",
@@ -5678,7 +5513,7 @@ window.COWORK_RUNS = [
    "max": 755,
    "head": "같은 정리를 편지함이 다른 계정에서 시키면",
    "lead": "모델과 노력을 고정하고 계정만 바꿔 돌린 실측값입니다.",
-   "condition": "모델과 노력을 고정하고 계정만 바꿨습니다. 한쪽은 2주 치가 20건인 계정, 다른 쪽은 400건인 계정입니다. 둘 다 Excel 추적표 하나와 회신 초안을 만듭니다.",
+   "condition": "한쪽은 2주 치가 20건이라 답을 기다리는 건이 2건뿐이었고, 다른 쪽은 400건에서 38건을 걸러 냈습니다. 둘 다 Excel 추적표 하나와 회신 초안을 만듭니다.",
    "models": [
     {
      "name": "편지함이 얇은 계정",
@@ -5707,7 +5542,8 @@ window.COWORK_RUNS = [
   ],
   "tools": [
    "Outlook",
-   "Teams"
+   "Teams",
+   "Work IQ"
   ],
   "prompt": "최근 2주 받은 편지함과 Teams 멘션을 함께 훑어 밀린 메일을 정리해 주세요.\n\n분류: 답을 기다리는 것 / 읽기만 하면 되는 것 / 넘겨도 되는 것\n\n제외: 뉴스레터와 시스템 자동 알림\n\n결과물: Excel 추적표, 답이 필요한 건의 회신 초안(최대 5건)\n\n제약: 회신은 초안에서 멈추고 발송하지 마세요",
   "promptTime": "오후 2:20",
@@ -5878,169 +5714,6 @@ window.COWORK_RUNS = [
     "name": "밀린 메일·Teams 정리 추적표 (2026-08-21~09-03).xlsx",
     "kind": "Excel 스프레드시트",
     "meta": "시트 4개 · 38행 · 차트 1개",
-    "pages": []
-   }
-  ]
- },
- {
-  "id": "inbox-demo",
-  "tc": "실습-07",
-  "folder": "실습",
-  "title": "밀린 메일 정리와 회신 초안",
-  "chatTitle": "밀린 메일 정리 · 편지함 20건",
-  "subtitle": "같은 프롬프트를 2주 치가 20건인 계정에서 돌린 실행. 답이 필요한 게 2건뿐이라 초안도 2건에서 멈췄다",
-  "model": "자동",
-  "effort": "보통",
-  "date": "2026년 9월 3일 목요일",
-  "credit": 195,
-  "costTime": "오후 2:25",
-  "note": "초안 다섯까지 만들 수 있어도 두 건에서 멈춥니다.",
-  "bench": {
-   "n": 2,
-   "people": 1,
-   "min": 195,
-   "max": 755,
-   "head": "같은 정리를 편지함이 다른 계정에서 시키면",
-   "lead": "모델과 노력을 고정하고 계정만 바꿔 돌린 실측값입니다.",
-   "condition": "모델과 노력을 고정하고 계정만 바꿨습니다. 한쪽은 2주 치가 20건인 계정, 다른 쪽은 400건인 계정입니다. 둘 다 Excel 추적표 하나와 회신 초안을 만듭니다.",
-   "models": [
-    {
-     "name": "편지함이 얇은 계정",
-     "avg": 195,
-     "n": 1,
-     "effort": "보통",
-     "meta": "20건 → 7건 · 시트 2개 · 초안 2건"
-    },
-    {
-     "name": "편지함이 두꺼운 계정",
-     "avg": 755,
-     "n": 1,
-     "effort": "보통",
-     "meta": "400건 → 38건 · 시트 4개 · 초안 5건"
-    }
-   ]
-  },
-  "steps": [
-   "받은 편지함 훑기 (최근 2주)",
-   "Teams 멘션 확인",
-   "분류 및 Excel 추적표 작성",
-   "회신 초안 작성 (최대 5건)"
-  ],
-  "skills": [
-   "Excel"
-  ],
-  "tools": [
-   "Outlook",
-   "Teams",
-   "Work IQ"
-  ],
-  "prompt": "최근 2주 받은 편지함과 Teams 멘션을 함께 훑어 밀린 메일을 정리해 주세요.\n\n분류: 답을 기다리는 것 / 읽기만 하면 되는 것 / 넘겨도 되는 것\n\n제외: 뉴스레터와 시스템 자동 알림\n\n결과물: Excel 추적표, 답이 필요한 건의 회신 초안(최대 5건)\n\n제약: 회신은 초안에서 멈추고 발송하지 마세요",
-  "promptTime": "오후 2:21",
-  "log": [
-   {
-    "t": "say",
-    "time": "오후 2:21",
-    "body": "I'll start by pulling your recent email and Teams mentions.",
-    "status": "자료를 모으는 중"
-   },
-   {
-    "t": "tools",
-    "label": "작업을 실행하는 중...",
-    "time": "오후 2:22",
-    "status": "받은 편지함을 훑는 중",
-    "act": "최근 2주 메일을 읽는 중",
-    "items": [
-     {
-      "icon": "mail",
-      "tag": "Outlook",
-      "label": "메시지 나열",
-      "target": "08-20 ~ 09-03"
-     },
-     {
-      "think": true,
-      "body": "Two weeks of inbox comes back at seventeen items, and Teams adds three. That is small enough to read every one rather than sample. The prompt tells me to drop newsletters and system notices, so I sort those out first."
-     },
-     {
-      "icon": "teams",
-      "tag": "Teams",
-      "label": "멘션 확인"
-     },
-     {
-      "icon": "web",
-      "tag": "Work IQ",
-      "label": "조직 콘텐츠 검색"
-     }
-    ]
-   },
-   {
-    "t": "think",
-    "label": "사고 과정",
-    "time": "오후 2:23",
-    "body": "Only two threads actually ask the user for something. The rest are either the user's own notes or a second copy of a report already counted. I will not pad the 답을 기다리는 것 column to make the table look fuller.",
-    "status": "분류를 가리는 중"
-   },
-   {
-    "t": "edit",
-    "time": "오후 2:24",
-    "file": "밀린 메일·Teams 정리 추적표 (2026-08-20~09-03).xlsx",
-    "kind": "x",
-    "status": "추적표를 만드는 중",
-    "act": "Excel 워크북을 쓰는 중",
-    "items": [
-     {
-      "k": "밀린 항목 추적",
-      "v": "7행 · 분류 3종",
-      "size": 7
-     },
-     {
-      "k": "제외 항목",
-      "v": "4행",
-      "size": 4
-     },
-     {
-      "k": "집계 수식",
-      "v": "분류별 건수",
-      "size": 3
-     }
-    ]
-   },
-   {
-    "t": "say",
-    "time": "오후 2:24",
-    "body": "Now verifying the workbook's calculated values.",
-    "status": "계산값을 확인하는 중"
-   },
-   {
-    "t": "tool",
-    "icon": "check",
-    "label": "계산값 확인",
-    "time": "오후 2:24",
-    "status": "집계를 검산하는 중",
-    "act": "수식 결과를 확인하는 중"
-   },
-   {
-    "t": "tool",
-    "icon": "pen",
-    "tag": "Outlook",
-    "label": "회신 초안 저장",
-    "target": "2건",
-    "time": "오후 2:25",
-    "status": "초안을 저장하는 중",
-    "act": "회신 초안을 만드는 중"
-   },
-   {
-    "t": "final",
-    "time": "오후 2:25",
-    "body": "최근 2주(8/20~9/3) 받은 편지함 17건과 Teams 메시지 3건, 총 20건을 훑었습니다.\n\n추적표: **밀린 메일·Teams 정리 추적표 (2026-08-20~09-03).xlsx** — OneDrive에 저장했습니다. 시트 두 개입니다(「밀린 항목 추적」, 「제외 항목」).\n\n| 분류 | 항목 | 원본 건수 |\n| --- | --- | --- |\n| 답을 기다리는 것 | 2 | 5 |\n| 읽기만 하면 되는 것 | 3 | 4 |\n| 넘겨도 되는 것 | 2 | 3 |\n| 제외(뉴스레터·자동 알림) | 4 | 8 |\n\n**답을 기다리는 것 (2건)**\n\n- **ISMS-P 사후심사(10/12~16) 대응 자료 검토 요청** — 정다은 준법감시인. R-001·R-002·R-004 세 건의 경영진 결정과 30분 논의 자리를 요청했습니다. R-002(미암호화 Blob 컨테이너 3개)가 목표일 9월 25일로 가장 촉박합니다.\n- **출입증 미태그 리포트** — 퇴근 태그 누락 164건(27.3%), 12명 전원 발생, 3명은 미태그 비율 50% 초과. 후속 조치 담당과 기한 지정이 필요합니다.\n\n**읽기만 하면 되는 것 (3건)** — 퇴근 태그 누락 현황 상세 자료, 주간 업무보고 2건(본인 메모)\n\n**넘겨도 되는 것 (2건)** — 미읽음 메일 정리 노트, 출입증 리포트 디자인 변형본(원본과 동일 내용)\n\n**제외** — Entra ID Protection 다이제스트, M365 메시지 센터 주간 업데이트, PIM 다이제스트, SharePoint 사이트 공유 알림\n\n**회신 초안 2건** — 발송하지 않고 초안함에 저장했습니다.\n\n1. ISMS-P 회신: R-002 우선 처리(9/25 유지), R-001 계정별 전환·폐기 확정, R-004 법무 검토 완료 시점 확인 및 한시적 권한 회수 대안, 30분 논의 일정 제안\n2. 출입기록 회신: 주관 부서 지정, 상위 대상자 원인 확인(시스템 미인식 vs 절차 미준수), 재발 방지 절차 개선안 — 9/18 회신 요청\n\n답을 기다리는 건이 2건뿐이라 초안도 2건입니다. 참고로 다른 사람이 보낸 Teams 멘션은 없었고, 검색된 Teams 메시지 3건은 모두 본인이 남긴 업무 메모였습니다.",
-    "status": "완료",
-    "act": "작업 완료"
-   }
-  ],
-  "artifacts": [
-   {
-    "name": "밀린 메일·Teams 정리 추적표 (2026-08-20~09-03).xlsx",
-    "kind": "Excel 스프레드시트",
-    "meta": "시트 2개 · 7행",
     "pages": []
    }
   ]
