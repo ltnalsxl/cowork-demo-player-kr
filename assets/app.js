@@ -119,13 +119,6 @@
         graph: '<svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="5.2" cy="5.2" r="2.2"/><circle cx="14.8" cy="5.2" r="2.2"/><circle cx="10" cy="14.8" r="2.2"/><path d="M6.9 6.7l1.9 6M13.1 6.7l-1.9 6M7.4 5.2h5.2"/></svg>'
       };
 
-  /* 홈 하단 타일 일러스트 */
-  var ART = {
-    inbox: '<svg width="60" height="52" viewBox="0 0 60 52" fill="none"><rect x="6" y="12" width="48" height="32" rx="5" fill="#eef1fb"/><path d="M6 17l24 15 24-15" stroke="#6b7fd7" stroke-width="2.2" stroke-linejoin="round"/><rect x="18" y="4" width="24" height="16" rx="3" fill="#fff" stroke="#c9a227" stroke-width="2"/><path d="M22 10h16M22 14h11" stroke="#c9a227" stroke-width="1.8" stroke-linecap="round"/></svg>',
-    week: '<svg width="60" height="52" viewBox="0 0 60 52" fill="none"><rect x="5" y="8" width="18" height="18" rx="3" fill="#f2c94c"/><rect x="26" y="8" width="18" height="18" rx="3" fill="#4a5568"/><rect x="15" y="28" width="18" height="18" rx="3" fill="#56c596"/><rect x="36" y="28" width="18" height="18" rx="3" fill="#7b8cde"/></svg>',
-    meet: '<svg width="60" height="52" viewBox="0 0 60 52" fill="none"><path d="M30 12c-6-5-14-5-19-2v30c5-3 13-3 19 2z" fill="#c9b6ec"/><path d="M30 12c6-5 14-5 19-2v30c-5-3-13-3-19 2z" fill="#f2c94c"/><path d="M30 12v30" stroke="#fff" stroke-width="2"/></svg>'
-  };
-
   function esc(s) {
     return String(s).replace(/[&<>]/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c];
@@ -369,22 +362,247 @@
   /* ── 사이드바 ── */
   /* 목록은 실제 화면의 밀도만 흉내 낸 예시 항목이다.
      고객에게 나가는 자료이므로 회사명, 고객사명, 사내 프로젝트명을 쓰지 않는다. */
-  var FILLER = [
-    ['주간 업무보고 자동 생성', 0, ''],
-    ['한국어 문서 교정 지원 요청', 0, 'help'],
-    ['PDF 문서에 민감도 레이블 적용', 0, ''],
-    ['Microsoft 365 Copilot 활용 범위 …', 1, ''],
-    ['분기 실적 자료 초안 작성', 0, ''],
-    ['SharePoint 문서 검색 방법 문의', 1, 'help'],
-    ['회의록 정리 및 액션아이템 추출', 0, ''],
-    ['노트북 사양 확인 및 조회', 1, ''],
-    ['보고서 표 형식 통일 요청', 0, ''],
-    ['포커스 시간 설정 방법 안내', 0, ''],
-    ['워크숍용 프롬프트 목록 정리', 0, ''],
-    ['크레딧 사용량 확인 방법', 0, ''],
-    ['일정 조율 및 회의실 예약', 1, '']
+  function esc(s) {
+    return String(s).replace(/[&<>]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c];
+    });
+  }
+  /* 굵게, 코드, 파이프 표만 지원한다. 실제 답변에 이 셋이 나온다. */
+  function rich(s) {
+    var inline = function (t) {
+      return esc(t)
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>');
+    };
+    var cells = function (line) {
+      return line.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|')
+        .map(function (c) { return c.trim(); });
+    };
+    return s.split(/\n{2,}/).map(function (p) {
+      var lines = p.split('\n');
+      var isTable = lines.length > 2 && lines.every(function (l) { return /^\s*\|/.test(l); });
+      if (isTable) {
+        var head = cells(lines[0]);
+        var body = lines.slice(2).map(cells);
+        return '<table><thead><tr>' +
+          head.map(function (c) { return '<th>' + inline(c) + '</th>'; }).join('') +
+          '</tr></thead><tbody>' +
+          body.map(function (r) {
+            return '<tr>' + r.map(function (c) { return '<td>' + inline(c) + '</td>'; }).join('') + '</tr>';
+          }).join('') + '</tbody></table>';
+      }
+      /* 첫 줄이 글머리표면 목록으로 본다. 글머리표가 없는 다음 줄은
+         앞 항목에 이어 붙는다. 실제 메시지도 한 항목이 여러 줄로 늘어난다. */
+      if (/^\s*[-·]\s+/.test(lines[0])) {
+        var items = [];
+        lines.forEach(function (l) {
+          if (/^\s*[-·]\s+/.test(l)) {
+            items.push(inline(l.replace(/^\s*[-·]\s+/, '')));
+          } else if (items.length) {
+            items[items.length - 1] += '<br><span class="sub">' + inline(l.trim()) + '</span>';
+          }
+        });
+        return '<ul>' + items.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>';
+      }
+      if (lines.length === 1 && /^#{2,4}\s+/.test(lines[0])) {
+        return '<h4>' + inline(lines[0].replace(/^#+\s+/, '')) + '</h4>';
+      }
+      return '<p>' + lines.map(inline).join('<br>') + '</p>';
+    }).join('');
+  }
+  function el(h) { var d = document.createElement('div'); d.innerHTML = h.trim(); return d.firstElementChild; }
+
+  /* 사용자가 위로 올려 읽는 중이면 아래로 끌어내리지 않는다.
+     다시 바닥에 닿으면 따라가기를 재개한다. */
+  var stick = true;
+  function scroll() { if (stream && stick) { stream.scrollTop = stream.scrollHeight; } }
+  function watchScroll() {
+    if (!stream) { return; }
+    stream.addEventListener('scroll', function () {
+      stick = stream.scrollHeight - stream.scrollTop - stream.clientHeight < 48;
+    });
+  }
+
+  /* ── 팝오버 ──
+     실제 화면의 ＋ 메뉴, 모델 선택기, 노력 선택기를 재현한다.
+     데모이므로 첨부 항목은 열리기만 하고 동작하지 않는다. */
+  var PLUS_MENU = [
+    { ic: 'ctx', t: '작업 컨텍스트 추가', s: '파일, 사람, 모임', k: 'Ctrl+/' },
+    { ic: 'upload', t: '이미지 및 파일 업로드', s: 'PDF, Word, Excel, 이미지', k: 'Ctrl+U' },
+    { ic: 'cloud', t: '클라우드 파일 및 폴더 첨부', s: 'OneDrive, SharePoint, Teams', k: 'Ctrl+Shift+U' },
+    { sep: true },
+    { ic: 'bag', t: '사용자 지정', s: '기술 및 플러그인 관리' }
+  ];
+  /* 입력창 아래 팁은 실제 화면에서 여러 개가 번갈아 나온다. */
+  var TIPS = [
+    ['Ctrl+Shift+U', '을(를) 눌러 OneDrive 또는 SharePoint의 파일을 첨부하세요.'],
+    ['Ctrl+U', '을(를) 눌러 디바이스에서 이미지와 파일을 업로드하세요.'],
+    ['/', '을 눌러 M365 파일, 사용자, 기술 등에서 선택하세요.']
+  ];
+  var tipN = 0;
+
+  /* 모델을 바꾸면 노력 기본값이 따라 바뀐다.
+     GPT 계열은 매우 높음, 나머지는 보통이 기본이다. */
+  function defaultEffort(model) {
+    return /^GPT/i.test(model) ? '매우 높음' : '보통';
+  }
+
+  function closePops(except) {
+    [].forEach.call(document.querySelectorAll('.pop'), function (p) {
+      if (p !== except) {
+        p.classList.remove('on');
+        var t = p.previousElementSibling;
+        if (t) { t.setAttribute('aria-expanded', 'false'); }
+      }
+    });
+  }
+
+  /* label: 버튼에 보일 내용, items: 메뉴 항목, onPick: 선택 콜백 */
+  function popover(label, items, opts) {
+    opts = opts || {};
+    var wrap = el('<span class="pop-wrap"></span>');
+    var btn = el('<button class="pill" aria-expanded="false">' + label + '</button>');
+    var pop = el('<div class="pop' + (opts.narrow ? ' narrow' : '') + (opts.up ? ' up' : '') + '"></div>');
+
+    items.forEach(function (m) {
+      if (m.sep) { pop.appendChild(el('<div class="sep"></div>')); return; }
+      var mi = el('<button class="mi">' +
+        (m.ic ? '<span class="mic-ic">' + I[m.ic] + '</span>' : '') +
+        '<span class="mtx"><span class="mt">' + esc(m.t) + '</span>' +
+        (m.s ? '<span class="ms">' + esc(m.s) + '</span>' : '') + '</span>' +
+        (m.k ? '<span class="kb">' + esc(m.k) + '</span>' : '') +
+        (opts.check ? '<span class="tickmark">' + (m.t === opts.current ? I.tickBlue : '') + '</span>' : '') +
+        '</button>');
+      mi.addEventListener('click', function (e) {
+        e.stopPropagation();
+        closePops();
+        if (opts.onPick) { opts.onPick(m.t); }
+      });
+      pop.appendChild(mi);
+    });
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var on = pop.classList.contains('on');
+      closePops();
+      if (!on) { pop.classList.add('on'); btn.setAttribute('aria-expanded', 'true'); }
+    });
+    wrap.appendChild(btn);
+    wrap.appendChild(pop);
+    return wrap;
+  }
+
+  /* 모델 목록은 실제 Cowork 선택기와 같다. 이 시나리오에서 측정한 회차가 있으면
+     설명 줄에 실측 크레딧을 덧붙이고, 없으면 원래 설명을 그대로 둔다. */
+  var MODEL_LIST = [
+    ['자동', '작업에 가장 적합한 모델'],
+    ['GPT 5.6 Sol', '어려운 작업에 적합한 똑똑하고 효율적인 모델'],
+    ['GPT 5.6 Terra', '일반적인 작업을 위한 균형 잡힌 추론'],
+    ['GPT 5.5', '중간 수준 추론에 적합한 모델'],
+    ['Opus 5', '복잡하고 중요한 작업에 적합'],
+    ['Sonnet 5', '일상 작업에 효율적']
   ];
 
+  /* 컴포저 한 줄을 만든다. run이 있으면 모델·노력이 실제 데이터와 연동된다. */
+  function composerRow(host, live) {
+    host.innerHTML = '';
+    host.appendChild(popover(I.plus, PLUS_MENU, { up: !live }));
+
+    var models = MODEL_LIST.map(function (m) {
+      var hit = live && run.bench.models.filter(function (x) { return x.name === m[0]; })[0];
+      return { t: m[0], s: hit ? '이 시나리오 실측 ' + fmt(Math.round(hit.avg)) + ' 크레딧' : m[1] };
+    });
+    if (!live) { models = [{ t: '자동', s: '작업에 맞는 모델을 고릅니다' }]; }
+    if (live && !models.some(function (m) { return m.t === run.model; })) {
+      models.unshift({ t: run.model, s: '이번 실행에 쓴 모델' });
+    }
+    var curModel = live ? (picked || run.model) : '자동';
+
+    var mWrap = popover('<span id="mdlLabel">' + esc(curModel) + '</span> ' + I.caret, models, {
+      narrow: true, check: true, current: curModel, up: !live,      onPick: function (name) {
+        if (live) {
+          picked = name;
+          effortPick = defaultEffort(name);
+          if (costShown) { redrawCost(); }
+          redrawVary();
+          rebuildComposer();
+        } else {
+          var lab = document.getElementById('mdlLabel');
+          if (lab) { lab.textContent = name; }
+          var el2 = document.getElementById('effLabel');
+          if (el2) { el2.textContent = defaultEffort(name); }
+        }
+      }
+    });
+    /* 모델별 결과가 있는 회차는 선택기에 테두리를 둘러 눌러 보게 안내한다. */
+    if (live && run.variants) { mWrap.classList.add('ring'); }
+    host.appendChild(mWrap);
+
+    var curEffort = live ? (effortPick || run.effort) : '보통';
+    host.appendChild(effortPicker(curEffort, live));
+
+    host.appendChild(el('<span class="spacer"></span>'));
+    /* 오른쪽 묶음. 실제 화면은 다듬기 아이콘과 원형 마이크만 두고,
+       보낼 내용이 있을 때만 검은 원형 보내기가 붙는다.
+       재생 중에는 검은 원형이 중지로 바뀌고 회색 대기열 pill이 따라온다. */
+    host.appendChild(el('<button class="pill" title="다시 쓰기">' + I.rewrite + '</button>'));
+    host.appendChild(el('<button class="micb" title="받아쓰기">' + I.mic + '</button>'));
+    if (live && running) {
+      host.appendChild(el('<button class="rnd stop" title="중지">' + I.stopSq + '</button>'));
+      host.appendChild(el('<button class="qbtn" disabled>' + I.up + '대기열</button>'));
+    }
+  }
+
+  /* 노력 선택기. 실제 화면은 목록이 아니라 눈금 넷짜리 슬라이더다.
+     크레딧이 더 든다는 설명이 함께 붙는다. */
+  var EFFORT_T = ['가벼움', '보통', '높음', '매우 높음'];
+
+  function effortPicker(cur, live) {
+    var wrap = el('<div class="pop-wrap"></div>');
+    var btn = el('<button class="pill" aria-expanded="false">작업 수준 ' +
+      '<span id="effLabel">' + esc(cur) + '</span> ' + I.caret + '</button>');
+    var pop = el('<div class="pop eff' + (live ? '' : ' up') + '">' +
+      '<div class="eh" id="effHead">노력 ' + esc(cur) +
+      (cur === '보통' ? ' (기본값)' : '') + '</div>' +
+      '<div class="erow"><span>빠르게</span><span>더 스마트하게</span></div>' +
+      '<input type="range" id="effRange" min="0" max="3" step="1" value="' +
+      Math.max(0, EFFORT_T.indexOf(cur)) + '">' +
+      '<div class="enote">더 많은 노력을 기울이면 더 철저해지지만, 속도는 더 느려지고 ' +
+      '크레딧도 더 많이 소모됩니다.</div></div>');
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var on = pop.classList.contains('on');
+      closePops();
+      if (!on) { pop.classList.add('on'); btn.setAttribute('aria-expanded', 'true'); }
+    });
+    pop.addEventListener('click', function (e) { e.stopPropagation(); });
+    pop.querySelector('#effRange').addEventListener('input', function (e) {
+      var t = EFFORT_T[+e.target.value];
+      if (live) { effortPick = t; }
+      document.getElementById('effLabel').textContent = t;
+      document.getElementById('effHead').textContent =
+        '노력 ' + t + (t === '보통' ? ' (기본값)' : '');
+    });
+    wrap.appendChild(btn);
+    wrap.appendChild(pop);
+    return wrap;
+  }
+
+  /* 재생 중에는 실제 화면처럼 입력창 문구와 오른쪽 버튼이 바뀐다. */
+  function setRunningUI(on) {
+    running = on;
+    var ph = document.getElementById('cph');
+    if (ph) { ph.textContent = on ? '처리 중입니다. 다음 단계는 무엇일까요?' : 'Cowork에 메시지 보내기'; }
+    rebuildComposer();
+  }
+
+  function rebuildComposer() {
+    var host = document.getElementById('crow');
+    if (host) { composerRow(host, true); }
+  }
+
+  /* ── 사이드바 ── */
   function buildSide() {
     document.getElementById('sideTop').innerHTML =
       '<span class="brand">Copilot</span><div class="side-icons">' +
@@ -405,12 +623,6 @@
       var b = el('<button data-id="' + r.id + '"><span class="lbl">' +
         esc(r.groupLabel || r.chatTitle || r.title) + '</span></button>');
       b.addEventListener('click', function () { open(r.id); });
-      box.appendChild(b);
-    });
-    FILLER.forEach(function (f) {
-      var b = el('<button class="' + (f[1] ? 'dim' : '') + '"><span class="lbl">' + esc(f[0]) + '</span>' +
-        (f[2] ? '<span class="rt">' + I.help + '</span>' : '') + '</button>');
-      b.addEventListener('click', renderHome);
       box.appendChild(b);
     });
 
@@ -478,23 +690,7 @@
         '<div class="tipline"><span class="ti">' + I.bulb + '</span>팁: <kbd>' +
           esc(tip[0]) + '</kbd> ' + esc(tip[1]) + '</div>' +
         '<div class="sec-h">다음 재생 항목<span class="more">더 보기</span></div>' +
-        '<div class="resume" id="resume">' + resume +
-          (RUNS.length >= 3 ? '' :
-          '<button class="ritem" id="fillA"><span class="rico">' + I.circleQ + '</span>' +
-          '<span class="rbody"><span class="rtitle">한국어 문서 교정 지원 요청</span>' +
-          '<span class="rsub">Checking your document for corrections</span></span></button>' +
-          '<button class="ritem" id="fillB"><span class="rico">' + I.circleCheck + '</span>' +
-          '<span class="rbody"><span class="rtitle">PDF 문서에 민감도 레이블 적용</span></span></button>') +
-        '</div>' +
-        '<div class="sec-h">다음에 이걸 시도해 보세요.<span class="more">더 보기</span></div>' +
-        '<div class="tiles">' +
-          '<button class="tile"><div class="art">' + ART.inbox + '</div>' +
-            '<div class="tl">받은 편지함 정리</div><div class="ts">평균 178 크레딧</div></button>' +
-          '<button class="tile"><div class="art">' + ART.week + '</div>' +
-            '<div class="tl">내 주 정렬</div><div class="ts">평균 393 크레딧</div></button>' +
-          '<button class="tile"><div class="art">' + ART.meet + '</div>' +
-            '<div class="tl">모임 준비</div><div class="ts">평균 767 크레딧</div></button>' +
-        '</div>' +
+        '<div class="resume" id="resume">' + resume + '</div>' +
       '</div></div>';
 
     [].forEach.call(document.querySelectorAll('.ritem[data-id]'), function (b) {

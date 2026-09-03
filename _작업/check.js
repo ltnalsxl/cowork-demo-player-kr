@@ -57,7 +57,15 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
 
   ok('홈 히어로', $('.hero-q')?.textContent === '지금 무엇을 작업하고 있나요?');
   ok('재생 항목 9개', $$('.ritem').length === 9, $$('.ritem').length);
-  ok('타일 3개', $$('.tile').length === 3);
+  /* 눌러도 열리지 않는 항목을 두지 않는다. 위쪽 내비게이션(새 작업, 내 작업,
+     자동화, 사용자 지정)은 실제 화면 구조라 그대로 두고, 채팅 기록은 실제 회차만 세운다. */
+  ok('홈에 죽은 타일 없음', $$('.tile').length === 0, $$('.tile').length);
+  ok('재생 항목은 모두 열림',
+    $$('.resume .ritem').every((b) => b.dataset.id), $$('.resume .ritem').length);
+  ok('채팅 기록은 실제 회차만',
+    $$('#chats button').length === $$('#chats button[data-id]').length,
+    $$('#chats button').length + ' / ' + $$('#chats button[data-id]').length);
+  ok('사이드바 내비게이션 넷', $$('#nav button').length === 4, $$('#nav button').length);
   ok('입력 힌트 줄', /팁:/.test($('.tipline')?.textContent || ''), $('.tipline')?.textContent);
   ok('컴포저 마이크', !!$('#homeCrow .micb'));
   ok('대기 중엔 보내기 없음', !$('#homeCrow .rnd'));

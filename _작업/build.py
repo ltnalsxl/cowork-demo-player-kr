@@ -11,8 +11,8 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(BASE, '..'))
 
 ORDER = ['tc04-auto', 'tc04-sonnet', 'tc04-terra', 'tc01-demo', 'tc01-real',
-         'rfp-report', 'badge-check', 'isms-audit', 'daily-brief',
-         'skill-proofread', 'weekly-team', 'inbox-triage']
+         'skill-proofread', 'weekly-team',
+         'rfp-report', 'badge-check', 'isms-audit', 'daily-brief', 'inbox-triage']
 
 
 def key(path):
