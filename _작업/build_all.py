@@ -8,7 +8,7 @@ import sys
 import os
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-for s in ['build_sonnet.py', 'build_terra.py', 'build_tc01.py',
+for s in ['build_sonnet.py', 'build_terra.py',
           'build_badge.py', 'build_isms.py', 'build_brief.py', 'build_skill.py',
           'build_weekly.py', 'build_inbox.py',
           'group.py', 'fetch_fx.py', 'build.py']:

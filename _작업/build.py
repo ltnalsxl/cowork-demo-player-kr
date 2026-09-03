@@ -10,7 +10,7 @@ import os
 BASE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(BASE, '..'))
 
-ORDER = ['tc04-sonnet', 'tc04-terra', 'tc01-demo', 'tc01-real',
+ORDER = ['tc04-sonnet', 'tc04-terra',
          'skill-proofread', 'weekly-team',
          'badge-check', 'isms-audit', 'daily-brief', 'inbox-triage']
 

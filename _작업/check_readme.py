@@ -72,12 +72,10 @@ def main():
         import ladder
         pair = {
             '아침 브리핑': 'daily-brief',
-            '주간보고 · 활동 없는 계정': 'tc01-demo',
             '주간보고 · 사내 표준 서식': 'weekly-team',
             '밀린 메일 정리': 'inbox-triage',
             '출입기록 점검 · 스킬 만들기': 'badge-check',
             'ISMS-P 심사 대응': 'isms-audit',
-            '주간보고 · 활동 많은 계정': 'tc01-real',
         }
         by_id = {r['id']: r for r in runs}
         for m in ladder.LADDER:
