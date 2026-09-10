@@ -519,6 +519,16 @@ svg{display:block}
 /* Teams 채팅 카드 */
 .mailcard.chat .mrow{border-bottom:1px solid var(--line)}
 
+/* 보낸 뒤 Teams에 도착한 화면 */
+.mailwrap .mailcard{margin-bottom:0}
+.mshot{margin:10px 0 14px;border:1px solid var(--line);border-radius:12px;
+  background:var(--surface);padding:13px 14px 12px}
+.mshot .msh{display:flex;align-items:center;gap:8px;font-size:13px;
+  font-weight:600;color:var(--ink-2);margin-bottom:10px}
+.mshot .msh svg{width:16px;height:16px}
+.mshot img{display:block;width:100%;border:1px solid var(--line);border-radius:8px}
+.mshot .msn{margin-top:9px;font-size:12.5px;color:var(--ink-3);line-height:1.6}
+
 /* 기록이 끊긴 지점 */
 .cutline{display:flex;align-items:center;gap:12px;margin:20px 0 6px;
   font-size:12px;color:var(--ink-3)}

@@ -1344,6 +1344,18 @@
         '아래에 메시지를 보내면 편집 내용이 삭제되고 위의 작업이 취소됩니다.</div>' +
         '</div>');
 
+      /* 보낸 뒤 Teams에 실제로 도착한 화면. 재현본이라는 사실을 함께 적는다. */
+      if (s.shot) {
+        var mw = el('<div class="mailwrap"></div>');
+        mw.appendChild(node);
+        mw.appendChild(el('<div class="mshot"><div class="msh">' +
+          (s.chat ? I.teamsS : I.outlookS) + esc(s.shotLabel || '실제 도착 화면') + '</div>' +
+          '<img src="' + s.shot + '" alt="" loading="lazy">' +
+          (s.shotNote ? '<div class="msn">' + esc(s.shotNote) + '</div>' : '') +
+          '</div>'));
+        node = mw;
+      }
+
     } else if (s.t === 'prompt') {
       /* 같은 작업에서 이어 시킨 두 번째 프롬프트. 위에 시간 구분선이 붙는다. */
       node = el('<div class="turn"></div>');

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Teams 도착 화면 (데모 재현)</title>
+<style>
+  :root{
+    --rail:#f5f4f7; --line:#e5e4e8; --tx:#1b1a1f; --dim:#616068;
+    --accent:#5b5fc7; --bub:#f0f0f7; --bubline:#d9d8e4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    width:1400px;height:790px;overflow:hidden;background:#fff;color:var(--tx);
+    font-family:"Segoe UI","Malgun Gothic","맑은 고딕",sans-serif;
+    font-size:13px;line-height:1.45;letter-spacing:-.01em;
+    -webkit-font-smoothing:antialiased;
+  }
+  .win{display:flex;flex-direction:column;height:100%}
+
+  /* 상단 바 */
+  .top{height:48px;display:flex;align-items:center;gap:12px;padding:0 12px;flex:none}
+  .tl{display:flex;align-items:center;gap:14px;width:280px}
+  .glyph{width:20px;height:20px;color:#5c5b64;flex:none}
+  .tag{font-size:12px;color:#5c5b64;font-weight:600;letter-spacing:.02em}
+  .nav{display:flex;gap:2px;margin-left:4px}
+  .search{
+    flex:1;height:32px;border-radius:6px;background:var(--rail);
+    display:flex;align-items:center;gap:8px;padding:0 12px;color:#6b6a72;max-width:900px
+  }
+  .tr{margin-left:auto;display:flex;align-items:center;gap:14px;color:#5c5b64}
+  .tr b{font-weight:400;font-size:13px}
+  .me{width:26px;height:26px;border-radius:50%;background:#c8c6ce;position:relative}
+  .me::after{content:"";position:absolute;right:-1px;bottom:-1px;width:9px;height:9px;
+    border-radius:50%;background:#c4314b;border:2px solid #fff}
+  .wc{display:flex;gap:16px;color:#5c5b64;margin-left:6px}
+
+  .body{flex:1;display:flex;min-height:0}
+
+  /* 왼쪽 아이콘 레일 */
+  .rail{width:56px;flex:none;display:flex;flex-direction:column;align-items:center;
+    gap:16px;padding:6px 0 10px;border-right:1px solid var(--line)}
+  .ri{width:34px;height:34px;border-radius:6px;display:flex;align-items:center;
+    justify-content:center;color:#4d4c54;position:relative}
+  .ri.on{color:var(--accent)}
+  .ri.on::before{content:"";position:absolute;left:-11px;top:7px;width:3px;height:20px;
+    border-radius:2px;background:var(--accent)}
+  .bdg{position:absolute;top:-1px;right:-1px;min-width:16px;height:16px;border-radius:8px;
+    background:#c4314b;color:#fff;font-size:10px;font-weight:600;display:flex;
+    align-items:center;justify-content:center;padding:0 4px;border:2px solid #fff}
+  .rail .sp{flex:1}
+
+  /* 대화 목록 */
+  .list{width:308px;flex:none;border-right:1px solid var(--line);
+    display:flex;flex-direction:column;min-height:0}
+  .lh{display:flex;align-items:center;padding:10px 12px 6px;gap:8px}
+  .lh h2{font-size:19px;font-weight:600;letter-spacing:-.02em}
+  .lh .sp{flex:1}
+  .lh .ic{color:#5c5b64;display:flex;gap:12px;align-items:center}
+  .chip{margin:2px 12px 8px;display:inline-block;font-size:12px;padding:3px 12px;
+    border:1px solid var(--line);border-radius:14px;color:#3f3e46;width:max-content}
+  .grp{display:flex;align-items:center;gap:6px;padding:7px 12px 3px;
+    font-size:12px;font-weight:600;color:#3f3e46}
+  .grp .cv{color:#6b6a72}
+  .sub{display:flex;align-items:center;gap:10px;padding:5px 12px 5px 16px;color:#3f3e46}
+  .sub .glyph{width:17px;height:17px}
+  .row{display:flex;gap:10px;padding:7px 12px;align-items:flex-start;border-radius:6px;
+    margin:0 4px}
+  .row.on{background:#eceafc;box-shadow:inset 0 0 0 1px #d6d2f5}
+  .av{width:32px;height:32px;border-radius:50%;flex:none;position:relative;
+    display:flex;align-items:center;justify-content:center;color:#fff;
+    font-size:11px;font-weight:600}
+  .av.sq{border-radius:5px}
+  .av .dot{position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;
+    border:2px solid #fff}
+  .g{background:#237b4b}.r{background:#c4314b}.o{background:#8f5700}
+  .rw{flex:1;min-width:0}
+  .r1{display:flex;align-items:baseline;gap:6px}
+  .nm{font-size:13px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis}
+  .tm{font-size:11px;color:#6b6a72;flex:none}
+  .r2{font-size:12px;color:#5c5b64;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+  .unread{width:7px;height:7px;border-radius:50%;background:#5b5fc7;flex:none}
+
+  /* 대화 본문 */
+  .main{flex:1;display:flex;flex-direction:column;min-width:0}
+  .mh{padding:12px 20px 0;display:flex;align-items:center;gap:12px}
+  .mh .who{font-size:18px;font-weight:600;letter-spacing:-.02em}
+  .mh .sp{flex:1}
+  .mh .ic{display:flex;gap:16px;color:#5c5b64}
+  .tabs{display:flex;gap:22px;padding:8px 20px 0;border-bottom:1px solid var(--line)}
+  .tab{font-size:13px;color:#3f3e46;padding-bottom:9px}
+  .tab.on{color:var(--accent);font-weight:600;box-shadow:inset 0 -2px 0 var(--accent)}
+
+  .thread{flex:1;padding:10px 28px 0;overflow:hidden;position:relative}
+  .faded{opacity:.35;font-size:12.5px;color:#5c5b64;text-align:right;
+    padding:6px 14px;background:var(--bub);border-radius:8px;width:520px;
+    margin-left:auto;white-space:nowrap;overflow:hidden}
+  .daysep{text-align:center;font-size:12px;color:#6b6a72;margin:10px 0 6px;position:relative}
+  .msgwrap{position:relative}
+  .react{position:absolute;right:14px;top:-16px;display:flex;align-items:center;gap:9px;
+    background:#fff;border:1px solid var(--line);border-radius:18px;padding:5px 11px;
+    box-shadow:0 2px 8px rgba(0,0,0,.10);font-size:15px;z-index:3}
+  .react .gy{color:#5c5b64;display:flex;align-items:center}
+  .bub{background:var(--bub);border:1px solid var(--bubline);border-radius:6px;
+    padding:14px 18px 11px}
+  .bub h3{font-size:14px;font-weight:600;margin-bottom:9px}
+  .sec{font-size:13px;font-weight:600;margin:10px 0 4px}
+  .li{font-size:12.5px;padding-left:11px;position:relative;margin-bottom:2px;color:#26252b}
+  .li::before{content:"•";position:absolute;left:0;color:#6b6a72}
+  .li .sub2{display:block;padding-left:0;color:#5c5b64;font-size:12px}
+  .sent{margin-top:11px;font-size:11.5px;color:#6b6a72}
+  .sent a{color:var(--accent)}
+  .tick{position:absolute;right:-16px;bottom:2px;color:#6b6a72}
+
+  .compose{margin:12px 28px 16px;border:1px solid var(--line);border-radius:8px;
+    height:46px;display:flex;align-items:center;padding:0 14px;color:#6b6a72;
+    box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .compose .sp{flex:1}
+  .compose .ic{display:flex;gap:17px;color:#5c5b64}
+  .send{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="win">
+
+  <div class="top">
+    <div class="tl">
+      <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+        <rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M7.5 3.5v13"/></svg>
+      <span class="tag">CW</span>
+      <span class="nav">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M12 5l-5 5 5 5"/></svg>
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M8 5l5 5-5 5"/></svg>
+      </span>
+    </div>
+    <div class="search">
+      <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+        <circle cx="9" cy="9" r="5.2"/><path d="M13 13l4 4"/></svg>
+      검색하거나 Copilot에게 질문하기(Ctrl+E)
+    </div>
+    <div class="tr">
+      <svg class="glyph" viewBox="0 0 20 20" fill="currentColor">
+        <circle cx="4" cy="10" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="16" cy="10" r="1.5"/></svg>
+      <b>Zava</b>
+      <span class="me"></span>
+      <span class="wc">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3">
+          <path d="M4 10h12"/></svg>
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3">
+          <rect x="4.5" y="4.5" width="11" height="11"/></svg>
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3">
+          <path d="M5 5l10 10M15 5L5 15"/></svg>
+      </span>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <div class="rail">
+      <div class="ri">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M10 3a4.5 4.5 0 0 0-4.5 4.5v3L4 13.5h12l-1.5-3v-3A4.5 4.5 0 0 0 10 3z"/>
+          <path d="M8.2 15.5a1.9 1.9 0 0 0 3.6 0"/></svg>
+      </div>
+      <div class="ri on">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M3.5 8.5a5.5 4.6 0 0 1 13 0 5.5 4.6 0 0 1-8.6 3.8L4.5 14l.9-2.6a4.6 4.6 0 0 1-1.9-2.9z"/></svg>
+        <span class="bdg">4</span>
+      </div>
+      <div class="ri">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <rect x="3.5" y="4.5" width="13" height="12" rx="1.8"/><path d="M3.5 8h13M7 3v3M13 3v3"/></svg>
+      </div>
+      <div class="ri">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M5 4.5h3l1.2 3-1.7 1.4a9 9 0 0 0 3.6 3.6L12.5 11l3 1.2v3a1 1 0 0 1-1.1 1A11.6 11.6 0 0 1 4 5.6 1 1 0 0 1 5 4.5z"/></svg>
+      </div>
+      <div class="ri">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M6 14.5a3 3 0 0 1-.3-6A4.2 4.2 0 0 1 13.6 7 2.9 2.9 0 0 1 14 14.5z"/></svg>
+      </div>
+      <div class="ri">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <circle cx="7.6" cy="7.4" r="2.4"/><path d="M3.4 15.2a4.3 4.3 0 0 1 8.4 0"/>
+          <circle cx="14" cy="7.9" r="1.9"/><path d="M12.6 12.6a3.6 3.6 0 0 1 4.2 2.6"/></svg>
+        <span class="bdg">1</span>
+      </div>
+      <div class="ri">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <rect x="3.5" y="3.5" width="13" height="13" rx="2.4"/><path d="M10 7v6M7 10h6"/></svg>
+      </div>
+      <div class="ri">
+        <svg class="glyph" viewBox="0 0 20 20" fill="currentColor">
+          <circle cx="4" cy="10" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="16" cy="10" r="1.5"/></svg>
+      </div>
+      <div class="sp"></div>
+      <div class="ri">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <circle cx="10" cy="7.2" r="2.8"/><path d="M4.6 16a5.4 5.4 0 0 1 10.8 0"/></svg>
+      </div>
+    </div>
+
+    <div class="list">
+      <div class="lh">
+        <h2>채팅</h2>
+        <span class="sp"></span>
+        <span class="ic">
+          <svg class="glyph" viewBox="0 0 20 20" fill="currentColor">
+            <circle cx="4" cy="10" r="1.4"/><circle cx="10" cy="10" r="1.4"/><circle cx="16" cy="10" r="1.4"/></svg>
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+            <circle cx="9" cy="9" r="5.2"/><path d="M13 13l4 4"/></svg>
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M13.4 3.8l2.8 2.8L8 14.8 4.6 15.4l.6-3.4z"/></svg>
+        </span>
+      </div>
+      <span class="chip">읽지 않음</span>
+
+      <div class="grp">
+        <svg class="glyph cv" style="width:14px;height:14px" viewBox="0 0 20 20"
+             fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8l4 4 4-4"/></svg>
+        필터 보기
+      </div>
+      <div class="sub">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <circle cx="10" cy="10" r="6.2"/><path d="M12.4 8.2v3.4a1.6 1.6 0 0 0 2.8.9"/></svg>
+        멘션
+      </div>
+      <div class="sub">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M4 6h9M4 10h7M4 14h5"/><path d="M14 12.5l2 2 3-3.6"/></svg>
+        팔로우한 스레드
+      </div>
+      <div class="sub">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M13.4 3.8l2.8 2.8L8 14.8 4.6 15.4l.6-3.4z"/></svg>
+        초안
+      </div>
+      <div class="sub">
+        <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M6 3.6h8v13l-4-3-4 3z"/></svg>
+        저장됨
+      </div>
+
+      <div class="grp">
+        <svg class="glyph cv" style="width:14px;height:14px" viewBox="0 0 20 20"
+             fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8l4 4 4-4"/></svg>
+        즐겨찾기
+      </div>
+      <div class="row on">
+        <span class="av g">CU<span class="dot g"></span></span>
+        <span class="rw">
+          <span class="r1"><span class="nm">Copilot User(나)</span><span class="tm">오전 7:30</span></span>
+          <span class="r2">나: 📌 오늘의 브리핑 · 9/3(목) 오늘 회의 …</span>
+        </span>
+      </div>
+      <div class="row">
+        <span class="av o">교기<span class="dot o"></span></span>
+        <span class="rw">
+          <span class="r1"><span class="nm">[교육기획] 하반기 과정 설계</span><span class="tm">오전 9:12</span></span>
+          <span class="r2">동료 A: 예산 확정 전에 2안으로 …<span class="unread"></span></span>
+        </span>
+      </div>
+      <div class="row">
+        <span class="av sq" style="background:#8378de">
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.5">
+            <rect x="3.8" y="4.8" width="12.4" height="11.4" rx="1.6"/><path d="M3.8 8.2h12.4M7 3.6v3M13 3.6v3"/></svg>
+        </span>
+        <span class="rw">
+          <span class="r1"><span class="nm">[논의] 신임 팀장 과정 리허설</span><span class="tm">09-01</span></span>
+          <span class="r2">동료 B: 차주 화요일 오후 3시로 …</span>
+        </span>
+      </div>
+
+      <div class="grp">
+        <svg class="glyph cv" style="width:14px;height:14px" viewBox="0 0 20 20"
+             fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8l4 4 4-4"/></svg>
+        교육기획팀
+      </div>
+      <div class="row">
+        <span class="av sq" style="background:#8378de">
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.5">
+            <rect x="3.8" y="4.8" width="12.4" height="11.4" rx="1.6"/><path d="M3.8 8.2h12.4M7 3.6v3M13 3.6v3"/></svg>
+        </span>
+        <span class="rw">
+          <span class="r1"><span class="nm">교육 담당자 정례</span><span class="tm">09-02</span></span>
+          <span class="r2">녹화 가능</span>
+        </span>
+      </div>
+      <div class="row">
+        <span class="av r">교팀<span class="dot g"></span></span>
+        <span class="rw">
+          <span class="r1"><span class="nm">교육기획팀 채팅방</span><span class="tm">오전 9:05</span></span>
+          <span class="r2">동료 C: 지방 사업장 일정이 하루 밀려서 …</span>
+        </span>
+      </div>
+      <div class="row">
+        <span class="av o">생산<span class="dot o"></span></span>
+        <span class="rw">
+          <span class="r1"><span class="nm">생산본부 교육 담당</span><span class="tm">09-02</span></span>
+          <span class="r2">동료 D: 실습 계정 등록은 제가 맡겠습니다</span>
+        </span>
+      </div>
+      <div class="row">
+        <span class="av g">학관<span class="dot g"></span></span>
+        <span class="rw">
+          <span class="r1"><span class="nm">학습관리시스템 도입</span><span class="tm">09-02</span></span>
+          <span class="r2">동료 E: IT 본부 승인 떨어졌습니다</span>
+        </span>
+      </div>
+
+      <div class="grp">
+        <svg class="glyph cv" style="width:14px;height:14px" viewBox="0 0 20 20"
+             fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8l4 4 4-4"/></svg>
+        채팅
+      </div>
+      <div class="row">
+        <span class="av r">워크<span class="dot r"></span></span>
+        <span class="rw">
+          <span class="r1"><span class="nm">하반기 워크숍 준비</span><span class="tm">오전 11:20</span></span>
+          <span class="r2">동료 F: 주차 사전 등록 명단 공유드립니다</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="mh">
+        <span class="av g" style="width:34px;height:34px;font-size:12px">CU<span class="dot g"></span></span>
+        <span class="who">Copilot User(나)</span>
+        <span class="sp"></span>
+        <span class="ic">
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M10 3.4l1.6 3.6 3.6.4-2.7 2.5.8 3.7L10 11.8 6.7 13.6l.8-3.7L4.8 7.4l3.6-.4z"/></svg>
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+            <circle cx="9" cy="9" r="5.2"/><path d="M13 13l4 4"/></svg>
+          <svg class="glyph" viewBox="0 0 20 20" fill="currentColor">
+            <circle cx="4" cy="10" r="1.4"/><circle cx="10" cy="10" r="1.4"/><circle cx="16" cy="10" r="1.4"/></svg>
+        </span>
+      </div>
+      <div class="tabs">
+        <span class="tab on">채팅</span>
+        <span class="tab">공유</span>
+        <span class="tab">노트</span>
+        <span class="tab">스토리라인</span>
+      </div>
+
+      <div class="thread">
+        <div class="faded">어제 브리핑 · 회의 3건 · 회신 대기 2건 · 이번 주 기한 2건</div>
+        <div class="daysep">오늘</div>
+
+        <div class="msgwrap">
+          <div class="react">
+            👍 ❤️ 😆 😮
+            <span class="gy">
+              <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+                <circle cx="9" cy="9" r="5.6"/><path d="M7 8.2v.1M11 8.2v.1M6.9 11.4a3 3 0 0 0 4.2 0"/>
+                <path d="M15 4.6v3M13.5 6.1h3"/></svg>
+            </span>
+            <span class="gy">
+              <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+                <path d="M13.4 3.8l2.8 2.8L8 14.8 4.6 15.4l.6-3.4z"/></svg>
+            </span>
+            <span class="gy">
+              <svg class="glyph" viewBox="0 0 20 20" fill="currentColor">
+                <circle cx="4" cy="10" r="1.4"/><circle cx="10" cy="10" r="1.4"/><circle cx="16" cy="10" r="1.4"/></svg>
+            </span>
+          </div>
+
+          <div class="bub">
+            <h3>📌 오늘의 브리핑 · 9/3(목)</h3>
+
+            <div class="sec">1) 오늘 회의</div>
+            <div class="li"><b>08:00–11:00</b> 하반기 교육과정 설계 워크숍 (2안)
+              <span class="sub2">준비: 확인 필요 — 사전 자료 안내 메일 없음</span></div>
+            <div class="li"><b>10:00–11:00</b> 신임 팀장 과정 리허설 <b>← 앞 회의와 겹침</b>
+              <span class="sub2">준비: 실습 계정 사전 등록 (등록 안내 메일 기준)</span></div>
+            <div class="li"><b>12:30–13:30</b> 교육 담당자 정례
+              <span class="sub2">준비: 해당 없음</span></div>
+            <div class="li"><b>17:30–18:00</b> 사업장 교육 준비 (동료 A)
+              <span class="sub2">준비: 지방 사업장 교육 자료 초안 — 9/8 확정 기한</span></div>
+
+            <div class="sec">2) 회신 대기 중 · 급한 것</div>
+            <div class="li"><b>동료 B</b>(영업본부) — 교육 일정 택일 요청(9/8 또는 9/9), <b>이틀째 대기</b></div>
+            <div class="li"><b>학습관리시스템</b> 추가 확인 사항 — 요청 내용 <b>확인 필요</b></div>
+            <div class="li"><b>생산본부</b> 교육 자료 공유 링크 회신 대기</div>
+
+            <div class="sec">3) 이번 주 기한</div>
+            <div class="li">워크숍 <b>주차 사전 등록</b></div>
+            <div class="li">하반기 <b>교육 예산 확정</b></div>
+            <div class="li"><b>9/8</b> 지방 사업장 교육 자료 확정</div>
+
+            <div class="sent">근거: 오늘 캘린더, 최근 메일. 확인되지 않은 항목은 '확인 필요'로 적었습니다.<br>
+              Sent by <a href="#">Copilot Cowork</a></div>
+          </div>
+          <span class="tick">
+            <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+              <circle cx="10" cy="10" r="6.4"/><path d="M7.2 10.2l2 2 3.6-4"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="compose">
+        메시지를 입력하세요.
+        <span class="sp"></span>
+        <span class="ic">
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M4 15V5h3l3 7 3-7h3v10"/></svg>
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+            <circle cx="10" cy="10" r="6"/><path d="M7.6 8.4v.1M12.4 8.4v.1M7.4 11.6a3.4 3.4 0 0 0 5.2 0"/></svg>
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M13.8 6.6l-6 6a2.1 2.1 0 0 0 3 3l6.2-6.2a3.7 3.7 0 0 0-5.2-5.2L5.4 10.4a5.2 5.2 0 0 0 7.4 7.4"/></svg>
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M10 3.4l1.6 3.6 3.6.4-2.7 2.5.8 3.7L10 11.8 6.7 13.6l.8-3.7L4.8 7.4l3.6-.4z"/></svg>
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+            <rect x="3.6" y="4.6" width="12.8" height="10.8" rx="2"/><path d="M7 15.4l1.6 2 1.6-2"/></svg>
+          <svg class="glyph" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M10 5v10M5 10h10"/></svg>
+          <svg class="glyph send" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M3.6 10L16.4 4.4 13.6 16 9.8 12.2z"/><path d="M9.8 12.2L16.4 4.4"/></svg>
+        </span>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
