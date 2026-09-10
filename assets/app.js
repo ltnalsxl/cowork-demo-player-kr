@@ -1673,6 +1673,29 @@
     var a = run.artifacts[i], v = document.getElementById('viewer');
     v.querySelector('.vn').textContent = a.name;
     v.querySelector('.vm').textContent = a.kind + ' · ' + a.meta;
+
+    /* 미리보기만 보고 끝내지 않게 원본 파일을 함께 내준다.
+       내려받는 파일 이름은 저장소 경로가 아니라 대화에 뜬 이름으로 맞춘다. */
+    var dl = v.querySelector('.vdl'), op = v.querySelector('.vop');
+    if (a.file) {
+      dl.href = a.file;
+      dl.setAttribute('download', a.name);
+      dl.hidden = false;
+      /* HTML 산출물은 브라우저에서 바로 보는 편이 빠르다. */
+      if (/\.html?$/i.test(a.file)) {
+        op.href = a.file;
+        op.hidden = false;
+      } else {
+        op.hidden = true;
+        op.removeAttribute('href');
+      }
+    } else {
+      dl.hidden = true;
+      op.hidden = true;
+      dl.removeAttribute('href');
+      op.removeAttribute('href');
+    }
+
     /* 미리보기가 없는 이유는 셋이다. 뭉뚱그리지 않고 그대로 적는다.
        labeled  민감도 레이블이 걸려 열 수 없음. 복호화해 싣지 않는다
        메일     파일이 아니라 임시보관함에 남은 초안
@@ -1685,9 +1708,7 @@
         : '이 산출물은 아직 파일을 받아 두지 못했습니다.';
     v.querySelector('.vbody').innerHTML = (a.pages || []).length
       ? a.pages.map(function (p) { return '<img src="' + p + '" alt="" loading="lazy">'; }).join('')
-      : '<div class="vnone">' + why +
-        (a.file ? '<a href="' + a.file + '" target="_blank" rel="noopener">파일 열기</a>' : '') +
-        '</div>';
+      : '<div class="vnone">' + why + '</div>';
     v.classList.add('on');
   }
 
