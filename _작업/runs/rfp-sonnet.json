@@ -272,13 +272,30 @@
    "name": "RFP_공공AI사업_추진체계_유연화_분석보고서.html",
    "kind": "HTML 파일",
    "meta": "5개 절 · 배점표 · 조항 10건",
-   "pages": []
+   "pages": [
+    "assets/artifacts/rfp/rfp_html_01.png"
+   ],
+   "file": "assets/artifacts/rfp/rfp-분석보고서.html",
+   "thumb": "assets/artifacts/rfp/rfp_html_01.png"
   },
   {
    "name": "공공AI사업_추진체계_유연화_제안요약서.pptx",
    "kind": "PowerPoint 프레젠테이션",
    "meta": "10장 · 사내 표준 서식",
-   "pages": []
+   "pages": [
+    "assets/artifacts/rfp/son_01.png",
+    "assets/artifacts/rfp/son_02.png",
+    "assets/artifacts/rfp/son_03.png",
+    "assets/artifacts/rfp/son_04.png",
+    "assets/artifacts/rfp/son_05.png",
+    "assets/artifacts/rfp/son_06.png",
+    "assets/artifacts/rfp/son_07.png",
+    "assets/artifacts/rfp/son_08.png",
+    "assets/artifacts/rfp/son_09.png",
+    "assets/artifacts/rfp/son_10.png"
+   ],
+   "file": "assets/artifacts/rfp/rfp-제안요약서-sonnet.pptx",
+   "thumb": "assets/artifacts/rfp/son_01.png"
   }
  ],
  "group": "rfp",

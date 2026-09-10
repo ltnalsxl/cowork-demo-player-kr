@@ -2058,9 +2058,14 @@ window.COWORK_RUNS = [
    {
     "name": "주간업무보고_2026-08-27_2026-09-03.docx",
     "kind": "Word 문서",
-    "meta": "1쪽 · 732단어 · 표 2개",
-    "pages": [],
-    "labeled": true
+    "meta": "3쪽 · 표 8개 · 사내 표준 서식",
+    "pages": [
+     "assets/artifacts/tc01/doc_01.png",
+     "assets/artifacts/tc01/doc_02.png",
+     "assets/artifacts/tc01/doc_03.png"
+    ],
+    "file": "assets/artifacts/tc01/주간업무보고.docx",
+    "thumb": "assets/artifacts/tc01/doc_01.png"
    }
   ]
  },
@@ -2261,7 +2266,7 @@ window.COWORK_RUNS = [
    {
     "t": "final",
     "time": "오후 11:05",
-    "body": "승인하신 목차대로 제안요약서를 만들었습니다.\n\n**만든 내용**\n\n- 총 10장(표지·마무리 포함), 사내 표준 서식 `company-template.potx` 사용\n- 쓴 레이아웃: 표지 1장, 제목과 본문 5장, 2단 본문 2장, 표 한 판 1장, 마무리 1장\n- 8장의 프로젝트 관리 표는 4열 × 7행(머리 행 포함), 왼쪽 0.72\" · 위 1.74\" · 너비 11.89\"에 배치했고 셀 색과 테두리는 지정하지 않아 템플릿 서식을 그대로 상속받게 두었습니다\n- 글자 크기, 색, 글꼴은 슬라이드에서 손대지 않았고 본문은 두 수준까지만 썼습니다\n- 전 슬라이드 렌더링 검사 결과 본문 넘침 없음. 가장 긴 슬라이드도 본문 영역 안에 들어옵니다\n\n**목차와 배점 대응**: 일반현황 20 → 전략 및 방법론 30(3장 분할) → 사업수행 30(3장) → 프로젝트 관리 15 → 보안·사회적 가치 5. 배점표에 적힌 순서 그대로이며 100점 전 항목을 덮습니다.\n\n근거 자료는 첨부하신 제안요청서와 앞서 만든 HTML 분석 보고서만 사용했습니다.\n\n**채워 넣으셔야 할 자리 표시** — 원본에 근거가 없어 지어내지 않고 비워 두었습니다.\n\n- 2장: `[제안사명]`, 설립 `[연도]`, 주요 연혁, 총 인원수와 AI 정책·법제도 연구인력 수\n- 4장: `[유사 용역 수행 실적 기재]`\n- 8장: `[PM 성명·유사 프로젝트 관리 경력 기재]` — PM은 제안서에 반드시 명시해야 하고 미명시 시 서면평가로 전환됩니다\n\n4장의 산출물 제출시기(M / M+3 / M+5)는 제안요청서 일정표의 막대 배치를 텍스트로 확정할 수 없어 **(제안)** 으로 표시했습니다. 원문 2쪽 일정표를 확인하신 뒤 확정 값을 주시면 반영하겠습니다.\n\n템플릿에 들어 있는 「Zava」 로고와 꼬리말은 실습용 예시 브랜드입니다. 실제 제출 전에 마스터의 로고와 꼬리말을 사내 것으로 교체하셔야 합니다.",
+    "body": "승인하신 목차대로 제안요약서를 만들었습니다.\n\n**만든 내용**\n\n- 총 10장(표지·마무리 포함), 사내 표준 서식 `company-template.potx` 사용\n- 쓴 레이아웃: 표지 1장, 제목과 본문 5장, 2단 본문 2장, 표 한 판 1장, 마무리 1장\n- 8장의 프로젝트 관리 표는 4열 × 7행(머리 행 포함), 왼쪽 0.72\" · 위 1.74\" · 너비 11.89\"에 배치했고 셀 색과 테두리는 지정하지 않아 템플릿 서식을 그대로 상속받게 두었습니다\n- 글자 크기, 색, 글꼴은 슬라이드에서 손대지 않았고 본문은 두 수준까지만 썼습니다\n- 전 슬라이드 렌더링 검사 결과 본문 넘침 없음. 가장 긴 슬라이드도 본문 영역 안에 들어옵니다\n\n**목차와 배점 대응**: 일반현황 20 → 전략 및 방법론 30(3장 분할) → 사업수행 30(3장) → 프로젝트 관리 15 → 보안·사회적 가치 5. 배점표에 적힌 순서 그대로이며 100점 전 항목을 덮습니다.\n\n근거 자료는 첨부하신 제안요청서와 앞서 만든 HTML 분석 보고서만 사용했습니다.\n\n**채워 넣으셔야 할 자리 표시** — 원본에 근거가 없어 지어내지 않고 비워 두었습니다.\n\n- 2장: `[제안사명]`, 설립 `[연도]`, 주요 연혁, 총 인원수와 AI 정책·법제도 연구인력 수\n- 4장: `[유사 용역 수행 실적 기재]`\n- 8장: `[PM 성명·유사 프로젝트 관리 경력 기재]` — PM은 제안서에 반드시 명시해야 하고 미명시 시 서면평가로 전환됩니다\n\n4장의 산출물 제출시기(M / M+3 / M+5)는 제안요청서 일정표의 막대 배치를 텍스트로 확정할 수 없어 **(제안)** 으로 표시했습니다. 원문 2쪽 일정표를 확인하신 뒤 확정 값을 주시면 반영하겠습니다.\n\n템플릿에 들어 있는 「세움파트너스」 로고와 꼬리말은 실습용 예시 브랜드입니다. 실제 제출 전에 마스터의 로고와 꼬리말을 사내 것으로 교체하셔야 합니다.",
     "out": [
      1
     ],
@@ -2274,13 +2279,30 @@ window.COWORK_RUNS = [
     "name": "공공AI사업_추진체계_유연화_방안마련_제안요청서_분석보고서.html",
     "kind": "HTML 파일",
     "meta": "5개 절 · 배점표 · 조항 15건",
-    "pages": []
+    "pages": [
+     "assets/artifacts/rfp/rfp_html_01.png"
+    ],
+    "file": "assets/artifacts/rfp/rfp-분석보고서.html",
+    "thumb": "assets/artifacts/rfp/rfp_html_01.png"
    },
    {
     "name": "제안요약서_공공AI사업_추진체계_유연화.pptx",
     "kind": "PowerPoint 프레젠테이션",
     "meta": "10장 · 사내 표준 서식",
-    "pages": []
+    "pages": [
+     "assets/artifacts/rfp/auto_01.png",
+     "assets/artifacts/rfp/auto_02.png",
+     "assets/artifacts/rfp/auto_03.png",
+     "assets/artifacts/rfp/auto_04.png",
+     "assets/artifacts/rfp/auto_05.png",
+     "assets/artifacts/rfp/auto_06.png",
+     "assets/artifacts/rfp/auto_07.png",
+     "assets/artifacts/rfp/auto_08.png",
+     "assets/artifacts/rfp/auto_09.png",
+     "assets/artifacts/rfp/auto_10.png"
+    ],
+    "file": "assets/artifacts/rfp/rfp-제안요약서-자동.pptx",
+    "thumb": "assets/artifacts/rfp/auto_01.png"
    }
   ],
   "group": "rfp",
@@ -2562,13 +2584,30 @@ window.COWORK_RUNS = [
     "name": "RFP_공공AI사업_추진체계_유연화_분석보고서.html",
     "kind": "HTML 파일",
     "meta": "5개 절 · 배점표 · 조항 10건",
-    "pages": []
+    "pages": [
+     "assets/artifacts/rfp/rfp_html_01.png"
+    ],
+    "file": "assets/artifacts/rfp/rfp-분석보고서.html",
+    "thumb": "assets/artifacts/rfp/rfp_html_01.png"
    },
    {
     "name": "공공AI사업_추진체계_유연화_제안요약서.pptx",
     "kind": "PowerPoint 프레젠테이션",
     "meta": "10장 · 사내 표준 서식",
-    "pages": []
+    "pages": [
+     "assets/artifacts/rfp/son_01.png",
+     "assets/artifacts/rfp/son_02.png",
+     "assets/artifacts/rfp/son_03.png",
+     "assets/artifacts/rfp/son_04.png",
+     "assets/artifacts/rfp/son_05.png",
+     "assets/artifacts/rfp/son_06.png",
+     "assets/artifacts/rfp/son_07.png",
+     "assets/artifacts/rfp/son_08.png",
+     "assets/artifacts/rfp/son_09.png",
+     "assets/artifacts/rfp/son_10.png"
+    ],
+    "file": "assets/artifacts/rfp/rfp-제안요약서-sonnet.pptx",
+    "thumb": "assets/artifacts/rfp/son_01.png"
    }
   ],
   "group": "rfp",
@@ -4785,9 +4824,13 @@ window.COWORK_RUNS = [
    {
     "name": "밀린 메일·Teams 정리 추적표 (2026-08-21~09-03).xlsx",
     "kind": "Excel 스프레드시트",
-    "meta": "시트 4개 · 38행 · 차트 1개",
-    "pages": [],
-    "labeled": true
+    "meta": "시트 2개 · 밀린 항목 7건 · 집계 수식",
+    "pages": [
+     "assets/artifacts/inbox/inbox_01.png",
+     "assets/artifacts/inbox/inbox_02.png"
+    ],
+    "file": "assets/artifacts/inbox/밀린메일-정리-추적표.xlsx",
+    "thumb": "assets/artifacts/inbox/inbox_01.png"
    }
   ]
  }
