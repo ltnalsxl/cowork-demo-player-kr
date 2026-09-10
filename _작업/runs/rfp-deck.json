@@ -34,7 +34,8 @@
     "effort": "보통",
     "meta": "두 턴 누계"
    }
-  ]
+  ],
+  "axis": "모델"
  },
  "steps": [],
  "skills": [

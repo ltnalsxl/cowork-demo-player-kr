@@ -519,6 +519,63 @@ svg{display:block}
 /* Teams 채팅 카드 */
 .mailcard.chat .mrow{border-bottom:1px solid var(--line)}
 
+/* 세 실행이 나눠 갖는 비교표는 실행 안에서 한 줄로 접는다 */
+.bench.slim{display:flex;align-items:center;gap:16px}
+.bench.slim .lead{margin:0;flex:1;min-width:0}
+.bench.slim .btn{flex:none}
+
+/* 크레딧 모아보기 */
+.mtop .btn.ghost{padding:6px 12px;font-size:13px;color:var(--ink-2)}
+.mtop .btn.ghost svg{width:15px;height:15px;
+  border:1.2px solid currentColor;border-radius:50%;padding:2px;box-sizing:content-box}
+
+.cx-entry{
+  display:flex;align-items:center;gap:14px;width:100%;max-width:980px;
+  margin:0 auto 40px;padding:16px 20px;border:1px solid var(--line);
+  border-radius:12px;background:var(--surface);cursor:pointer;text-align:left;
+}
+.cx-entry:hover{background:#fafafa}
+.cx-entry .ci{flex:none;width:31px;height:31px;border-radius:50%;
+  border:1.5px solid var(--ink-3);color:var(--ink-2);display:grid;place-items:center}
+.cx-entry .ct{flex:1;min-width:0}
+.cx-entry .ct b{display:block;font-size:15px;font-weight:600;letter-spacing:-0.01em}
+.cx-entry .ct span{display:block;font-size:13.5px;color:var(--ink-3);margin-top:2px}
+.cx-entry .co{flex:none;color:var(--ink-3);display:grid;place-items:center}
+
+.cx-wrap{flex:1;overflow-y:auto;padding:22px 24px 72px}
+.cx-in{max-width:940px;margin:0 auto}
+.cx-lead{font-size:14px;line-height:1.75;color:var(--ink-2);margin-bottom:20px}
+.cx-range{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:34px;
+}
+.cx-range>div{background:var(--surface);padding:16px 20px}
+.cx-range .k{display:block;font-size:12.5px;color:var(--ink-3)}
+.cx-range .v{display:block;font-size:26px;font-weight:700;margin-top:5px;
+  letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
+.cx-range .v small{font-size:12.5px;font-weight:400;color:var(--ink-3);margin-left:7px;
+  letter-spacing:0}
+
+.cx-ax{margin-bottom:36px}
+.cx-h{margin-bottom:14px}
+.cx-tag{display:inline-block;padding:3px 11px;border-radius:999px;
+  background:#eef3fb;color:#0f5a9c;font-size:12.5px;font-weight:600}
+.cx-h p{margin:8px 0 0;font-size:13.5px;line-height:1.7;color:var(--ink-3)}
+.cx-g{border:1px solid var(--line);border-radius:12px;background:#fafafa;
+  padding:16px 18px;margin-top:12px}
+.cx-gh{display:flex;align-items:center;gap:12px;margin-bottom:3px}
+.cx-gh h3{margin:0;font-size:13.5px;font-weight:700;flex:1;min-width:0}
+.cx-gos{flex:none;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.cx-gh .btn{flex:none;padding:5px 11px;font-size:12.5px}
+.cx-g .lead{font-size:12.5px;color:var(--ink-3);margin-bottom:13px}
+.cx-foot{margin-top:8px;padding-top:16px;border-top:1px solid var(--line-soft);
+  font-size:12.5px;line-height:1.7;color:var(--ink-3)}
+
+@media (max-width:760px){
+  .cx-range{grid-template-columns:1fr}
+  .bench.slim{flex-direction:column;align-items:flex-start;gap:11px}
+}
+
 /* 보낸 뒤 Teams에 도착한 화면 */
 .mailwrap .mailcard{margin-bottom:0}
 .mshot{margin:10px 0 14px;border:1px solid var(--line);border-radius:12px;

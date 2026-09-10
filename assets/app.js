@@ -10,6 +10,9 @@
   var run = null, idx = 0, timer = null, speed = 1.2, costShown = false,
       picked = null, effortPick = null, running = false;
 
+  /* 크레딧 모아보기 주소. 실행 id와 겹치지 않게 잡는다. */
+  var COSTS_HASH = 'credits';
+
   /* 재생 속도. 1.0 근처를 촘촘히 두고 양끝만 성기게 잡는다. */
   var SPEEDS = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4,
                 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.5, 3.0];
@@ -703,11 +706,18 @@
           esc(tip[0]) + '</kbd> ' + esc(tip[1]) + '</div>' +
         '<div class="sec-h">다음 재생 항목<span class="more">더 보기</span></div>' +
         '<div class="resume" id="resume">' + resume + '</div>' +
+        '<button class="cx-entry" id="goCosts">' +
+          '<span class="ci">' + I.clock + '</span>' +
+          '<span class="ct"><b>크레딧 모아보기</b>' +
+          '<span>열 회차를 모델·계정·작업 세 축으로 나눠 한 화면에 세웁니다</span></span>' +
+          '<span class="co">' + I.ext + '</span></button>' +
       '</div></div>';
 
     [].forEach.call(document.querySelectorAll('.ritem[data-id]'), function (b) {
       b.addEventListener('click', function () { open(b.dataset.id); });
     });
+    document.getElementById('goCosts')
+      .addEventListener('click', function () { renderCosts(); });
     composerRow(document.getElementById('homeCrow'), false);
     markSide(null);
   }
@@ -748,6 +758,123 @@
       }).join('') + '</div>';
   }
 
+  /* ── 크레딧 모아보기 ──
+     비교는 세 축으로 갈린다. 무엇을 고정하고 무엇만 바꿨는지가 축이다.
+     실행 안에서는 그 실행에 걸린 축 하나만 보이므로, 세 축을 한 화면에
+     세워 "그래서 대충 얼마 드나"에 답할 자리를 따로 둔다. */
+  var AXIS_NOTE = {
+    '모델': '같은 프롬프트를 모델만 바꿔 돌린 회차입니다. 무엇을 만드느냐가 아니라 ' +
+            '누가 만드느냐로 값이 얼마나 갈리는지 봅니다.',
+    '계정': '같은 프롬프트를 계정만 바꿔 돌린 회차입니다. 읽을 거리가 많은 계정과 ' +
+            '적은 계정에서 같은 일을 시켰습니다.',
+    '작업': '모델과 작업 수준을 자동·보통으로 고정하고 작업만 바꾼 회차입니다. ' +
+            '읽을 양과 만들 것이 함께 값을 정합니다.'
+  };
+
+  function benchBlocks() {
+    /* 짝을 이룬 회차는 같은 표를 나눠 갖는다. 머리글로 접어 한 번만 세운다. */
+    var seen = {}, out = [];
+    RUNS.forEach(function (r) {
+      var b = r.bench;
+      if (!b || !b.models || !b.axis) { return; }
+      var key = b.axis + '|' + (b.head || '');
+      if (seen[key]) { seen[key].runs.push(r); return; }
+      seen[key] = { bench: b, runs: [r] };
+      out.push(seen[key]);
+    });
+    return out;
+  }
+
+  function renderCosts(fromHash) {
+    document.title = '크레딧 모아보기 · Copilot Cowork 데모';
+    app.classList.remove('panel-open');
+    run = null;
+    clearTimeout(timer); timer = null;
+    if (!fromHash) { location.hash = COSTS_HASH; }
+
+    var blocks = benchBlocks();
+    var all = [];
+    blocks.forEach(function (g) {
+      g.bench.models.forEach(function (m) { all.push(m.avg); });
+    });
+    var lo = Math.min.apply(null, all), hi = Math.max.apply(null, all);
+
+    var body = ['모델', '계정', '작업'].map(function (axis) {
+      var gs = blocks.filter(function (g) { return g.bench.axis === axis; });
+      if (!gs.length) { return ''; }
+      return '<section class="cx-ax">' +
+        '<div class="cx-h"><span class="cx-tag">' + esc(axis) + '만 바꿈</span>' +
+          '<p>' + esc(AXIS_NOTE[axis]) + '</p></div>' +
+        gs.map(function (g) {
+          var b = g.bench;
+          var mx = Math.max.apply(null, b.models.map(function (m) { return m.avg; }));
+          var cheap = b.models.reduce(function (a, m) { return m.avg < a.avg ? m : a; });
+          /* 표 하나를 여러 실행이 나눠 가지면 그 실행을 모두 낸다. */
+          return '<div class="cx-g">' +
+            '<div class="cx-gh"><h3>' + esc(b.head || g.runs[0].title) + '</h3>' +
+              '<span class="cx-gos">' + g.runs.map(function (x) {
+                /* 표를 나눠 갖는 실행은 그 실행이 표에서 차지한 행 이름으로 부른다.
+                   실행 제목보다 짧고 어느 행인지 바로 짚인다. */
+                var self = (x.bench.models || []).filter(function (m) { return m.self; })[0];
+                return '<button class="btn cx-go" data-go="' + esc(x.id) + '">' +
+                  esc(g.runs.length > 1
+                        ? (self ? self.name : (x.tab || x.chatTitle))
+                        : '실행 열기') + '</button>';
+              }).join('') + '</span></div>' +
+            '<div class="lead">' + esc(b.lead || '') + ' 범위는 ' +
+              fmt(b.min) + '부터 ' + fmt(b.max) + '까지입니다.</div>' +
+            b.models.map(function (m) {
+              return '<div class="brow"><div class="bnm">' + esc(m.name) +
+                (m.effort ? '<span class="beff">작업 수준 ' + esc(m.effort) + '</span>' : '') +
+                '</div><div class="btrack"><div class="bfill" style="width:' +
+                Math.max(2, m.avg / mx * 100).toFixed(1) + '%"></div></div>' +
+                '<div class="bval">' + fmt(Math.round(m.avg)) +
+                '<small>' + money(m.avg) + (m.n > 1 ? ' · ' + m.n + '회' : '') +
+                '</small></div></div>' +
+                (m.meta ? '<div class="bmeta">' + esc(m.meta) + '</div>' : '');
+            }).join('') +
+            '<div class="bnote">가장 적게 든 <b>' + esc(cheap.name) + '</b>와 가장 많이 든 쪽의 ' +
+              '차이는 <b>' + (mx / cheap.avg).toFixed(1) + '배</b>입니다.</div>' +
+            /* 공유 표의 측정 조건은 실행마다 꼬리가 다르다. 여기서는 공통분만 쓴다. */
+            (b.sharedCondition || b.condition
+              ? '<div class="bcond"><b>측정 조건</b> ' +
+                esc(b.sharedCondition || b.condition) + '</div>'
+              : '') +
+          '</div>';
+        }).join('') +
+      '</section>';
+    }).join('');
+
+    document.getElementById('main').innerHTML =
+      '<div class="mtop bordered">' +
+        '<button class="home" id="goHome">' + I.homeI + '</button>' +
+        '<div class="tb-title"><h1>크레딧 모아보기</h1>' +
+        '<div class="sub">이 데모에서 <code>/cost</code>로 직접 잰 값</div></div>' +
+        '<div class="right"><button class="ib shield">' + I.shield + '</button>' +
+        '<button class="ib">' + I.dots + '</button></div></div>' +
+      '<div class="cx-wrap"><div class="cx-in">' +
+        '<div class="cx-lead">비교는 세 축으로 갈립니다. 무엇을 고정하고 무엇만 바꿨는지가 ' +
+          '축입니다. 축이 다르면 나란히 놓아도 뜻이 통하지 않으므로 따로 세웠습니다.</div>' +
+        '<div class="cx-range"><div><span class="k">가장 적게 든 회차</span>' +
+          '<span class="v">' + fmt(lo) + '<small>' + money(lo) + '</small></span></div>' +
+          '<div><span class="k">가장 많이 든 회차</span>' +
+          '<span class="v">' + fmt(hi) + '<small>' + money(hi) + '</small></span></div>' +
+          '<div><span class="k">차이</span><span class="v">' +
+          (hi / lo).toFixed(0) + '배</span></div></div>' +
+        body +
+        '<div class="cx-foot">위 숫자는 이 데모에서 직접 잰 값이고 상대 비교용입니다. ' +
+          '견적의 근거로 쓰지 않습니다.' +
+          (FX ? ' 원화는 크레딧당 $0.01로 보고 ' + esc(FX.date) + ' 환율 ' +
+            fmt(Math.round(FX.usdkrw)) + '원을 적용한 값입니다.' : '') + '</div>' +
+      '</div></div>';
+
+    document.getElementById('goHome').addEventListener('click', function () { renderHome(); });
+    [].forEach.call(document.querySelectorAll('.cx-go'), function (b) {
+      b.addEventListener('click', function () { open(b.dataset.go); });
+    });
+    markSide(null);
+  }
+
   /* ── 실행 화면 ── */
   function open(id, fromHash) {
     run = RUNS.filter(function (r) { return r.id === id; })[0];
@@ -767,6 +894,8 @@
         '<div class="sub">' + esc(run.model) + ' · 작업 수준 ' + esc(run.effort) +
         ' · ' + esc(run.tc) + '</div></div>' +
         '<div class="right">' +
+          '<button class="btn ghost" id="tbCosts" title="크레딧 모아보기">' +
+            I.clock + '크레딧</button>' +
           '<button class="ib shield">' + I.shield + '</button>' +
           '<button class="ib" id="tgPanel">' + I.panel + '</button>' +
           '<button class="ib">' + I.dots + '</button>' +
@@ -814,6 +943,7 @@
       b.addEventListener('click', function () { open(b.dataset.go); });
     });
     document.getElementById('tgPanel').addEventListener('click', function () { app.classList.toggle('panel-open'); });
+    document.getElementById('tbCosts').addEventListener('click', function () { renderCosts(); });
     document.getElementById('play').addEventListener('click', toggle);
     document.getElementById('restart').addEventListener('click', function () { seek(0); });
     document.getElementById('skip').addEventListener('click', skipAll);
@@ -1552,7 +1682,17 @@
 
     row.innerHTML =
       '<div>' + head +
-        '<div class="bench">' +
+        (b.shared
+          /* 이 표는 세 실행이 똑같이 나눠 갖는다. 여기서는 한 줄로 접고
+             전체는 모아보기로 넘긴다. */
+          ? '<div class="bench slim">' +
+              '<div class="lead">이 회차는 <b>' + esc(b.axis || '작업') +
+                '</b>축 비교에 속합니다. 모델과 작업 수준을 자동·보통으로 고정하고 ' +
+                '작업만 바꿔 잰 회차가 ' + b.models.length + '건이며, 범위는 ' +
+                fmt(b.min) + '부터 ' + fmt(b.max) + '까지입니다.</div>' +
+              '<button class="btn gotocost">전체 비교 보기</button>' +
+            '</div>'
+          : '<div class="bench">' +
           '<h4>' + esc(b.head || '같은 일을 다른 모델로 시키면') + '</h4>' +
           '<div class="lead">' + esc(b.lead ||
             '같은 프롬프트를 모델만 바꿔 돌린 실측값입니다.') + ' 범위는 ' +
@@ -1581,8 +1721,11 @@
               fmt(Math.round(FX.usdkrw)) + '원을 적용한 값입니다.' : '') +
           '</div>' +
           (b.condition ? '<div class="bcond"><b>측정 조건</b> ' + esc(b.condition) + '</div>' : '') +
-        '</div>' +
+        '</div>') +
       '</div>';
+
+    var go = row.querySelector('.gotocost');
+    if (go) { go.addEventListener('click', function () { renderCosts(); }); }
   }
 
   /* ── 재생 제어 ── */
@@ -1737,7 +1880,8 @@
   /* 주소창 해시로 시나리오를 바로 열 수 있게 한다. 링크로 공유할 때 쓴다. */
   function route() {
     var id = decodeURIComponent((location.hash || '').replace(/^#/, ''));
-    if (id && RUNS.some(function (r) { return r.id === id; })) { open(id, true); }
+    if (id === COSTS_HASH) { renderCosts(true); }
+    else if (id && RUNS.some(function (r) { return r.id === id; })) { open(id, true); }
     else { renderHome(true); }
   }
   window.addEventListener('hashchange', route);

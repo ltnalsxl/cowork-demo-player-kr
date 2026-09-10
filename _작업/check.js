@@ -185,8 +185,15 @@ RUNS.forEach((r) => {
     });
   }
   ok(tag + '비용 패널', !!$('#costrow .cost'));
-  ok(tag + '벤치 행', $$('.brow').length === r.bench.models.length, $$('.brow').length);
-  ok(tag + '측정 조건 표시', /측정 조건/.test($('.bcond')?.textContent || ''));
+  if (r.bench.shared) {
+    /* 세 실행이 나눠 갖는 표는 실행 안에서 한 줄로 접고 모아보기로 넘긴다. */
+    ok(tag + '벤치 접힘', !!$('.bench.slim'));
+    ok(tag + '전체 비교 단추', !!$('.gotocost'));
+    ok(tag + '축 표시', /축 비교에 속합니다/.test($('.bench.slim .lead')?.textContent || ''));
+  } else {
+    ok(tag + '벤치 행', $$('.brow').length === r.bench.models.length, $$('.brow').length);
+    ok(tag + '측정 조건 표시', /측정 조건/.test($('.bcond')?.textContent || ''));
+  }
 
   if (ex.credit) {
     ok(tag + '실측 크레딧 ' + ex.credit, $('#costrow .cost .l1 b')?.textContent === ex.credit,
@@ -514,11 +521,51 @@ RUNS.forEach((r) => {
   if (fx) {
     const want = Math.round(1130 / 100 * fx.usdkrw).toLocaleString('ko-KR');
     ok('원화 병기', t.indexOf('약 ' + want + '원') > -1, t);
-    ok('환율 출처 표기', /환율/.test(w.document.querySelector('.bnote')?.textContent || ''));
   } else {
     ok('환율 없으면 달러만', !/원/.test(t), t);
   }
   ok('작업 수준 라벨', /작업 수준/.test(w.document.querySelector('.tb-title .sub')?.textContent || ''));
+  if (fx) {
+    /* isms-audit은 표를 접으므로 환율 출처는 모아보기에서 확인한다. */
+    w.location.hash = 'credits';
+    w.dispatchEvent(new w.Event('hashchange'));
+    ok('환율 출처 표기', /환율/.test(w.document.querySelector('.cx-foot')?.textContent || ''));
+  }
+  w.close();
+}
+
+/* 4-5) 크레딧 모아보기 — 축이 셋이고, 나눠 갖는 표는 한 번만 선다. */
+{
+  const w = boot();
+  const $ = (s) => w.document.querySelector(s);
+  const $$ = (s) => [...w.document.querySelectorAll(s)];
+  w.location.hash = 'credits';
+  w.dispatchEvent(new w.Event('hashchange'));
+
+  ok('모아보기 축 3개', $$('.cx-ax').length === 3, $$('.cx-ax').length);
+  ok('모아보기 축 이름',
+    $$('.cx-tag').map((e) => e.textContent).join(',') === '모델만 바꿈,계정만 바꿈,작업만 바꿈',
+    $$('.cx-tag').map((e) => e.textContent).join(','));
+
+  /* 같은 표를 나눠 갖는 회차는 표를 한 번만 세우고 실행 단추를 여럿 낸다. */
+  const runs = w.COWORK_RUNS;
+  const shared = runs.filter((r) => r.bench && r.bench.shared);
+  ok('나눠 갖는 표 하나로', $$('.cx-g').length === 6, $$('.cx-g').length);
+  const last = $$('.cx-g').slice(-1)[0];
+  ok('나눠 갖는 실행 모두 표시',
+    last.querySelectorAll('.cx-go').length === shared.length,
+    last.querySelectorAll('.cx-go').length);
+  ok('실행별 꼬리 제거',
+    !/271은|789는|1,130은/.test(last.querySelector('.bcond')?.textContent || ''));
+
+  /* 모든 회차의 표가 빠짐없이 실려야 한다. */
+  const want = new Set(runs.filter((r) => r.bench && r.bench.models)
+    .map((r) => r.bench.axis + '|' + (r.bench.head || '')));
+  ok('표 개수가 축·머리글 조합과 같음', $$('.cx-g').length === want.size, want.size);
+
+  ok('모아보기 → 실행 이동', !!$('.cx-go'));
+  $('.cx-go').dispatchEvent(new w.Event('click', { bubbles: true }));
+  ok('실행으로 넘어감', !!$('#costrow') || !!$('.ctrl'));
   w.close();
 }
 
