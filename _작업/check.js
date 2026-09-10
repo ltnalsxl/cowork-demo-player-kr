@@ -610,13 +610,26 @@ RUNS.forEach((r) => {
     ok(tag + '알림 위치',
       $('.au-r.on b')?.textContent === a.where, $('.au-r.on b')?.textContent);
     ok(tag + '실행 기록', $$('.au-run-row').length === a.runs.length);
+    /* 실행 결과는 끝난 것, 실패한 것, 도는 것으로 갈린다. */
+    const states = $$('.au-run-row .w').map((e) => e.className.replace('w ', ''));
+    ok(tag + '실행 상태',
+      states.join(',') === a.runs.map((x) => x.state || 'ok').join(','), states.join(','));
+    /* 대화가 남지 않은 실행은 그렇다고 적는다. */
+    ok(tag + '대화 없음 표시',
+      $$('.au-run-row .nc').length === a.runs.filter((x) => x.noChat).length);
+    /* 산출물이 남은 실행에는 파일 칩이 붙는다. */
+    ok(tag + '실행 산출물',
+      $$('.au-run-row .f').length === a.runs.filter((x) => x.file).length);
     /* 만들어 둔 대화가 있는 자동화만 건너가기 단추가 붙는다. */
     ok(tag + '작업으로 이동', !!$('.au-go') === !!a.run);
   });
 
   /* 개인정보가 남지 않아야 한다. */
-  ok('자동화 실명 없음',
-    !/Sumin|수민|@microsoft\.com/i.test(JSON.stringify(autos)));
+  const raw = JSON.stringify(autos);
+  ok('자동화 실명 없음', !/Sumin|수민/i.test(raw));
+  ok('자동화 메일 주소 없음', !/[\w.]+@[\w.]+/.test(raw));
+  ok('자동화 고객사명 없음', !/Samsung|삼성|현대|LG전자/i.test(raw));
+  ok('자동화 테넌트 주소 없음', !/planner\.cloud|sharepoint\.com|72f988bf/i.test(raw));
 
   /* 대화에서도 자동화로 건너갈 수 있다. */
   openRun(w, 'daily-brief');

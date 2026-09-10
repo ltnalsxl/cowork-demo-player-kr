@@ -120,6 +120,8 @@
         repeat: '<svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 8.6a6.6 6.6 0 0111.3-3.4l1.9 1.9M16.6 11.4a6.6 6.6 0 01-11.3 3.4l-1.9-1.9"/><path d="M16.6 3.6v3.5h-3.5M3.4 16.4v-3.5h3.5"/></svg>',
         send: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M17.4 10L3.2 3.6l2.1 6.4-2.1 6.4z"/><path d="M5.3 10h12.1" stroke-linecap="round"/></svg>',
         bullet: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M7.4 5.6h9M7.4 10h9M7.4 14.4h9"/><circle cx="4" cy="5.6" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="14.4" r="1" fill="currentColor" stroke="none"/></svg>',
+        circleWarn: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="M10 6.4v4.2"/><circle cx="10" cy="13.4" r=".85" fill="currentColor" stroke="none"/></svg>',
+        spin: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="7" opacity=".28"/><path d="M17 10a7 7 0 0 0-7-7"/></svg>',
         numlist: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M7.4 5.6h9M7.4 10h9M7.4 14.4h9M3.2 4.4l1-.5v3M2.7 9.2c.2-.5 1.8-.7 1.8.3 0 .7-1.6 1.2-1.8 2.1h2M2.8 13.4h1.7l-1.1 1.2c.7 0 1.2.3 1.2.9s-.6 1-1.9.7"/></svg>',
         clip: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.6 9.2l-5 5a3 3 0 01-4.2-4.2l5.6-5.6a2 2 0 012.8 2.8l-5.6 5.6a1 1 0 01-1.4-1.4l5-5"/></svg>',
         rewrite: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M2.2 13.4L4.9 5.9l2.7 7.5M3.1 11h3.6"/><path d="M17.4 6.6l-6.5 6.5-2.6.6.6-2.6 6.5-6.5a1.4 1.4 0 012 2z"/></svg>',
@@ -754,9 +756,18 @@
 
       '<div class="au-f"><div class="au-k">실행(' + a.runs.length + ')</div>' +
         '<div class="au-runs">' + a.runs.map(function (x) {
+          /* 실행마다 결과가 다르다. 끝난 것, 승인을 기다리다 멈춘 것, 실패한 것,
+             지금 도는 것을 아이콘과 색으로 구분한다. */
+          var st = x.state || 'ok';
+          var ico = st === 'warn' ? I.circleWarn : st === 'run' ? I.spin : I.circleCheck;
           return '<div class="au-run-row' + (x.on ? ' on' : '') + '">' +
             '<div class="t">' + esc(x.text) + '</div>' +
-            '<div class="w">' + I.circleCheck + esc(x.when) + '</div></div>';
+            (x.file
+              ? '<div class="f">' + fileChip(x.file) + '</div>'
+              : '') +
+            '<div class="w ' + st + '">' + ico + esc(x.when) +
+            (x.noChat ? '<span class="nc">· 대화 없음</span>' : '') +
+            '</div></div>';
         }).join('') + '</div></div>');
 
     document.getElementById('auBack')

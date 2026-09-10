@@ -12,47 +12,66 @@
    "run": "daily-brief",
    "desc": "Copilot User의 오늘 하루 브리핑을 정리해서 Copilot User 본인에게 Teams 채팅 메시지로 보낸다. 내용은 세 부분: (1) 오늘 일정의 회의 목록 — 각 회의마다 시간, 제목, 주요 참석자와 그 회의를 위해 미리 준비할 것(관련 메일/파일/이전 회의 내용에서 확인된 것만); 비공개·개인 일정은 제목 대신 '개인 일정'으로만 표시. (2) 회신을 기다리고 있는 메일 중 급한 것 — 보낸 사람, 요청 내용, 대기 기간. (3) 이번 주 안에 기한이 있는 일 — 메일·회의·메시지에서 확인된 마감이나 약속. 분량은 휴대폰 화면 한 번에 읽히는 정도로 짧게, 불릿 위주로 한국어로 작성한다. 확인되지 않았거나 자료에서 찾지 못한 내용은 절대 추측해서 채우지 말고 '확인 필요'로 표시한다. 해당 항목이 없으면 '해당 없음'이라고 적는다.",
    "runs": [
-    {"text": "오늘 일정과 회신 대기 메일, 이번 주 기한을 정리해 Teams 채팅으로 보냈습니다.", "when": "8시간 전 완료됨"},
-    {"text": "회의 6건, 회신 대기 2건, 이번 주 기한 3건을 정리해 Teams 채팅으로 보냈습니다.", "when": "어제 완료됨"},
-    {"text": "오늘 회의와 급한 회신 대기 메일, 이번 주 기한을 정리해 Teams 채팅으로 보냈습니다.", "when": "9월 8일 완료됨", "on": true},
-    {"text": "회의 9건, 급한 회신 대기 2건, 주말까지의 기한 3건을 정리해 Teams 채팅으로 보냈습니다.", "when": "9월 5일 완료됨"},
-    {"text": "오늘 일정이 없어 '등록된 일정 없음'으로 적고, 회신 대기 2건만 보냈습니다.", "when": "9월 4일 완료됨"},
-    {"text": "회의 4건과 회신 대기 3건을 정리해 Teams 채팅으로 보냈습니다.", "when": "9월 3일 완료됨"}
+    {"text": "Sent weekday morning briefing to Copilot User via Teams chat with today's schedule, pending emails, and week's deadlines.", "when": "8시간 전 완료됨", "state": "ok"},
+    {"text": "Sent Copilot User's weekday morning briefing to Teams chat with 6 meetings, 2 pending emails, and 3 upcoming deadlines this week.", "when": "어제 완료됨", "state": "ok"},
+    {"text": "Sent Copilot User's weekday morning briefing to Teams chat with today's meetings, pending urgent emails, and this week's deadlines, marking unconfirmed items as '확인 필요'.", "when": "9월 8일 완료", "state": "ok", "on": true},
+    {"text": "Sent Copilot User's weekday morning briefing to Teams with today's 9 meetings, 2 urgent pending emails, and 3 week-end deadlines, formatted for mobile reading.", "when": "9월 7일 완료", "state": "ok"},
+    {"text": "Sent Copilot User's weekday morning briefing to Teams chat with today's 5 meetings, 3 pending emails awaiting response, and weekly deadlines confirmed from calendar and mail.", "when": "9월 4일 완료", "state": "ok"},
+    {"text": "평일 아침 브리핑 Teams 메시지 자동 전송", "when": "9월 3일 완료", "state": "ok"}
    ]
   },
   {
    "id": "weekly",
    "name": "주간 보고서 이메일 (금요일 16:00)",
    "every": "Every week on Friday at 16:00",
-   "tz": "한국 표준시",
+   "tz": null,
    "state": "활성",
    "next": "2026. 9. 11. 오후 4:00 GMT+9",
    "where": "새 대화",
    "run": "weekly-team",
-   "desc": "지난 7일간의 캘린더, 보낸 메일, Teams 대화, OneDrive 문서 활동을 훑어 주간 업무보고를 쓴다. 사내 표준 서식(weekly-report-form.docx)의 표 구조와 항목 순서를 그대로 따르고, 서식에 없는 칸을 새로 만들지 않는다. 한 주에 실제로 한 일만 적고, 자료에서 확인되지 않은 성과나 수치는 지어내지 않는다. 확인이 필요한 자리는 '확인 필요'로 남긴다. 완성한 Word 문서를 OneDrive에 저장하고, 본문 요약을 팀 채널에 함께 올린다.",
+   "desc": "주간 보고 스킬을 실행해 이번 주(월요일부터 금요일까지) 활동을 한국어 보고서로 만들고 본인에게 메일로 보낸다. 캘린더 일정, 보낸 메일, 받은 편지함의 주요 메일, Teams 대화를 근거로 삼아 한 주를 요약한다. 본문은 HTML로 쓰고 다섯 절로 나눈다: 이번 주 주요 활동, 고객 인게이지먼트, 내부 협업 및 의사결정, 다음 주 계획, 이슈 및 블로커. 맨 아래에 팀 보드로 이동하는 단추를 하나 넣는다. 제목은 '[Weekly Report] {YYYY-MM-DD} 주간 활동 요약' 형식으로 그날 날짜를 넣는다. 참조와 숨은 참조 없이 본인에게만 보낸다. 되묻지 말고 합리적인 기본값으로 진행하되, 근거 자료가 없는 절은 지어내지 말고 [직접 작성 필요]로 비워 둔다.",
    "runs": [
-    {"text": "8월 27일부터 9월 3일까지의 활동으로 주간업무보고 Word 문서를 만들고 팀 채널에 요약을 올렸습니다.", "when": "지난주 금요일 완료됨"},
-    {"text": "지난 7일 활동으로 주간업무보고를 만들었습니다. 고객 미팅 근거가 없는 항목 2건은 '확인 필요'로 남겼습니다.", "when": "9월 4일 완료됨", "on": true},
-    {"text": "주간업무보고를 만들고 팀 채널에 요약을 올렸습니다.", "when": "8월 28일 완료됨"},
-    {"text": "주간업무보고를 만들었습니다. 표 서식이 원본과 어긋나 두 번 고쳐 맞췄습니다.", "when": "8월 21일 완료됨"}
+    {"text": "주간 보고서 이메일 (금요일 16:00)", "when": "진행 중", "state": "run"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 9월 4일", "state": "ok", "on": true},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 28일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 21일", "state": "ok"},
+    {"text": "Ran on request outside the schedule — report drafted and left for review.", "when": "실행됨 8월 19일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 14일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 7일", "state": "ok", "file": "weekly-report-2026-08-07.html"},
+    {"text": "Ran on request outside the schedule — report drafted and left for review.", "when": "실행됨 8월 5일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 7월 31일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 7월 24일", "state": "ok"},
+    {"text": "Execution started but never completed — watchdog recovery", "when": "실패 7월 17일", "state": "warn", "noChat": true},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 7월 10일", "state": "ok", "file": "weekly-report-2026-07-10.html"},
+    {"text": "Ran on request outside the schedule — report drafted and left for review.", "when": "실행됨 7월 8일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 7월 3일", "state": "ok", "file": "weekly-report-2026-07-03.html"},
+    {"text": "Run the weekly-report skill to generate this week's status report in Korean and email it to the user.", "when": "6월 26일 완료", "state": "ok"}
    ]
   },
   {
    "id": "mention",
    "name": "Copilot 키워드·멘션 일일 요약",
-   "every": "Every day at 18:00",
+   "every": "Every day at 07:00",
    "tz": "한국 표준시",
    "state": "일시 중지",
    "paused": true,
    "next": null,
-   "where": "같은 대화",
+   "where": "새 대화",
    "run": null,
-   "desc": "오늘 하루 받은 메일과 Teams 대화에서 'Copilot', 'Cowork', '에이전트' 키워드가 들어간 것과 나를 멘션한 것을 모아 한 줄씩 요약한다. 답이 필요한 것과 읽기만 하면 되는 것을 나눠 적고, 답이 필요한 것에는 무엇을 묻고 있는지와 언제까지인지를 함께 적는다. 뉴스레터와 시스템 자동 알림은 제외한다. 해당 항목이 없으면 '오늘은 없음'이라고만 적고 끝낸다.",
-   "note": "하루에 한 번 도는 요약이라 다른 작업과 겹칠 때가 있어 잠시 세워 뒀습니다. 자동화는 지운 것이 아니라 멈춘 상태이며, 토글을 켜면 다음 날 18시부터 다시 돕니다.",
+   "desc": "지난 24시간(마지막 실행 이후) 동안 받은 이메일과 Teams 메시지(채팅 및 채널) 중에서 'Copilot'이라는 키워드가 본문·제목에 포함된 항목, 또는 본인이 @멘션된 항목을 모두 찾는다. 찾은 항목들을 출처(이메일/Teams), 보낸 사람, 시간, 핵심 내용 중심으로 간결하게 요약하여 본인에게 이메일로 정리해 보낸다. 각 항목에는 원본을 바로 확인할 수 있도록 제목 또는 대화 맥락을 함께 표기한다. 해당하는 항목이 하나도 없으면 '지난 24시간 동안 Copilot 관련 언급이나 멘션이 없었습니다'라고 알린다.",
    "runs": [
-    {"text": "키워드가 걸린 메일 7건과 멘션 3건을 요약했습니다. 답이 필요한 것은 2건입니다.", "when": "9월 6일 완료됨"},
-    {"text": "키워드가 걸린 메일 4건을 요약했습니다. 멘션은 없었습니다.", "when": "9월 5일 완료됨"},
-    {"text": "오늘은 해당 항목이 없어 '오늘은 없음'으로 적고 끝냈습니다.", "when": "9월 4일 완료됨"}
+    {"text": "Paused after 3 consecutive runs that stopped waiting for your approval. Approve the pending request in this task, then reactivate it.", "when": "실패 8월 14일", "state": "warn", "noChat": true, "on": true},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 14일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 13일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 12일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 11일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 10일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 9일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 8일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 7일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 6일", "state": "ok"},
+    {"text": "Awaiting user response (awaiting_tool_approval) — approval card persisted", "when": "실행됨 8월 5일", "state": "ok"},
+    {"text": "Set up daily scheduled task at 7 AM to find and email summaries of messages containing 'Copilot' keyword or @mentions from past 24 hours across email and Teams.", "when": "8월 4일 완료", "state": "ok"}
    ]
   }
  ]
