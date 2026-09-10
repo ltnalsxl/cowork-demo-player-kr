@@ -12,6 +12,8 @@
 
   /* 크레딧 모아보기 주소. 실행 id와 겹치지 않게 잡는다. */
   var COSTS_HASH = 'credits';
+  var AUTOS_HASH = 'autos';
+  var AUTOS = (window.COWORK_AUTOS || { items: [] }).items;
 
   /* 재생 속도. 1.0 근처를 촘촘히 두고 양끝만 성기게 잡는다. */
   var SPEEDS = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4,
@@ -628,9 +630,11 @@
     document.getElementById('nav').innerHTML =
       '<button class="newtask" id="btNew"><span class="ic">' + I.plusC + '</span>새 작업</button>' +
       '<button><span class="ic">' + I.tasks + '</span>내 작업</button>' +
-      '<button><span class="ic">' + I.bolt + '</span>자동화</button>' +
+      '<button id="btAutos"><span class="ic">' + I.bolt + '</span>자동화</button>' +
       '<button><span class="ic">' + I.brain + '</span>사용자 지정</button>';
     document.getElementById('btNew').addEventListener('click', renderHome);
+    document.getElementById('btAutos')
+      .addEventListener('click', function () { renderAutos(); });
 
     var box = document.getElementById('chats');
     box.innerHTML = '';
@@ -655,6 +659,110 @@
     [].forEach.call(document.querySelectorAll('#chats button'), function (b) {
       b.classList.toggle('on', b.dataset.id === mark);
     });
+    var na = document.getElementById('btAutos');
+    if (na) { na.classList.toggle('on', id === AUTOS_HASH); }
+  }
+
+  /* ── 자동화 ──
+     실제 화면의 '자동화' 탭을 그대로 세운다. 되풀이로 예약해 둔 작업이
+     목록으로 서고, 하나를 누르면 예약 주기와 지시문, 지난 실행이 나온다. */
+  function autoOf(id) {
+    return AUTOS.filter(function (a) { return a.id === id; })[0];
+  }
+
+  function autoShell(inner) {
+    document.getElementById('main').innerHTML =
+      '<div class="mtop"><div class="right">' +
+        '<button class="ib shield">' + I.shield + '</button>' +
+        '<button class="ib">' + I.dots + '</button></div></div>' +
+      '<div class="au-wrap"><div class="au-in">' + inner + '</div></div>';
+    markSide(AUTOS_HASH);
+  }
+
+  function renderAutos(fromHash) {
+    document.title = '자동화 · Copilot Cowork 데모';
+    app.classList.remove('panel-open');
+    run = null;
+    clearTimeout(timer); timer = null;
+    if (!fromHash) { location.hash = AUTOS_HASH; }
+
+    autoShell(
+      '<div class="au-h"><h1>자동화</h1>' +
+        '<button class="btn au-new">새로 만들기<span class="cv">' + I.caret + '</span></button></div>' +
+      '<div class="au-tabs"><button class="au-t on">관리</button>' +
+        '<button class="au-t">실행</button></div>' +
+      '<div class="au-grid">' + AUTOS.map(function (a) {
+        return '<button class="au-card" data-a="' + esc(a.id) + '">' +
+          '<span class="au-nm">' + esc(a.name) + '</span>' +
+          '<span class="au-cy' + (a.paused ? ' off' : '') + '">' +
+          (a.paused ? I.pause + '일시 중지' : I.repeat + esc(a.every)) +
+          '</span></button>';
+      }).join('') + '</div>' +
+      '<div class="au-note">되풀이로 예약해 둔 작업입니다. 하나를 누르면 예약 주기와 ' +
+        '지시문, 지난 실행 기록을 볼 수 있습니다.</div>');
+
+    [].forEach.call(document.querySelectorAll('.au-card'), function (b) {
+      b.addEventListener('click', function () { renderAuto(b.dataset.a); });
+    });
+  }
+
+  function renderAuto(id, fromHash) {
+    var a = autoOf(id);
+    if (!a) { return renderAutos(); }
+    document.title = a.name + ' · 자동화 · Copilot Cowork 데모';
+    app.classList.remove('panel-open');
+    run = null;
+    clearTimeout(timer); timer = null;
+    if (!fromHash) { location.hash = AUTOS_HASH + '/' + id; }
+
+    /* 만들어 둔 실행 기록이 있으면 그 대화로 건너갈 수 있게 한다. */
+    var link = a.run && RUNS.some(function (r) { return r.id === a.run; });
+
+    autoShell(
+      '<button class="au-back" id="auBack">' + I.caret + '자동화</button>' +
+      '<div class="au-dh"><h1>' + esc(a.name) + '</h1>' +
+        '<span class="au-acts">' +
+        (link ? '<button class="btn au-go" data-go="' + esc(a.run) + '">작업으로 이동</button>' : '') +
+        '<button class="btn primary au-run">지금 실행</button>' +
+        '<button class="ib">' + I.dots + '</button></span></div>' +
+
+      '<div class="au-state"><span class="au-tg' + (a.paused ? '' : ' on') + '"></span>' +
+        '<span class="au-badge' + (a.paused ? ' off' : '') + '">' + esc(a.state) + '</span>' +
+        (a.next ? '<span class="au-next">다음 실행: ' + esc(a.next) + '</span>' : '') +
+      '</div>' +
+
+      '<div class="au-f"><div class="au-k">예약</div>' +
+        '<div class="au-cy big">' + I.repeat + esc(a.every) +
+        (a.tz ? ' ' + esc(a.tz) : '') + '<span class="cv">' + I.caret + '</span></div></div>' +
+
+      '<div class="au-f"><div class="au-k">안내</div>' +
+        '<div class="au-ed"><div class="au-tb">' +
+          '<button><b>B</b></button><button><i>I</i></button>' +
+          '<span class="msep"></span>' +
+          '<button>' + I.bullet + '</button><button>' + I.numlist + '</button></div>' +
+        '<div class="au-body">' + esc(a.desc) + '</div></div></div>' +
+
+      '<div class="au-f"><div class="au-k">이 작업이 실행되면, 알림을 받을 위치</div>' +
+        '<div class="au-radios">' +
+          '<label class="au-r' + (a.where === '같은 대화' ? ' on' : '') + '"><i></i>' +
+            '<span><b>같은 대화</b>작업은 동일한 채팅에서 실행되며 컨텍스트를 유지합니다.</span></label>' +
+          '<label class="au-r' + (a.where === '새 대화' ? ' on' : '') + '"><i></i>' +
+            '<span><b>새 대화</b>작업은 실행될 때마다 새로 시작됩니다.</span></label>' +
+        '</div></div>' +
+
+      (a.note ? '<div class="au-paused">' + I.info + esc(a.note) + '</div>' : '') +
+
+      '<div class="au-f"><div class="au-k">실행(' + a.runs.length + ')</div>' +
+        '<div class="au-runs">' + a.runs.map(function (x) {
+          return '<div class="au-run-row' + (x.on ? ' on' : '') + '">' +
+            '<div class="t">' + esc(x.text) + '</div>' +
+            '<div class="w">' + I.circleCheck + esc(x.when) + '</div></div>';
+        }).join('') + '</div></div>');
+
+    document.getElementById('auBack')
+      .addEventListener('click', function () { renderAutos(); });
+    var go = document.querySelector('.au-go');
+    if (go) { go.addEventListener('click', function () { open(go.dataset.go); }); }
   }
 
   /* ── 홈 ── */
@@ -1517,6 +1625,18 @@
         '아래에 메시지를 보내면 편집 내용이 삭제되고 위의 작업이 취소됩니다.</div>' +
         '</div>');
 
+      /* 예약한 뒤에는 자동화 목록에 남는다. 그 자리로 건너갈 수 있게 한다. */
+      if (s.auto && autoOf(s.auto)) {
+        var sw = el('<div class="schedwrap"></div>');
+        sw.appendChild(node);
+        var go = el('<button class="au-jump">' + I.bolt +
+          '<span class="jt">이 작업은 <b>자동화</b>에 남아 있습니다. 예약과 지난 실행 보기</span>' +
+          '<span class="ar">' + I.ext + '</span></button>');
+        go.addEventListener('click', function () { renderAuto(s.auto); });
+        sw.appendChild(go);
+        node = sw;
+      }
+
     } else if (s.t === 'confirm') {
       /* 도구 실행 승인 카드. 메일 말고도 파일 복사 같은 작업 앞에 이게 뜬다.
          값을 표로 보여주고 사용자가 승인해야 실행된다. */
@@ -1881,6 +2001,10 @@
   function route() {
     var id = decodeURIComponent((location.hash || '').replace(/^#/, ''));
     if (id === COSTS_HASH) { renderCosts(true); }
+    else if (id === AUTOS_HASH) { renderAutos(true); }
+    else if (id.indexOf(AUTOS_HASH + '/') === 0) {
+      renderAuto(id.slice(AUTOS_HASH.length + 1), true);
+    }
     else if (id && RUNS.some(function (r) { return r.id === id; })) { open(id, true); }
     else { renderHome(true); }
   }

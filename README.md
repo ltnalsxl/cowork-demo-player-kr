@@ -233,14 +233,39 @@ Cowork 실행 기록을 실제 화면과 같은 모습으로 재생하고 작업
 방금 재생을 끝낸 자리에서 읽어야 뜻이 통합니다. 열 회차 중 일곱은 그 실행 고유의
 비교이므로 제자리에 남습니다.
 
+### 자동화
+
+사이드바의 **자동화**를 누르면 되풀이로 예약해 둔 작업 셋이 섭니다.
+
+| 자동화 | 주기 | 상태 |
+|---|---|---|
+| 평일 아침 브리핑 (Teams) | 평일 07:30 | 활성 |
+| 주간 보고서 이메일 | 금요일 16:00 | 활성 |
+| Copilot 키워드·멘션 일일 요약 | 매일 18:00 | 일시 중지 |
+
+카드를 누르면 예약 주기, 지시문 전문, 알림을 받을 위치, 지난 실행 기록이 나옵니다.
+멈춰 둔 자동화는 토글이 꺼진 채로 서고 왜 멈췄는지를 함께 적습니다. **지운 것과
+멈춘 것을 구분해 보여 주려고** 세 번째를 일시 중지 상태로 남겼습니다.
+
+만들어 둔 대화가 있는 자동화에는 **작업으로 이동**이 붙습니다. 반대로 실습-03의
+예약 카드 아래에도 자동화로 건너가는 줄이 붙어 있어 양쪽으로 오갈 수 있습니다.
+주소는 `#autos`와 `#autos/brief` 꼴입니다.
+
+지시문과 실행 기록에는 실명, 메일 주소, 고객사명이 들어가지 않습니다.
+사람은 모두 `Copilot User`입니다.
+
 ## 구조
 
 ```
 index.html              화면 뼈대 (Cowork UI)
+favicon.ico             탭 아이콘 (없으면 브라우저가 임의의 글자를 만든다)
+assets/favicon.svg
+assets/apple-touch-icon.png
 assets/style.css        Fluent 톤 스타일
-assets/app.js           재생 엔진, /cost 패널, 산출물 뷰어
+assets/app.js           재생 엔진, /cost 패널, 산출물 뷰어, 자동화
 assets/artifacts/       산출물 원본과 미리보기 PNG
 data/runs.js            시나리오 데이터 (자동 생성)
+data/autos.js           자동화 데이터 (자동 생성)
 
 _작업/common.py         딥리서치 회차가 공유하는 실측값·프롬프트·산출물 정의
 _작업/build_sonnet.py   시나리오 JSON 생성
@@ -253,11 +278,13 @@ _작업/proofread_variants.py  실습-04의 모델별 결과 다섯 벌
 _작업/build_weekly.py   실습-05 사내 표준 서식 주간보고
 _작업/build_inbox.py    실습-06 밀린 메일 정리
 _작업/build_deck.py     실습-07 제안요청서 분석과 제안요약서 두 개(자동, Sonnet 5)
+_작업/autos.json        자동화 세 건 (되풀이 예약, 지시문, 지난 실행)
 _작업/group.py          같은 프롬프트를 조건만 바꾼 회차를 묶음
+_작업/mark_bench_axis.py  비교표에 모델·계정·작업 축을 표시
 _작업/fetch_fx.py       달러/원 환율 → data/fx.js
 _작업/ladder.py         자동·보통으로 잰 회차를 모은 비교 사다리
 _작업/build_all.py      위 아홉 + build.py 를 순서대로
-_작업/build.py          runs/*.json → data/runs.js
+_작업/build.py          runs/*.json → data/runs.js, autos.json → data/autos.js
 _작업/check.js          jsdom 검증
 _작업/check_readme.py   README와 데이터 대조
 _작업/render_doc.py     Word 산출물 → 미리보기 PNG
@@ -325,6 +352,8 @@ python build_all.py
 https://ltnalsxl.github.io/cowork-demo-player-kr/#tc04-terra
 https://ltnalsxl.github.io/cowork-demo-player-kr/#isms-audit
 https://ltnalsxl.github.io/cowork-demo-player-kr/#credits
+https://ltnalsxl.github.io/cowork-demo-player-kr/#autos
+https://ltnalsxl.github.io/cowork-demo-player-kr/#autos/brief
 ```
 
 ### 측정하지 않은 조합
@@ -522,7 +551,8 @@ python check_readme.py
 
 시나리오마다 렌더링, 재생 완료, 단계 상태, 편집 실패 배지 수, 검색 URL 수,
 되묻기 질문 수, 승인 카드 두 종류, 멀티턴 프롬프트, 첨부와 참조, 빈 섹션 숨김, 크레딧 표시,
-식별 정보 노출을 확인합니다. 현재 455개 항목입니다.
+크레딧 모아보기, 자동화 목록과 상세, 파비콘, 식별 정보 노출을 확인합니다.
+현재 500개 항목입니다.
 로그를 고치면 기대값이 JSON에서 자동으로 따라오므로 check.js를 손볼 일은 거의 없습니다.
 
 `check_readme.py`는 이 문서가 데이터와 어긋나지 않는지 봅니다. 없는 회차를 인용했는지,

@@ -47,6 +47,30 @@ def main():
         print('  %-8s %-40s 로그 %2d단계  산출물 %d'
               % (r['tc'], r['title'][:38], len(r['log']), len(r['artifacts'])))
 
+    build_autos()
+
+
+def build_autos():
+    """자동화 목록. 실제 화면의 '자동화' 탭을 그대로 세운다."""
+    src = os.path.join(BASE, 'autos.json')
+    if not os.path.exists(src):
+        return
+    with open(src, encoding='utf-8') as fh:
+        autos = json.load(fh)
+
+    out = os.path.join(ROOT, 'data', 'autos.js')
+    with open(out, 'w', encoding='utf-8') as fh:
+        fh.write('/* 자동 생성 파일. _작업/build.py 로 다시 만든다. */\n')
+        fh.write('window.COWORK_AUTOS = ')
+        json.dump(autos, fh, ensure_ascii=False, indent=1)
+        fh.write(';\n')
+
+    print('autos.js %d개 자동화  %.1f KB'
+          % (len(autos['items']), os.path.getsize(out) / 1024))
+    for a in autos['items']:
+        print('  %-9s %-30s %s · 실행 %d건'
+              % (a['id'], a['name'][:28], a['state'], len(a['runs'])))
+
 
 if __name__ == '__main__':
     main()

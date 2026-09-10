@@ -516,6 +516,103 @@ svg{display:block}
 .once input{accent-color:#1a1a1a;width:15px;height:15px}
 .mailcard.sched .cfoot .mbtns{width:100%;margin-left:0}
 
+/* 자동화 */
+.au-wrap{flex:1;overflow-y:auto;padding:6px 24px 72px}
+.au-in{max-width:940px;margin:0 auto}
+.au-h{display:flex;align-items:center;gap:14px;margin:26px 0 20px}
+.au-h h1{font-size:31px;font-weight:600;letter-spacing:-0.025em;flex:1;min-width:0}
+.au-new{flex:none;border-radius:999px;padding:8px 16px}
+.au-new .cv{display:grid;place-items:center;margin-left:1px}
+
+.au-tabs{display:flex;gap:6px;margin-bottom:22px}
+.au-t{border:0;background:transparent;border-radius:999px;padding:7px 18px;
+  font-size:14px;font-weight:500;color:var(--ink-2);cursor:pointer}
+.au-t.on{background:#1a1a1a;color:#fff;font-weight:600}
+
+.au-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.au-card{display:flex;flex-direction:column;align-items:flex-start;gap:14px;
+  border:1px solid var(--line);border-radius:12px;background:var(--surface);
+  padding:20px 22px;cursor:pointer;text-align:left;min-height:120px}
+.au-card:hover{background:#fafafa;border-color:#d6d6d6}
+.au-nm{font-size:15.5px;font-weight:500;letter-spacing:-0.01em;line-height:1.45}
+.au-cy{display:inline-flex;align-items:center;gap:8px;margin-top:auto;
+  background:#f2f2f2;border-radius:7px;padding:7px 12px;
+  font-size:13px;color:var(--ink-2);line-height:1.5}
+.au-cy svg{flex:none;width:15px;height:15px}
+.au-cy.off{color:var(--ink-3)}
+.au-cy.big{background:transparent;padding:0;font-size:14.5px;color:var(--ink);gap:9px}
+.au-cy.big .cv{display:grid;place-items:center;color:var(--ink-3)}
+.au-note{margin-top:22px;font-size:13px;line-height:1.7;color:var(--ink-3)}
+
+.au-back{display:inline-flex;align-items:center;gap:5px;border:0;background:transparent;
+  color:var(--ink-3);font-size:13.5px;cursor:pointer;padding:20px 0 4px}
+.au-back:hover{color:var(--ink)}
+.au-back svg{transform:rotate(90deg)}
+.au-dh{display:flex;align-items:center;gap:14px;margin:6px 0 18px}
+.au-dh h1{font-size:27px;font-weight:600;letter-spacing:-0.025em;flex:1;min-width:0}
+.au-acts{flex:none;display:flex;align-items:center;gap:9px}
+.au-acts .btn{border-radius:999px;padding:8px 17px}
+.au-acts .btn.primary{background:#1a1a1a;border-color:#1a1a1a}
+.au-acts .btn.primary:hover{background:#333}
+
+.au-state{display:flex;align-items:center;gap:12px;margin-bottom:26px}
+.au-tg{width:38px;height:21px;border-radius:999px;background:#c9c9c9;flex:none;position:relative}
+.au-tg.on{background:#1a1a1a}
+.au-tg::after{content:"";position:absolute;top:3px;left:3px;width:15px;height:15px;
+  border-radius:50%;background:#fff}
+.au-tg.on::after{left:auto;right:3px}
+.au-badge{background:#d9f2e2;color:#0b6b3a;border-radius:6px;padding:3px 10px;
+  font-size:12.5px;font-weight:600}
+.au-badge.off{background:#eee;color:var(--ink-3)}
+.au-next{font-size:13.5px;color:var(--ink-2)}
+
+.au-f{margin-bottom:26px}
+.au-k{font-size:12.5px;color:var(--ink-3);margin-bottom:9px}
+.au-ed{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.au-tb{display:flex;align-items:center;gap:4px;padding:9px 12px;
+  border-bottom:1px solid var(--line-soft);color:var(--ink-2)}
+.au-tb button{border:0;background:transparent;cursor:pointer;color:var(--ink-2);
+  width:30px;height:30px;display:grid;place-items:center;border-radius:5px;font-size:14px}
+.au-tb button:hover{background:#f2f2f2}
+.au-body{padding:16px 18px 20px;font-size:13.5px;line-height:1.8;color:var(--ink)}
+
+.au-radios{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.au-r{display:flex;align-items:flex-start;gap:11px;cursor:pointer}
+.au-r i{flex:none;width:16px;height:16px;border-radius:50%;border:1.5px solid #b4b4b4;
+  margin-top:2px;position:relative}
+.au-r.on i{border-color:#1a1a1a}
+.au-r.on i::after{content:"";position:absolute;inset:3px;border-radius:50%;background:#1a1a1a}
+.au-r span{font-size:13px;color:var(--ink-3);line-height:1.6}
+.au-r b{display:block;font-size:14px;font-weight:500;color:var(--ink);margin-bottom:2px}
+
+.au-paused{display:flex;gap:9px;margin-bottom:26px;padding:13px 15px;
+  background:#f7f7f7;border-radius:10px;font-size:13px;line-height:1.7;color:var(--ink-2)}
+.au-paused svg{flex:none;width:15px;height:15px;margin-top:3px;color:var(--ink-3)}
+
+.au-runs{border-top:1px solid var(--line-soft)}
+.au-run-row{padding:15px 14px;border-bottom:1px solid var(--line-soft);border-radius:8px}
+.au-run-row.on{background:#f5f5f5}
+.au-run-row .t{font-size:14px;font-weight:600;line-height:1.55;letter-spacing:-0.01em}
+.au-run-row .w{display:flex;align-items:center;gap:7px;margin-top:6px;
+  font-size:12.5px;color:var(--ink-3)}
+.au-run-row .w svg{width:15px;height:15px;color:#107c41}
+
+/* 예약 카드에서 자동화로 건너가기 */
+.schedwrap .mailcard{margin-bottom:0}
+.au-jump{display:flex;align-items:center;gap:9px;width:100%;margin:9px 0 14px;
+  padding:12px 15px;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface);cursor:pointer;text-align:left;
+  font-size:13.5px;color:var(--ink-2)}
+.au-jump:hover{background:#fafafa}
+.au-jump>svg{flex:none;width:16px;height:16px;color:var(--ink-3)}
+.au-jump .jt{flex:1;min-width:0;line-height:1.6}
+.au-jump b{font-weight:600;color:var(--ink)}
+.au-jump .ar{flex:none;display:grid;place-items:center;color:var(--ink-3)}
+
+@media (max-width:860px){
+  .au-grid,.au-radios{grid-template-columns:1fr}
+}
+
 /* Teams 채팅 카드 */
 .mailcard.chat .mrow{border-bottom:1px solid var(--line)}
 

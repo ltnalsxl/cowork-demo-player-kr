@@ -9,6 +9,9 @@ const runsSrc = fs.readFileSync(path.join(root, 'data', 'runs.js'), 'utf8');
 const fxSrc = fs.existsSync(path.join(root, 'data', 'fx.js'))
   ? fs.readFileSync(path.join(root, 'data', 'fx.js'), 'utf8') : 'window.COWORK_FX=null;';
 const appSrc = fs.readFileSync(path.join(root, 'assets', 'app.js'), 'utf8');
+const autosSrc = fs.existsSync(path.join(root, 'data', 'autos.js'))
+  ? fs.readFileSync(path.join(root, 'data', 'autos.js'), 'utf8')
+  : 'window.COWORK_AUTOS={items:[]};';
 
 const out = [];
 const ok = (label, cond, extra) =>
@@ -18,19 +21,22 @@ function boot(hash) {
   const dom = new JSDOM(html, { runScripts: 'outside-only', url: 'https://x/' + (hash || '') });
   dom.window.eval(fxSrc);
   dom.window.eval(runsSrc);
+  dom.window.eval(autosSrc);
   dom.window.eval(appSrc);
   return dom.window;
 }
 
 /* 묶인 회차는 홈에 대표 하나만 있으므로 탭을 거쳐 연다.
-   실행 화면에서 부를 수도 있어 홈으로 먼저 돌아간다. */
+   실행·크레딧·자동화 어느 화면에서 불러도 홈으로 먼저 돌아간다. */
 function openRun(w, id) {
   const tab = w.document.querySelector('.gt[data-go="' + id + '"]');
   if (tab) {
     tab.dispatchEvent(new w.Event('click', { bubbles: true }));
     return;
   }
-  const home = w.document.getElementById('goHome');
+  /* 홈 단추는 실행·크레딧 화면에만 있다. 자동화 화면에서는 사이드바를 쓴다. */
+  const home = w.document.getElementById('goHome')
+    || w.document.getElementById('btNew');
   if (home) { home.dispatchEvent(new w.Event('click', { bubbles: true })); }
 
   const btn = w.document.querySelector('.ritem[data-id="' + id + '"]');
@@ -566,6 +572,74 @@ RUNS.forEach((r) => {
   ok('모아보기 → 실행 이동', !!$('.cx-go'));
   $('.cx-go').dispatchEvent(new w.Event('click', { bubbles: true }));
   ok('실행으로 넘어감', !!$('#costrow') || !!$('.ctrl'));
+  w.close();
+}
+
+/* 4-6) 자동화 — 목록과 상세, 대화에서 건너가기. */
+{
+  const w = boot();
+  const $ = (s) => w.document.querySelector(s);
+  const $$ = (s) => [...w.document.querySelectorAll(s)];
+  const autos = w.COWORK_AUTOS.items;
+
+  /* 사이드바에서 연다. 실제 화면과 같은 진입점이다. */
+  w.document.getElementById('btAutos')
+    .dispatchEvent(new w.Event('click', { bubbles: true }));
+  ok('자동화 목록', $$('.au-card').length === autos.length, $$('.au-card').length);
+  ok('자동화 사이드바 표시', $('#btAutos')?.classList.contains('on'));
+  ok('자동화 주소', w.location.hash === '#autos', w.location.hash);
+
+  autos.forEach((a) => {
+    const card = $$('.au-card').filter((c) => c.dataset.a === a.id)[0];
+    ok('자동화 카드 ' + a.id, !!card);
+    const cy = card?.querySelector('.au-cy')?.textContent || '';
+    ok('자동화 주기 ' + a.id,
+      a.paused ? /일시 중지/.test(cy) : cy.indexOf(a.every) > -1, cy.slice(0, 44));
+  });
+
+  /* 상세 — 예약, 지시문, 알림 위치, 실행 기록이 모두 서야 한다. */
+  autos.forEach((a) => {
+    w.location.hash = 'autos/' + a.id;
+    w.dispatchEvent(new w.Event('hashchange'));
+    const tag = '자동화 상세 ' + a.id + ' ';
+    ok(tag + '제목', $('.au-dh h1')?.textContent === a.name, $('.au-dh h1')?.textContent);
+    ok(tag + '상태', $('.au-badge')?.textContent === a.state);
+    ok(tag + '토글', $('.au-tg')?.classList.contains('on') === !a.paused);
+    ok(tag + '다음 실행', !!$('.au-next') === !!a.next);
+    ok(tag + '지시문', ($('.au-body')?.textContent || '') === a.desc);
+    ok(tag + '알림 위치',
+      $('.au-r.on b')?.textContent === a.where, $('.au-r.on b')?.textContent);
+    ok(tag + '실행 기록', $$('.au-run-row').length === a.runs.length);
+    /* 만들어 둔 대화가 있는 자동화만 건너가기 단추가 붙는다. */
+    ok(tag + '작업으로 이동', !!$('.au-go') === !!a.run);
+  });
+
+  /* 개인정보가 남지 않아야 한다. */
+  ok('자동화 실명 없음',
+    !/Sumin|수민|@microsoft\.com/i.test(JSON.stringify(autos)));
+
+  /* 대화에서도 자동화로 건너갈 수 있다. */
+  openRun(w, 'daily-brief');
+  w.document.getElementById('skip').dispatchEvent(new w.Event('click', { bubbles: true }));
+  const jump = $('.au-jump');
+  ok('대화에서 자동화 링크', !!jump);
+  if (jump) {
+    jump.dispatchEvent(new w.Event('click', { bubbles: true }));
+    ok('링크로 자동화 열림', $('.au-dh h1')?.textContent === '평일 아침 브리핑 (Teams)',
+      $('.au-dh h1')?.textContent);
+  }
+  w.close();
+}
+
+/* 4-7) 파비콘 — 없으면 브라우저가 임의의 글자 아이콘을 만든다. */
+{
+  const w = boot();
+  const links = [...w.document.querySelectorAll('link[rel*="icon"]')];
+  ok('파비콘 선언', links.length >= 2, links.length);
+  links.forEach((l) => {
+    const p = l.getAttribute('href');
+    ok('파비콘 파일 ' + p, fs.existsSync(path.join(root, p)));
+  });
   w.close();
 }
 
