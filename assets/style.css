@@ -215,6 +215,7 @@ svg{display:block}
 .chipf .fi.x{background:#107c41}
 .chipf .fi.h{background:#eef3fb;color:#2b6cb0}
 .chipf .fi.m{background:#eef3fb;color:#0f6cbd}
+.chipf .fi.t{background:#f0f0f0;color:#5a5a5a}
 .chipf .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .plus{border:1px solid var(--line);border-radius:7px;padding:6px 10px;font-size:13px;color:var(--ink-2);background:var(--surface)}
 
@@ -354,6 +355,7 @@ svg{display:block}
   font-size:10px;font-weight:800;color:#fff;flex:none}
 .attc .fi.x{background:#107c41}
 .attc .fi.m{background:#eef3fb;color:#0f6cbd}
+.attc .fi.t{background:#f0f0f0;color:#5a5a5a}
 .attc .an{display:flex;flex-direction:column;line-height:1.35}
 .attc .a1{font-size:13.5px;color:var(--ink)}
 .attc .a2{font-size:11.5px;color:var(--ink-3)}
@@ -910,6 +912,7 @@ svg{display:block}
 .edits .fi.x{background:#107c41}
 .edits .fi.h{background:#eef3fb;color:#2b6cb0}
 .edits .fi.m{background:#eef3fb;color:#0f6cbd}
+.edits .fi.t{background:#f0f0f0;color:#5a5a5a}
 .edits .badge-x{
   position:absolute;right:-3px;bottom:-3px;width:11px;height:11px;border-radius:50%;
   background:#c4314b;border:1.5px solid #fff;display:grid;place-items:center;
@@ -1108,6 +1111,7 @@ svg{display:block}
 .outs .fi.x{background:#107c41}
 .outs .fi.h{background:#eef3fb;color:#2b6cb0}
 .outs .fi.m{background:#eef3fb;color:#0f6cbd}
+.outs .fi.t{background:#f0f0f0;color:#5a5a5a}
 .outs .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ───────── 뷰어 ───────── */

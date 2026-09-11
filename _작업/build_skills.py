@@ -83,7 +83,14 @@ def field(fm, key):
     m = re.search(r'^%s:\s*(.+)$' % key, fm, re.M)
     if not m:
         return ''
-    return m.group(1).strip().strip('"').strip("'")
+    v = m.group(1).strip()
+    # 큰따옴표로 감싼 값은 안쪽 따옴표가 \" 로 escape되어 있다. 화면에 역슬래시가
+    # 그대로 보이므로 여기서 푼다.
+    if len(v) > 1 and v[0] == '"' and v[-1] == '"':
+        return v[1:-1].replace('\\"', '"').replace('\\\\', '\\')
+    if len(v) > 1 and v[0] == "'" and v[-1] == "'":
+        return v[1:-1].replace("''", "'")
+    return v
 
 
 def kb(n):

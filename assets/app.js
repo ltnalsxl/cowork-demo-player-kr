@@ -1056,9 +1056,11 @@
     if (/\.html?$/i.test(name)) { return 'h'; }
     if (/\.xlsx?$|\.xltx$|\.csv$/i.test(name)) { return 'x'; }
     if (/\.(docx?|dotx)$/i.test(name)) { return 'w'; }
+    /* 스킬 파일은 마크다운과 텍스트다. 메일 아이콘이 붙으면 안 된다. */
+    if (/\.(md|txt)$/i.test(name)) { return 't'; }
     return 'm';  /* 확장자가 없으면 메일 초안으로 본다 */
   }
-  var KINDCH = { w: 'W', p: 'P', f: 'F', h: I.globe, x: 'X', m: I.mail };
+  var KINDCH = { w: 'W', p: 'P', f: 'F', h: I.globe, x: 'X', m: I.mail, t: I.doc };
 
   function fileChip(name) {
     var k = fileKind(name);
