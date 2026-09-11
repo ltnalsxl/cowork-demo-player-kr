@@ -12,6 +12,9 @@ const appSrc = fs.readFileSync(path.join(root, 'assets', 'app.js'), 'utf8');
 const autosSrc = fs.existsSync(path.join(root, 'data', 'autos.js'))
   ? fs.readFileSync(path.join(root, 'data', 'autos.js'), 'utf8')
   : 'window.COWORK_AUTOS={items:[]};';
+const skillsSrc = fs.existsSync(path.join(root, 'data', 'skills.js'))
+  ? fs.readFileSync(path.join(root, 'data', 'skills.js'), 'utf8')
+  : 'window.COWORK_SKILLS={skills:[],builtin:[],plugins:[]};';
 
 const out = [];
 const ok = (label, cond, extra) =>
@@ -22,6 +25,7 @@ function boot(hash) {
   dom.window.eval(fxSrc);
   dom.window.eval(runsSrc);
   dom.window.eval(autosSrc);
+  dom.window.eval(skillsSrc);
   dom.window.eval(appSrc);
   return dom.window;
 }
@@ -570,6 +574,9 @@ RUNS.forEach((r) => {
   ok('표 개수가 축·머리글 조합과 같음', $$('.cx-g').length === want.size, want.size);
 
   ok('모아보기 → 실행 이동', !!$('.cx-go'));
+  /* 축이 다른 회차를 한 자리에 놓고 재던 전체 최소·최대 박스는 뺐다.
+     뜻이 통하지 않는 비교라 되살아나면 안 된다. */
+  ok('축 넘는 전체 범위 박스 없음', !$('.cx-range'));
   $('.cx-go').dispatchEvent(new w.Event('click', { bubbles: true }));
   ok('실행으로 넘어감', !!$('#costrow') || !!$('.ctrl'));
   w.close();
@@ -644,7 +651,67 @@ RUNS.forEach((r) => {
   w.close();
 }
 
-/* 4-7) 파비콘 — 없으면 브라우저가 임의의 글자 아이콘을 만든다. */
+/* 4-7) 사용자 지정 — 플러그인과 기술 두 탭, 기술 상세. */
+{
+  const w = boot();
+  const $ = (s) => w.document.querySelector(s);
+  const $$ = (s) => [...w.document.querySelectorAll(s)];
+  const SK = w.COWORK_SKILLS;
+
+  /* 사이드바에서 연다. 실제 화면과 같은 진입점이다. */
+  w.document.getElementById('btSkills')
+    .dispatchEvent(new w.Event('click', { bubbles: true }));
+  ok('사용자 지정 주소', w.location.hash === '#custom', w.location.hash);
+  ok('사용자 지정 사이드바 표시', $('#btSkills')?.classList.contains('on'));
+  /* 탭을 눌러도 자동화 쪽이 같이 켜져 보이면 안 된다. */
+  ok('자동화 표시 꺼짐', !$('#btAutos')?.classList.contains('on'));
+  ok('사용자 지정 탭 3개', $$('.au-t').length === 3, $$('.au-t').length);
+  ok('기술 탭이 기본', $('.au-t.on')?.textContent === '기술', $('.au-t.on')?.textContent);
+
+  /* 내 기술과 기본 제공을 함께 센다. 기본 제공은 눌러도 열리지 않는다. */
+  ok('기술 목록', $$('.sk-row').length === SK.skills.length + SK.builtin.length,
+    $$('.sk-row').length);
+  ok('내 기술만 열림', $$('.sk-row[data-s]').length === SK.skills.length,
+    $$('.sk-row[data-s]').length);
+
+  /* 플러그인 탭 — 설치 목록과 켜짐 상태. */
+  $$('.au-t').filter((b) => b.dataset.t === '플러그인')[0]
+    .dispatchEvent(new w.Event('click', { bubbles: true }));
+  ok('플러그인 목록', $$('.sk-row.plug').length === SK.plugins.length,
+    $$('.sk-row.plug').length);
+  ok('플러그인 모두 꺼짐',
+    $$('.sk-row.plug .au-tg.on').length === SK.plugins.filter((p) => p.on).length);
+
+  /* 상세 — 이름, 지시문 본문, 첨부 파일, OneDrive 경로가 모두 서야 한다. */
+  SK.skills.forEach((s) => {
+    w.location.hash = 'custom/' + s.id;
+    w.dispatchEvent(new w.Event('hashchange'));
+    const tag = '기술 상세 ' + s.id + ' ';
+    ok(tag + '제목', $('.sk-head h1')?.textContent === s.name, $('.sk-head h1')?.textContent);
+    ok(tag + '만든이', $('.sk-own')?.textContent === s.owner);
+    ok(tag + '지시문 본문', ($('.sk-body')?.textContent || '').length > 500,
+      ($('.sk-body')?.textContent || '').length);
+    ok(tag + '첨부 파일', $$('.sk-f').length === s.files.length, $$('.sk-f').length);
+    ok(tag + '경로', ($('.sk-loc')?.textContent || '').indexOf(s.path) > -1);
+    /* 메뉴는 눌러야 열린다. */
+    ok(tag + '메뉴 닫힘', $('#skMenu')?.hidden === true);
+    $('#skOpen').dispatchEvent(new w.Event('click', { bubbles: true }));
+    ok(tag + '메뉴 열림', $('#skMenu')?.hidden === false);
+    /* 뒤로 가면 목록으로 돌아온다. */
+    $('#skBack').dispatchEvent(new w.Event('click', { bubbles: true }));
+    ok(tag + '목록 복귀', !!$('.sk-list') && !$('.sk-body'));
+  });
+
+  /* 개인정보가 남지 않아야 한다. 지시문 본문을 그대로 싣는 화면이다. */
+  const raw = JSON.stringify(SK);
+  ok('기술 실명 없음', !/Sumin|수민/i.test(raw));
+  ok('기술 메일 주소 없음', !/[\w.]+@[\w.]+/.test(raw));
+  ok('기술 고객사명 없음', !/Samsung|삼성|롯데|한화|현대|LG전자/i.test(raw));
+  ok('기술 로컬 경로 없음', !/[A-Z]:\\Users/i.test(raw));
+  w.close();
+}
+
+/* 4-8) 파비콘 — 없으면 브라우저가 임의의 글자 아이콘을 만든다. */
 {
   const w = boot();
   const links = [...w.document.querySelectorAll('link[rel*="icon"]')];

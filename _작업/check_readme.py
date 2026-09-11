@@ -28,7 +28,8 @@ def main():
 
     # 1) README가 인용한 id가 실제로 있는지
     #    스킬 이름과 빼 둔 회차는 미리 제외한다.
-    skills = {'company-template', 'frontend-design', 'korean-proofread'}
+    skills = {'company-template', 'frontend-design', 'korean-proofread',
+              'copilot-cowork-router'}
     held = set()
     hold_dir = os.path.join(BASE, '_보류')
     if os.path.isdir(hold_dir):

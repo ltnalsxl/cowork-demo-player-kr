@@ -269,6 +269,29 @@ Cowork 실행 기록을 실제 화면과 같은 모습으로 재생하고 작업
 않습니다. 사람은 모두 `Copilot User`이고, 지시문의 회사 고유 항목은 일반적인
 주간 보고에 맞게 다시 썼습니다.
 
+### 사용자 지정
+
+사이드바의 **사용자 지정**을 누르면 플러그인과 기술을 관리하는 화면이 섭니다.
+탭은 플러그인, 기술, 기본 설정 셋이고 기술 탭이 기본입니다. 주소는 `#custom`과
+`#custom/company-template` 꼴입니다.
+
+**기술** 탭에는 실습에서 설치해 쓰는 스킬 셋이 내 기술로 서고, 그 아래에 Cowork가
+처음부터 갖고 있는 PDF, Word, Excel, PowerPoint가 섭니다. 기본 제공은 끌 수 없으므로
+눌러도 열리지 않습니다.
+
+| 기술 | 하는 일 |
+|---|---|
+| korean-proofread | 어문 규범과 AI 티 두 축으로 한국어 문서를 교열 |
+| company-template | 사내 표준 서식으로 제안서, 보고 덱, 주간보고 작성 |
+| copilot-cowork-router | 한 작업을 Copilot 채팅·Cowork·커스텀 스킬 중 어디서 돌릴지 판단 |
+
+기술을 누르면 지시문 전문, 첨부 파일 목록, OneDrive 경로가 나옵니다. **지시문은
+배포하는 zip 안의 `SKILL.md`를 그대로 싣습니다.** 스킬을 고치면 `build_skills.py`를
+다시 돌리기만 하면 화면이 따라옵니다. 스킬 파일이 숨은 저장소가 아니라 내 OneDrive
+폴더에 그대로 있다는 점이 실습-04의 핵심이라 경로를 화면에 남겼습니다.
+
+**플러그인** 탭은 설치 목록만 세우고 이 데모에서는 하나도 켜지 않았습니다.
+
 ## 구조
 
 ```
@@ -277,10 +300,11 @@ favicon.ico             탭 아이콘 (없으면 브라우저가 임의의 글�
 assets/favicon.svg
 assets/apple-touch-icon.png
 assets/style.css        Fluent 톤 스타일
-assets/app.js           재생 엔진, /cost 패널, 산출물 뷰어, 자동화
+assets/app.js           재생 엔진, /cost 패널, 산출물 뷰어, 자동화, 사용자 지정
 assets/artifacts/       산출물 원본과 미리보기 PNG
 data/runs.js            시나리오 데이터 (자동 생성)
 data/autos.js           자동화 데이터 (자동 생성)
+data/skills.js          사용자 지정 데이터 (자동 생성)
 
 _작업/common.py         딥리서치 회차가 공유하는 실측값·프롬프트·산출물 정의
 _작업/build_sonnet.py   시나리오 JSON 생성
@@ -294,6 +318,7 @@ _작업/build_weekly.py   실습-05 사내 표준 서식 주간보고
 _작업/build_inbox.py    실습-06 밀린 메일 정리
 _작업/build_deck.py     실습-07 제안요청서 분석과 제안요약서 두 개(자동, Sonnet 5)
 _작업/autos.json        자동화 세 건 (되풀이 예약, 지시문, 지난 실행)
+_작업/build_skills.py   실습으로 배포하는 스킬 zip → data/skills.js
 _작업/group.py          같은 프롬프트를 조건만 바꾼 회차를 묶음
 _작업/mark_bench_axis.py  비교표에 모델·계정·작업 축을 표시
 _작업/fetch_fx.py       달러/원 환율 → data/fx.js
@@ -566,8 +591,8 @@ python check_readme.py
 
 시나리오마다 렌더링, 재생 완료, 단계 상태, 편집 실패 배지 수, 검색 URL 수,
 되묻기 질문 수, 승인 카드 두 종류, 멀티턴 프롬프트, 첨부와 참조, 빈 섹션 숨김, 크레딧 표시,
-크레딧 모아보기, 자동화 목록과 상세, 파비콘, 식별 정보 노출을 확인합니다.
-현재 512개 항목입니다.
+크레딧 모아보기, 사용자 지정 목록과 기술 상세, 자동화 목록과 상세, 파비콘, 식별 정보 노출을 확인합니다.
+현재 550개 항목입니다.
 로그를 고치면 기대값이 JSON에서 자동으로 따라오므로 check.js를 손볼 일은 거의 없습니다.
 
 `check_readme.py`는 이 문서가 데이터와 어긋나지 않는지 봅니다. 없는 회차를 인용했는지,
