@@ -62,7 +62,9 @@ def main():
             else:
                 d.pop('groupLabel', None)
                 d.pop('groupSub', None)
-            json.dump(d, open(p, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+            with open(p, 'w', encoding='utf-8') as fh:
+                json.dump(d, fh, ensure_ascii=False, indent=1)
+                fh.write('\n')  # 끝 줄바꿈이 없으면 돌릴 때마다 파일이 바뀐다
             n += 1
     print('회차 %d개를 묶음 %d개로 묶었습니다.' % (n, len(GROUPS)))
 
