@@ -66,7 +66,9 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
   const $$ = (s) => [...w.document.querySelectorAll(s)];
 
   ok('홈 히어로', $('.hero-q')?.textContent === '지금 무엇을 작업하고 있나요?');
-  ok('재생 항목 8개', $$('.ritem').length === 8, $$('.ritem').length);
+  /* 묶인 회차는 대표 하나만 홈에 선다. 숫자를 박지 않고 데이터에서 센다. */
+  const homeN = RUNS.filter((r) => !r.group || r.groupLabel).length;
+  ok('재생 항목 ' + homeN + '개', $$('.ritem').length === homeN, $$('.ritem').length);
   /* 눌러도 열리지 않는 항목을 두지 않는다. 위쪽 내비게이션(새 작업, 내 작업,
      자동화, 사용자 지정)은 실제 화면 구조라 그대로 두고, 채팅 기록은 실제 회차만 세운다. */
   ok('홈에 죽은 타일 없음', $$('.tile').length === 0, $$('.tile').length);
@@ -80,10 +82,10 @@ const RUNS = JSON.parse(runsSrc.slice(runsSrc.indexOf('[')).replace(/;\s*$/, '')
   ok('컴포저 마이크', !!$('#homeCrow .micb'));
   ok('대기 중엔 보내기 없음', !$('#homeCrow .rnd'));
   ok('계정 Copilot User', /Copilot User/.test($('.me')?.textContent));
-  ok('사이드바 시나리오 8개', $$('#chats button[data-id]').length === 8,
+  ok('사이드바 시나리오 ' + homeN + '개', $$('#chats button[data-id]').length === homeN,
     $$('#chats button[data-id]').length);
   ok('홈 타일 제목이 회차별로 구분됨',
-    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === 8);
+    new Set($$('.ritem[data-id] .rtitle').map((e) => e.textContent)).size === homeN);
   /* 크레딧을 재지 않은 회차는 싣지 않는다. */
   ok('미측정 회차 없음', RUNS.every((r) => r.credit || r.variants),
     RUNS.filter((r) => !r.credit && !r.variants).map((r) => r.id).join(', '));
@@ -140,7 +142,8 @@ const EXPECT = {
   'weekly-team': { steps: 4, arts: 1, credit: '271' },
   'rfp-deck': { steps: 0, arts: 2, credit: '348' },
   'rfp-sonnet': { steps: 0, arts: 2, credit: '253' },
-  'inbox-triage': { steps: 4, arts: 1, credit: '755' }
+  'inbox-triage': { steps: 4, arts: 1, credit: '755' },
+  'close-recon': { steps: 0, arts: 1, credit: '218' }
 };
 
 RUNS.forEach((r) => {
@@ -195,7 +198,29 @@ RUNS.forEach((r) => {
     });
   }
   ok(tag + '비용 패널', !!$('#costrow .cost'));
-  if (r.bench.shared) {
+
+  /* 참조(입력) 파일. 이름만 준 회차와 파일까지 둔 회차가 섞여 있다. */
+  const refs = r.refs || [];
+  ok(tag + '참조 목록 ' + refs.length, $$('#refs li').length === refs.length,
+    $$('#refs li').length);
+  const withFile = refs.filter((x) => typeof x === 'object' && x.file);
+  ok(tag + '참조 열기 ' + withFile.length,
+    $$('#refs .outbtn').length === withFile.length, $$('#refs .outbtn').length);
+  withFile.forEach((a, i) => {
+    $$('#refs .outbtn')[i].dispatchEvent(new w.Event('click', { bubbles: true }));
+    ok(tag + '참조 이름 ' + (i + 1), $('#viewer .vn')?.textContent === a.name);
+    ok(tag + '참조 내려받기 ' + (i + 1),
+      $('#viewer .vdl')?.getAttribute('download') === a.name);
+    ok(tag + '참조 미리보기 ' + (i + 1),
+      $$('#viewer .vbody img').length === (a.pages || []).length,
+      $$('#viewer .vbody img').length);
+    $('#viewer').classList.remove('on');
+  });
+
+  if (!r.bench || !r.bench.models) {
+    /* 견줄 짝이 아직 없는 회차는 비교표 없이 크레딧 줄만 낸다. */
+    ok(tag + '벤치 없음', !$('.bench'));
+  } else if (r.bench.shared) {
     /* 세 실행이 나눠 갖는 표는 실행 안에서 한 줄로 접고 모아보기로 넘긴다. */
     ok(tag + '벤치 접힘', !!$('.bench.slim'));
     ok(tag + '전체 비교 단추', !!$('.gotocost'));
@@ -213,7 +238,11 @@ RUNS.forEach((r) => {
     ok(tag + '크레딧 미확인 안내',
       /를 찍지 않았습니다/.test($('#costrow .cost .l1')?.textContent || ''));
   }
-  ok(tag + '이번 달 누계 없음', !/이번 달/.test(w.document.body.textContent));
+  /* 테넌트 사용량이 새지 않아야 한다. 실제 유출 문구는 "이번 달에는 지금까지
+     N크레딧을 사용했습니다"이므로 그 꼴만 잡는다. 본문에 쓰인 "이번 달"은
+     회차 내용일 수 있어 그대로 둔다. */
+  ok(tag + '이번 달 누계 없음',
+    !/이번 달에는|사용량 보기|무제한 크레딧/.test(w.document.body.textContent));
   ok(tag + '외부 기준값 없음', !/글로벌 기준값/.test(w.document.body.textContent));
 
   // 로그 타입별 렌더 확인

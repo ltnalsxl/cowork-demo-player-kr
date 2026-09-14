@@ -282,13 +282,19 @@
     ['Sonnet 5', '일상 작업에 효율적']
   ];
 
-  /* 컴포저 한 줄을 만든다. run이 있으면 모델·노력이 실제 데이터와 연동된다. */
-  function composerRow(host, live) {
+  /* 회차 수를 문장에 넣을 때 쓴다. 숫자를 화면에 박아 두면 회차가 늘 때 어긋난다. */
+  var NUMWORD = ['영', '한', '두', '세', '네', '다섯', '여섯', '일곱',
+                 '여덟', '아홉', '열', '열한', '열두'];
+  function numWord(n) { return NUMWORD[n] || String(n); }
+
+  /* 컴포저 한 줄을 만든다. run이 있으면 모델·노력이 실제 데이터와 연동된다. */  function composerRow(host, live) {
     host.innerHTML = '';
     host.appendChild(popover(I.plus, PLUS_MENU, { up: !live }));
 
     var models = MODEL_LIST.map(function (m) {
-      var hit = live && run.bench.models.filter(function (x) { return x.name === m[0]; })[0];
+      /* 크레딧을 견줄 짝이 없는 회차는 bench 자체가 없다. */
+      var bm = (live && run.bench && run.bench.models) || [];
+      var hit = bm.filter(function (x) { return x.name === m[0]; })[0];
       return { t: m[0], s: hit ? '이 시나리오 실측 ' + fmt(Math.round(hit.avg)) + ' 크레딧' : m[1] };
     });
     if (!live) { models = [{ t: '자동', s: '작업에 맞는 모델을 고릅니다' }]; }
@@ -736,7 +742,9 @@
         '<button class="cx-entry" id="goCosts">' +
           '<span class="ci">' + I.clock + '</span>' +
           '<span class="ct"><b>크레딧 모아보기</b>' +
-          '<span>열 회차를 모델·계정·작업 세 축으로 나눠 한 화면에 세웁니다</span></span>' +
+          '<span>' + numWord(RUNS.filter(function (r) {
+            return r.bench && r.bench.models;
+          }).length) + ' 회차를 모델·계정·작업 세 축으로 나눠 한 화면에 세웁니다</span></span>' +
           '<span class="co">' + I.ext + '</span></button>' +
       '</div></div>';
 
@@ -1107,14 +1115,11 @@
           '<button>' + I.caret + '</button></span></div>' +
           '<ul class="outs" id="outs"></ul></div>'
         : '') +
-      /* 첨부한 파일이 있으면 참조 섹션이 붙는다. */
+      /* 첨부한 파일이 있으면 참조 섹션이 붙는다.
+         이름만 준 회차는 그대로 두고, 파일까지 둔 회차는 눌러서 열 수 있다. */
       ((run.refs || []).length
         ? '<div class="p-sec"><div class="p-h">참조 <span class="acts"><button>' + I.caret + '</button></span></div>' +
-          '<ul class="outs">' + run.refs.map(function (n) {
-            var k = fileKind(n);
-            return '<li><span class="fi ' + k + '">' + KINDCH[k] + '</span>' +
-              '<span class="nm">' + esc(n) + '</span></li>';
-          }).join('') + '</ul></div>'
+          '<ul class="outs" id="refs"></ul></div>'
         : '') +
       ((run.skills || []).length || run.skillsButton
         ? '<div class="p-sec"><div class="p-h">기술 및 플러그 인 <span class="acts"><button>' + I.caret + '</button></span></div>' +
@@ -1130,6 +1135,26 @@
     document.getElementById('pClose').addEventListener('click', function () {
       app.classList.remove('panel-open');
     });
+
+    /* 참조 목록. 첨부는 처음부터 붙어 있으므로 재생을 기다리지 않는다. */
+    var refs = document.getElementById('refs');
+    if (refs) {
+      (run.refs || []).forEach(function (r) {
+        var a = typeof r === 'string' ? { name: r } : r;
+        var k = fileKind(a.name);
+        if (!a.file) {
+          refs.appendChild(el('<li><span class="fi ' + k + '">' + KINDCH[k] +
+            '</span><span class="nm">' + esc(a.name) + '</span></li>'));
+          return;
+        }
+        var li = el('<li class="outrow"><button class="outbtn">' +
+          '<span class="fi ' + k + '">' + KINDCH[k] + '</span>' +
+          '<span class="nm">' + esc(a.name) + '</span>' +
+          '<span class="oo">' + I.ext + '</span></button></li>');
+        li.querySelector('.outbtn').addEventListener('click', function () { viewer(a); });
+        refs.appendChild(li);
+      });
+    }
   }
 
   /* 작업 영역 상단의 현재 활동 문구. 실제 화면에도 같은 자리에 뜬다. */
@@ -1174,7 +1199,7 @@
         var li = el('<li class="outrow"><button class="outbtn"><span class="fi ' + k + '">' + KINDCH[k] +
           '</span><span class="nm">' + esc(a.name) + '</span>' +
           '<span class="oo">' + I.ext + '</span></button></li>');
-        li.querySelector('.outbtn').addEventListener('click', function () { viewer(i); });
+        li.querySelector('.outbtn').addEventListener('click', function () { viewer(a); });
         outs.appendChild(li);
       });
     }
@@ -1638,7 +1663,7 @@
           '<span class="ftx"><span class="fn">' + esc(a.name.replace(/\.(docx|pptx|xlsx|html?)$/, '')) + '</span>' +
           '<span class="fk">' + esc(a.kind) + ' · ' + esc(a.meta) + '</span></span>' +
           '<span class="open">' + I.ext + '</span></button>');
-        c.addEventListener('click', function () { viewer(i); });
+        c.addEventListener('click', function () { viewer(a); });
         cards.appendChild(c);
       });
       f.appendChild(cards);
@@ -1685,6 +1710,19 @@
     if (!row) { return; }
     var pick = picked || run.model;
     var b = run.bench;
+    /* 견줄 짝이 아직 없는 회차는 비교표 없이 크레딧 줄만 낸다. */
+    if (!b || !b.models || !b.models.length) {
+      row.innerHTML =
+        '<div><div class="cost"><div class="cic">' + I.clock + '</div><div>' +
+        '<div class="l1">이 작업에 크레딧 <b>' + fmt(run.credit) + '</b>개가 사용되었습니다. ' +
+        '<span style="font-weight:400;color:var(--ink-3)">(' + money(run.credit) + ')</span></div>' +
+        '<div class="l2">이 작업에서 실제로 나온 값입니다. <code>/cost</code>는 프롬프트 하나가 아니라 ' +
+        '그 작업 전체를 셉니다.' +
+        (FX ? ' 원화는 크레딧당 $0.01로 보고 ' + esc(FX.date) + ' 환율 ' +
+          fmt(Math.round(FX.usdkrw)) + '원을 적용한 값입니다.' : '') +
+        '</div></div></div></div>';
+      return;
+    }
     var hit = b.models.filter(function (m) { return m.name === pick; })[0];
     var isReal = pick === run.model;
     var credit = isReal ? run.credit : (hit ? Math.round(hit.avg) : null);
@@ -1842,10 +1880,12 @@
   }
 
   /* ── 뷰어 ── */
-  function viewer(i) {
-    var a = run.artifacts[i], v = document.getElementById('viewer');
+  /* 산출물과 참조 파일이 같은 뷰어를 쓴다. 인덱스가 아니라 객체를 받는다. */
+  function viewer(a) {
+    var v = document.getElementById('viewer');
     v.querySelector('.vn').textContent = a.name;
-    v.querySelector('.vm').textContent = a.kind + ' · ' + a.meta;
+    v.querySelector('.vm').textContent =
+      [a.kind, a.meta].filter(Boolean).join(' · ');
 
     /* 미리보기만 보고 끝내지 않게 원본 파일을 함께 내준다.
        내려받는 파일 이름은 저장소 경로가 아니라 대화에 뜬 이름으로 맞춘다. */
@@ -1876,7 +1916,7 @@
     var why = a.labeled
       ? '이 파일은 민감도 레이블이 걸려 있어 열지 않았습니다. ' +
         '복호화해 공개 저장소에 싣지 않습니다. 대화의 최종 답변에 담긴 내용으로 확인하세요.'
-      : a.kind.indexOf('메일') > -1
+      : (a.kind || '').indexOf('메일') > -1
         ? '메일 초안은 파일이 아니라 임시보관함에 남아 있습니다. 대화에서 초안 카드를 확인하세요.'
         : '이 산출물은 아직 파일을 받아 두지 못했습니다.';
     v.querySelector('.vbody').innerHTML = (a.pages || []).length

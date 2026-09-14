@@ -4857,5 +4857,279 @@ window.COWORK_RUNS = [
     "thumb": "assets/artifacts/inbox/inbox_01.png"
    }
   ]
+ },
+ {
+  "id": "close-recon",
+  "tc": "실습-08",
+  "folder": "실습",
+  "title": "두 부서 마감 자료 대사",
+  "chatTitle": "8월 마감 자료 대사 · Sonnet 5",
+  "subtitle": "영업본부와 재무회계팀이 같은 8월을 두고 반대 결론을 낸 자료 두 개를 주고, 어디서 갈라지는지 찾아 대사표까지 만들게 한 실행. 한 턴에 세 가지를 한꺼번에 시켰다",
+  "model": "Sonnet 5",
+  "effort": "보통",
+  "date": "2026년 9월 14일 월요일",
+  "credit": 218,
+  "costTime": "오후 2:19",
+  "note": "최종 답변 1번의 \"8월 매출 7,823 중 19,274(31.6%)\"는 틀렸습니다. 19,274는 연초부터의 누계이고 31.6%는 계약금액 61,000 대비 진행률입니다. 8월 한 달만 보면 2026년 수주분이 5,713(73.0%)입니다. 나머지 숫자는 원본과 대조해 모두 맞았습니다.",
+  "steps": [],
+  "skills": [],
+  "tools": [
+   "Excel"
+  ],
+  "prompt": "첨부한 엑셀 두 개는 같은 회사의 2026년 8월 마감 자료입니다.\n영업본부가 만든 것과 재무회계팀이 만든 것인데 8월 결론이 정반대입니다.\n다음 주 경영회의에서 임원이 어느 쪽을 받아들여야 할지 판단해야 합니다.\n아래 세 가지를 해 주세요.\n\n1. 두 문서의 8월 실적과 연 누계가 왜 반대로 나오는지 밝혀 주세요.\n   양쪽 숫자는 모두 맞다고 가정하고, 어디서 갈라지는지 찾아 주세요.\n\n2. 프로젝트코드로 두 파일을 연결해 대사표를 엑셀로 만들어 주세요.\n   2026년 수주 건별로 8월까지 매출로 잡힌 금액과 남은 금액이 보여야 합니다.\n\n3. 미인식 잔액이 줄어드는 속도로 2027년 매출을 어떻게 봐야 할지\n   판단해 주세요.\n\n추정이 필요한 부분은 그렇다고 표시해 주세요.",
+  "promptTime": "오후 1:47",
+  "promptFiles": [
+   "[영업기획] 2026년 8월 영업실적 보고_v3.xlsx",
+   "[재무회계] 2026년 8월 매출마감 집계.xlsx"
+  ],
+  "refs": [
+   {
+    "name": "[영업기획] 2026년 8월 영업실적 보고_v3.xlsx",
+    "kind": "Excel 통합 문서",
+    "meta": "4시트 · 수주 기준",
+    "file": "assets/artifacts/close/close-영업실적보고.xlsx",
+    "pages": [
+     "assets/artifacts/close/sal_01.png",
+     "assets/artifacts/close/sal_02.png",
+     "assets/artifacts/close/sal_03.png",
+     "assets/artifacts/close/sal_04.png",
+     "assets/artifacts/close/sal_05.png",
+     "assets/artifacts/close/sal_06.png"
+    ]
+   },
+   {
+    "name": "[재무회계] 2026년 8월 매출마감 집계.xlsx",
+    "kind": "Excel 통합 문서",
+    "meta": "4시트 · 진행률 기준",
+    "file": "assets/artifacts/close/close-매출마감집계.xlsx",
+    "pages": [
+     "assets/artifacts/close/fin_01.png",
+     "assets/artifacts/close/fin_02.png",
+     "assets/artifacts/close/fin_03.png",
+     "assets/artifacts/close/fin_04.png",
+     "assets/artifacts/close/fin_05.png",
+     "assets/artifacts/close/fin_06.png"
+    ]
+   }
+  ],
+  "log": [
+   {
+    "t": "say",
+    "time": "오후 1:47",
+    "body": "두 파일을 먼저 분석하겠습니다.",
+    "status": "자료를 여는 중",
+    "act": "엑셀 스프레드시트 작업 준비"
+   },
+   {
+    "t": "tool",
+    "icon": "struct",
+    "label": "Inspect sheet structure of both Excel files",
+    "time": "오후 1:47",
+    "status": "시트 구성을 보는 중",
+    "act": "두 파일의 시트를 훑는 중"
+   },
+   {
+    "t": "tool",
+    "icon": "file",
+    "label": "Dump finance sheet content rows 1-20 per sheet",
+    "time": "오후 1:48",
+    "status": "머리글을 찾는 중",
+    "act": "재무 파일을 읽는 중"
+   },
+   {
+    "t": "say",
+    "time": "오후 1:48",
+    "body": "Now the sales (영업기획) file:",
+    "status": "영업 파일을 읽는 중"
+   },
+   {
+    "t": "tool",
+    "icon": "check",
+    "label": "5개 항목 완료",
+    "time": "오후 1:48",
+    "status": "영업 파일을 읽는 중",
+    "act": "영업 파일을 읽는 중"
+   },
+   {
+    "t": "say",
+    "time": "오후 1:48",
+    "body": "Header row is 5, not 3. Let me redo with correct header row.",
+    "status": "머리글 위치를 고치는 중"
+   },
+   {
+    "t": "tool",
+    "icon": "search",
+    "label": "Find header rows in sales file too",
+    "time": "오후 1:49",
+    "status": "머리글 행을 다시 잡는 중",
+    "act": "머리글 위치를 확인하는 중"
+   },
+   {
+    "t": "say",
+    "time": "오후 1:49",
+    "body": "Good — header row is 5 in both files. Now let's build the reconciliation dataset.",
+    "status": "대사 자료를 만드는 중"
+   },
+   {
+    "t": "tool",
+    "icon": "check",
+    "label": "8개 항목 완료",
+    "time": "오후 1:50",
+    "status": "대사 자료를 만드는 중",
+    "act": "프로젝트코드로 두 파일을 잇는 중"
+   },
+   {
+    "t": "say",
+    "time": "오후 1:50",
+    "body": "데이터 준비가 끝났습니다. 이제 엑셀 대사표를 만들겠습니다.",
+    "status": "통합 문서를 만드는 중"
+   },
+   {
+    "t": "tool",
+    "icon": "newfile",
+    "label": "5개 항목 완료",
+    "time": "오후 1:50",
+    "status": "통합 문서를 만드는 중",
+    "act": "통합 문서를 만드는 중"
+   },
+   {
+    "t": "edit",
+    "time": "오후 1:50",
+    "kind": "x",
+    "file": "2026년 8월 매출-수주 대사표 및 2027년 전망.xlsx",
+    "status": "README 시트를 쓰는 중",
+    "items": [],
+    "n": 1
+   },
+   {
+    "t": "edit",
+    "time": "오후 1:50",
+    "kind": "x",
+    "file": "2026년 8월 매출-수주 대사표 및 2027년 전망.xlsx",
+    "status": "README 시트를 꾸미는 중",
+    "items": [],
+    "n": 36
+   },
+   {
+    "t": "edit",
+    "time": "오후 1:51",
+    "kind": "x",
+    "file": "2026년 8월 매출-수주 대사표 및 2027년 전망.xlsx",
+    "status": "요약비교 시트를 쓰는 중",
+    "items": [],
+    "n": 1
+   },
+   {
+    "t": "edit",
+    "time": "오후 1:51",
+    "kind": "x",
+    "file": "2026년 8월 매출-수주 대사표 및 2027년 전망.xlsx",
+    "status": "팀별 표와 12개월 추이를 넣는 중",
+    "items": [],
+    "n": 1
+   },
+   {
+    "t": "edit",
+    "time": "오후 1:51",
+    "kind": "x",
+    "file": "2026년 8월 매출-수주 대사표 및 2027년 전망.xlsx",
+    "status": "차트를 그리는 중",
+    "items": [],
+    "n": 1
+   },
+   {
+    "t": "edit",
+    "time": "오후 1:51",
+    "kind": "x",
+    "file": "2026년 8월 매출-수주 대사표 및 2027년 전망.xlsx",
+    "status": "요약비교 시트를 꾸미는 중",
+    "items": [],
+    "n": 34
+   },
+   {
+    "t": "say",
+    "time": "오후 1:51",
+    "body": "Now let's build the reconciliation table sheet using insert_tabular_data from the CSV file.",
+    "status": "대사표 시트를 채우는 중"
+   },
+   {
+    "t": "tool",
+    "icon": "check",
+    "label": "9개 항목 완료",
+    "time": "오후 1:51",
+    "status": "대사표 시트를 채우는 중",
+    "act": "121건을 넣는 중"
+   },
+   {
+    "t": "edit",
+    "time": "오후 1:51",
+    "kind": "x",
+    "file": "2026년 8월 매출-수주 대사표 및 2027년 전망.xlsx",
+    "status": "판단 문단을 넣는 중",
+    "items": [],
+    "n": 1
+   },
+   {
+    "t": "edit",
+    "time": "오후 1:51",
+    "kind": "x",
+    "file": "2026년 8월 매출-수주 대사표 및 2027년 전망.xlsx",
+    "status": "2027년 전망 시트를 꾸미는 중",
+    "items": [],
+    "n": 33
+   },
+   {
+    "t": "edit",
+    "time": "오후 1:51",
+    "kind": "x",
+    "file": "2026년 8월 매출-수주 대사표 및 2027년 전망.xlsx",
+    "status": "마무리하는 중",
+    "items": [],
+    "n": 1
+   },
+   {
+    "t": "say",
+    "time": "오후 1:51",
+    "body": "Now let's verify all computed values across sheets for errors.",
+    "status": "값을 검산하는 중"
+   },
+   {
+    "t": "tool",
+    "icon": "check",
+    "label": "2개 항목 완료",
+    "time": "오후 1:51",
+    "status": "값을 검산하는 중",
+    "act": "시트별 계산값을 확인하는 중"
+   },
+   {
+    "t": "final",
+    "time": "오후 1:52",
+    "body": "세 가지 질문에 대한 분석을 마쳤습니다. 결과를 실시간 엑셀 파일 **\"2026년 8월 매출-수주 대사표 및 2027년 전망.xlsx\"**에 4개 시트(README·요약비교·프로젝트별_대사표·2027년_매출전망)로 정리해 OneDrive에 바로 생성했습니다.\n\n**1. 왜 8월 실적이 정반대로 보이는가**\n\n두 자료는 서로 다른 \"사건\"을 측정하고 있어서 결론이 반대로 나옵니다.\n\n- **인식기준이 다릅니다.** 재무회계는 K-IFRS 1115호 투입법 진행률(수행의무 이행)로 매출을 인식하고, 영업기획은 계약체결일(수주일) 기준으로 실적을 잡습니다.\n- **매출의 재원은 과거 수주입니다.** 8월 매출 7,823백만원 중 2026년에 새로 수주한 121건(계약금액 합계 61,000백만원)에서 나온 인식액은 19,274백만원(31.6%)뿐이고, 나머지는 2025년 이전 수주 건이 실행되며 나온 것입니다. 즉 8월 매출 호조(달성률 107.2%, 전년동월 +18.1%)는 과거 수주 물량을 소진한 결과이지, 이번 달 영업 성과가 아닙니다.\n- **변동성 자체가 다릅니다.** 수주는 개별 대형계약 체결 타이밍에 좌우돼 월별로 크게 출렁이지만(6월 10,700 → 8월 4,701), 매출은 여러 프로젝트의 진행률이 평활되어 변동폭이 작습니다(전월대비 -1.9% vs 수주 -45.3%).\n- 재무 각주는 \"7월 검수완료분 중 9월 청구예정 건 포함(계약자산 계정)\"이라 명시했고, 영업 각주는 \"8월 수주 감소는 계절요인, 9월 파이프라인 4,800 반영 시 회복 전망\"이라 적었는데 이는 영업본부의 검증되지 않은 추정치입니다.\n\n**결론**: 어느 쪽이 \"맞다\"를 고르는 문제가 아니라, 매출(후행/실행지표)과 수주(선행/재원지표)를 함께 봐야 합니다.\n\n**2. 프로젝트코드 대사표 (엑셀 시트: 프로젝트별_대사표)**\n\n2026년 신규수주 121건 전체를 프로젝트코드로 재무회계 데이터와 연결해 각 건별 계약금액·8월까지 누적 매출인식액·미인식잔액·진행률을 정리했습니다. 검증행(계약금액-누적인식-미인식=0)으로 121건 전건이 오차 없이 대사되는 것을 확인했습니다.\n\n합계: 계약금액 61,000 / 누적매출인식 19,274 / 미인식잔액 41,726백만원\n\n**3. 2027년 매출을 어떻게 봐야 하는가**\n\n- [사실] 전사 미인식 계약잔액(backlog) 46,579백만원 중 72%(33,502백만원)가 2027년 종료 예정 프로젝트에 배분되어 있어, 2027년 매출의 상당 부분은 이미 계약이 체결된 물량입니다.\n- [사실] 최근 6개월 평균으로는 신규수주(월평균 8,067)가 매출인식(월평균 7,140)보다 많아 backlog가 정상적으로 증가해야 하지만, 8월 한 달만 보면 수주(4,701)가 매출인식(7,823)보다 3,122 적어 backlog가 순감소했습니다.\n- [추정] 현재 매출인식 속도(월 7,140) 기준으로 전체 backlog는 약 6.5개월치 물량에 해당합니다. 8월과 같은 수주 부진이 9월 이후에도 이어진다면 backlog 재충전 속도가 느려져 2027년 하반기 이후 매출 성장률 둔화로 이어질 수 있습니다.\n- [추정/미검증] 반대로 영업본부가 언급한 \"9월 파이프라인 4,800\"이 실제 수주로 전환되고 계절요인(하계휴가, 공공 상반기 발주 종료)이 해소된다면 backlog는 정상 궤도로 복귀하며 영향은 제한적일 것입니다.\n\n**종합 판단(추정 포함)**: 2027년 매출은 \"이미 확보된 33,502백만원 backlog + 9월 이후 신규수주 중 2027년 착수·인식분\"으로 구성됩니다. 단정적 수치 예측은 제공하지 않으며, 하방/상방 리스크가 공존하는 만큼 9~10월 실제 수주 실적 확인이 경영 판단의 다음 단계로 필요합니다.\n\n파일은 README 시트에 전체 근거와 가정·데이터 한계([추정] 표시)를 정리해 두었고, 요약비교 시트에는 최근 12개월 매출-수주 추이 차트도 포함했습니다.",
+    "out": [
+     0
+    ],
+    "status": "완료",
+    "act": "작업 완료"
+   }
+  ],
+  "artifacts": [
+   {
+    "name": "2026년 8월 매출-수주 대사표 및 2027년 전망.xlsx",
+    "kind": "Excel 통합 문서",
+    "meta": "4시트 · 121건 대사",
+    "file": "assets/artifacts/close/close-대사표.xlsx",
+    "pages": [
+     "assets/artifacts/close/out_01.png",
+     "assets/artifacts/close/out_02.png",
+     "assets/artifacts/close/out_03.png",
+     "assets/artifacts/close/out_04.png",
+     "assets/artifacts/close/out_05.png",
+     "assets/artifacts/close/out_06.png",
+     "assets/artifacts/close/out_07.png",
+     "assets/artifacts/close/out_08.png"
+    ],
+    "thumb": "assets/artifacts/close/out_01.png"
+   }
+  ]
  }
 ];
