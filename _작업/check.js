@@ -143,7 +143,8 @@ const EXPECT = {
   'rfp-deck': { steps: 0, arts: 2, credit: '348' },
   'rfp-sonnet': { steps: 0, arts: 2, credit: '253' },
   'inbox-triage': { steps: 4, arts: 1, credit: '755' },
-  'close-recon': { steps: 0, arts: 1, credit: '218' }
+  'close-recon': { steps: 0, arts: 1, credit: '218' },
+  'close-split': { steps: 0, arts: 1, credit: '346' }
 };
 
 RUNS.forEach((r) => {
@@ -589,17 +590,21 @@ RUNS.forEach((r) => {
   /* 같은 표를 나눠 갖는 회차는 표를 한 번만 세우고 실행 단추를 여럿 낸다. */
   const runs = w.COWORK_RUNS;
   const shared = runs.filter((r) => r.bench && r.bench.shared);
-  ok('나눠 갖는 표 하나로', $$('.cx-g').length === 6, $$('.cx-g').length);
-  const last = $$('.cx-g').slice(-1)[0];
-  ok('나눠 갖는 실행 모두 표시',
-    last.querySelectorAll('.cx-go').length === shared.length,
-    last.querySelectorAll('.cx-go').length);
-  ok('실행별 꼬리 제거',
-    !/271은|789는|1,130은/.test(last.querySelector('.bcond')?.textContent || ''));
-
-  /* 모든 회차의 표가 빠짐없이 실려야 한다. */
+  /* 표 수는 축·머리글 조합 수와 같다. 숫자를 박지 않고 데이터에서 센다. */
   const want = new Set(runs.filter((r) => r.bench && r.bench.models)
     .map((r) => r.bench.axis + '|' + (r.bench.head || '')));
+  ok('나눠 갖는 표 하나로', $$('.cx-g').length === want.size, $$('.cx-g').length);
+  /* 나눠 갖는 표는 머리글로 찾는다. 맨 뒤에 있다고 보면 표가 늘 때 어긋난다. */
+  const sharedHead = shared[0] && (shared[0].bench.head || '');
+  const box = $$('.cx-g').filter(
+    (g) => g.querySelector('h3')?.textContent === sharedHead)[0];
+  ok('나눠 갖는 실행 모두 표시',
+    box && box.querySelectorAll('.cx-go').length === shared.length,
+    box && box.querySelectorAll('.cx-go').length);
+  ok('실행별 꼬리 제거',
+    !/271은|789는|1,130은/.test(box?.querySelector('.bcond')?.textContent || ''));
+
+  /* 모든 회차의 표가 빠짐없이 실려야 한다. */
   ok('표 개수가 축·머리글 조합과 같음', $$('.cx-g').length === want.size, want.size);
 
   ok('모아보기 → 실행 이동', !!$('.cx-go'));
