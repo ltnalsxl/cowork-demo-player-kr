@@ -15,6 +15,9 @@ const autosSrc = fs.existsSync(path.join(root, 'data', 'autos.js'))
 const skillsSrc = fs.existsSync(path.join(root, 'data', 'skills.js'))
   ? fs.readFileSync(path.join(root, 'data', 'skills.js'), 'utf8')
   : 'window.COWORK_SKILLS={skills:[],builtin:[],plugins:[]};';
+const chatSrc = fs.existsSync(path.join(root, 'data', 'chat.js'))
+  ? fs.readFileSync(path.join(root, 'data', 'chat.js'), 'utf8')
+  : 'window.COWORK_CHAT={items:[]};';
 
 const out = [];
 const ok = (label, cond, extra) =>
@@ -26,6 +29,7 @@ function boot(hash) {
   dom.window.eval(runsSrc);
   dom.window.eval(autosSrc);
   dom.window.eval(skillsSrc);
+  dom.window.eval(chatSrc);
   dom.window.eval(appSrc);
   return dom.window;
 }
@@ -745,7 +749,82 @@ RUNS.forEach((r) => {
   w.close();
 }
 
-/* 4-8) 파비콘 — 없으면 브라우저가 임의의 글자 아이콘을 만든다. */
+/* 4-8) Copilot Chat — 라우팅 판정. Cowork가 아니므로 크레딧이 없다. */
+{
+  const w = boot();
+  const $ = (s) => w.document.querySelector(s);
+  const $$ = (s) => [...w.document.querySelectorAll(s)];
+  const CH = w.COWORK_CHAT;
+
+  /* 사이드바의 '채팅'을 누른다. 실제 화면과 같은 진입점이다. */
+  $$('#seg button[data-m]').filter((b) => b.dataset.m === 'chat')[0]
+    .dispatchEvent(new w.Event('click', { bubbles: true }));
+  ok('채팅 주소', w.location.hash === '#chat', w.location.hash);
+  ok('채팅 탭 켜짐',
+    $$('#seg button').filter((b) => b.getAttribute('aria-selected'))[0]
+      ?.dataset.m === 'chat');
+  /* Cowork 전용 내비게이션은 채팅 쪽에서 숨는다. */
+  ok('채팅에선 Cowork 내비 숨김', $('#nav').hidden === true);
+  ok('채팅 목록 ' + CH.items.length,
+    $$('.ch-row').length === CH.items.length, $$('.ch-row').length);
+  ok('사이드바가 채팅 것으로 바뀜',
+    $$('#chats button[data-c]').length === CH.items.length,
+    $$('#chats button[data-c]').length);
+
+  /* 판정은 '여기'와 '보냄' 둘로 갈리고 색이 다르다. */
+  const here = CH.items.filter((c) => (c.to || '').indexOf('여기') === 0);
+  ok('여기서 되는 건 ' + here.length,
+    $$('.ch-v.here').length === here.length, $$('.ch-v.here').length);
+
+  /* 판정을 내린 기술로 건너갈 수 있다. */
+  ok('기술로 건너가기', !!$('#chSkill'));
+  $('#chSkill').dispatchEvent(new w.Event('click', { bubbles: true }));
+  ok('기술 상세 열림', $('.sk-head h1')?.textContent === CH.skill,
+    $('.sk-head h1')?.textContent);
+
+  CH.items.forEach((c) => {
+    w.location.hash = 'chat/' + c.id;
+    w.dispatchEvent(new w.Event('hashchange'));
+    const tag = '채팅 ' + c.id + ' ';
+    ok(tag + '질문', $('.ch-ask .ubub')?.textContent === c.prompt);
+    ok(tag + '판정', $('.ch-verdict b')?.textContent === c.to,
+      $('.ch-verdict b')?.textContent);
+    ok(tag + '이유', $('.ch-verdict .wy')?.textContent === c.why);
+    /* 크레딧을 꾸며 넣지 않는다. Chat은 Cowork 크레딧을 쓰지 않는다. */
+    ok(tag + '크레딧 없음', !$('#costrow') && !$('.cost'));
+    ok(tag + '재생 제어 없음', !$('#play') && !$('#skip'));
+    ok(tag + '붙여넣을 프롬프트 ' + (c.draft ? '있음' : '없음'),
+      !!$('.ch-draft pre') === !!c.draft);
+    if (c.draft) {
+      ok(tag + '프롬프트 전문', $('.ch-draft pre').textContent === c.draft);
+      ok(tag + '복사 단추', !!$('#chCopy'));
+    }
+    /* 판정이 가리키는 실행이 데모에 있으면 그리로 건너뛴다. */
+    ok(tag + '실행 건너뛰기 ' + (c.run ? '있음' : '없음'), !!$('#chGo') === !!c.run);
+  });
+
+  /* 넷째는 Cowork로 보내고, 그 실행이 이 데모에 이미 있다. */
+  const jump = CH.items.filter((c) => c.run)[0];
+  ok('건너뛸 실행이 실제로 있음',
+    RUNS.some((r) => r.id === jump.run), jump && jump.run);
+  w.location.hash = 'chat/' + jump.id;
+  w.dispatchEvent(new w.Event('hashchange'));
+  $('#chGo').dispatchEvent(new w.Event('click', { bubbles: true }));
+  ok('실행으로 넘어감', w.location.hash === '#' + jump.run, w.location.hash);
+  ok('사이드바가 Cowork로 되돌아옴', $('#nav').hidden === false);
+  ok('Cowork 탭 켜짐',
+    $$('#seg button').filter((b) => b.getAttribute('aria-selected'))[0]
+      ?.dataset.m === 'cowork');
+
+  /* 개인정보가 남지 않아야 한다. 붙여넣을 프롬프트에 대상이 적힌다. */
+  const raw = JSON.stringify(CH);
+  ok('채팅 실명 없음', !/Sumin|수민/i.test(raw));
+  ok('채팅 메일 주소 없음', !/[\w.]+@[\w.]+/.test(raw));
+  ok('채팅 고객사명 없음', !/Samsung|삼성|롯데|한화|현대|LG전자/i.test(raw));
+  w.close();
+}
+
+/* 4-9) 파비콘 — 없으면 브라우저가 임의의 글자 아이콘을 만든다. */
 {
   const w = boot();
   const links = [...w.document.querySelectorAll('link[rel*="icon"]')];

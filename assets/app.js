@@ -14,8 +14,10 @@
   var COSTS_HASH = 'credits';
   var AUTOS_HASH = 'autos';
   var SKILLS_HASH = 'custom';
+  var CHAT_HASH = 'chat';
   var AUTOS = (window.COWORK_AUTOS || { items: [] }).items;
   var SK = window.COWORK_SKILLS || { skills: [], builtin: [], plugins: [] };
+  var CH = window.COWORK_CHAT || { items: [] };
 
   /* 재생 속도. 1.0 근처를 촘촘히 두고 양끝만 성기게 잡는다. */
   var SPEEDS = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4,
@@ -409,6 +411,7 @@
       .addEventListener('click', function () { renderSkills(); });
 
     var box = document.getElementById('chats');
+    box.dataset.mode = 'cowork';
     box.innerHTML = '';
     listed().forEach(function (r) {
       var b = el('<button data-id="' + r.id + '"><span class="lbl">' +
@@ -422,9 +425,53 @@
       '<div class="nm"><span class="tag">작업</span><b>Copilot User</b></div>' +
       '<div class="sub">M365 Copilot(프리미엄)</div></div>' +
       '<button class="ib gear">' + I.gear + '</button>';
+
+    /* 채팅과 Cowork를 오간다. 실제 화면과 같은 자리다. */
+    [].forEach.call(document.querySelectorAll('#seg button[data-m]'), function (b) {
+      b.addEventListener('click', function () {
+        if (b.dataset.m === 'chat') { renderChats(); } else { renderHome(); }
+      });
+    });
+  }
+
+  /* 채팅과 Cowork는 사이드바 목록 자체가 다르다. 오갈 때마다 다시 세운다. */
+  function segMark(mode) {
+    [].forEach.call(document.querySelectorAll('#seg button[data-m]'), function (b) {
+      if (b.dataset.m === mode) { b.setAttribute('aria-selected', 'true'); }
+      else { b.removeAttribute('aria-selected'); }
+    });
+    var nav = document.getElementById('nav'), box = document.getElementById('chats');
+    nav.hidden = mode === 'chat';
+    if (box.dataset.mode === mode) { return; }
+    box.dataset.mode = mode;
+    box.innerHTML = '';
+    if (mode === 'chat') {
+      (CH.items || []).forEach(function (c) {
+        var b = el('<button data-c="' + esc(c.id) + '"><span class="lbl">' +
+          esc(c.title) + '</span></button>');
+        b.addEventListener('click', function () { openChat(c.id); });
+        box.appendChild(b);
+      });
+      return;
+    }
+    listed().forEach(function (r) {
+      var b = el('<button data-id="' + r.id + '"><span class="lbl">' +
+        esc(r.groupLabel || r.chatTitle || r.title) + '</span></button>');
+      b.addEventListener('click', function () { open(r.id); });
+      box.appendChild(b);
+    });
   }
 
   function markSide(id) {
+    /* 채팅 쪽 주소면 사이드바를 통째로 갈아 끼운다. */
+    var chat = id === CHAT_HASH || (id || '').indexOf(CHAT_HASH + '/') === 0;
+    segMark(chat ? 'chat' : 'cowork');
+    if (chat) {
+      [].forEach.call(document.querySelectorAll('#chats button'), function (b) {
+        b.classList.toggle('on', CHAT_HASH + '/' + b.dataset.c === id);
+      });
+      return;
+    }
     /* 묶인 회차는 사이드바에 대표 하나만 있으므로 그 대표를 켠다. */
     var r = RUNS.filter(function (x) { return x.id === id; })[0];
     var mark = r && groupOf(r) ? peers(r)[0].id : id;
@@ -577,6 +624,121 @@
       menu.hidden = !menu.hidden;
       op.classList.toggle('on', !menu.hidden);
     });
+  }
+
+  /* ── Copilot Chat ──
+     사이드바의 '채팅' 쪽이다. Cowork가 아니라 Chat 화면이므로 크레딧이 없다.
+     Chat은 Cowork 크레딧을 쓰지 않는다. 그래서 비용 패널을 세우지 않는다.
+
+     여기 실린 넷은 라우팅 스킬을 얹고 물어본 기록이다. 이 스킬은 일을 대신
+     해 주지 않고 어디서 하면 되는지만 정한다. */
+  function chatOf(id) {
+    return (CH.items || []).filter(function (c) { return c.id === id; })[0];
+  }
+
+  /* 판정이 '여기'면 회색, 다른 곳으로 보내면 파란색으로 가른다. */
+  function isHere(c) { return (c.to || '').indexOf('여기') === 0; }
+
+  function chatShell(inner, mark) {
+    document.getElementById('main').innerHTML =
+      '<div class="mtop"><div class="right">' +
+        '<button class="ib shield">' + I.shield + '</button>' +
+        '<button class="ib">' + I.dots + '</button></div></div>' +
+      '<div class="au-wrap"><div class="ch-in">' + inner + '</div></div>';
+    markSide(mark || CHAT_HASH);
+  }
+
+  function renderChats(fromHash) {
+    document.title = 'Copilot Chat · Copilot Cowork 데모';
+    app.classList.remove('panel-open');
+    run = null;
+    clearTimeout(timer); timer = null;
+    if (!fromHash) { location.hash = CHAT_HASH; }
+
+    var rows = (CH.items || []).map(function (c) {
+      return '<button class="ch-row" data-c="' + esc(c.id) + '">' +
+        '<span class="ch-v' + (isHere(c) ? ' here' : '') + '">' +
+          esc(c.to) + '</span>' +
+        '<span class="ch-tx"><span class="ch-q">' + esc(c.prompt) + '</span>' +
+        '<span class="ch-w">' + esc(c.why) + '</span></span>' +
+        '<span class="sk-ar">' + I.caret + '</span></button>';
+    }).join('');
+
+    chatShell(
+      '<div class="au-h"><h1>Copilot Chat</h1></div>' +
+      '<div class="ch-lead">' + rich(CH.lead || '') + '</div>' +
+      (CH.skill
+        ? '<button class="ch-skill" id="chSkill"><span class="sk-ico sk-doc">' +
+          I.doc + '</span><span class="sk-tx"><span class="sk-nm">' +
+          esc(CH.skill) + '</span><span class="sk-ds">이 판정을 내린 기술</span>' +
+          '</span><span class="sk-ar">' + I.caret + '</span></button>'
+        : '') +
+      '<div class="sk-list ch-list">' + rows + '</div>' +
+      '<div class="ch-note">' + rich(CH.note || '') + '</div>');
+
+    [].forEach.call(document.querySelectorAll('.ch-row[data-c]'), function (b) {
+      b.addEventListener('click', function () { openChat(b.dataset.c); });
+    });
+    var sk = document.getElementById('chSkill');
+    if (sk) {
+      sk.addEventListener('click', function () { renderSkill('cowork-router'); });
+    }
+  }
+
+  function openChat(id, fromHash) {
+    var c = chatOf(id);
+    if (!c) { return renderChats(); }
+    document.title = c.title + ' · Copilot Chat · Copilot Cowork 데모';
+    app.classList.remove('panel-open');
+    run = null;
+    clearTimeout(timer); timer = null;
+    if (!fromHash) { location.hash = CHAT_HASH + '/' + id; }
+
+    chatShell(
+      '<button class="au-back" id="chBack">' + I.caret + 'Copilot Chat</button>' +
+      '<div class="ch-day">' + esc(c.date) + '</div>' +
+      '<div class="ch-ask"><div class="ubub">' + esc(c.prompt) + '</div>' +
+        '<div class="ch-t">' + esc(c.time) + '</div></div>' +
+      (c.think ? '<div class="ch-think">' + esc(c.think) + '</div>' : '') +
+
+      /* 판정 한 줄. 이 스킬의 답은 늘 이 꼴로 시작한다. */
+      '<div class="ch-verdict' + (isHere(c) ? ' here' : '') + '">' +
+        '<span class="ar">→</span><b>' + esc(c.to) + '</b>' +
+        '<span class="wy">' + esc(c.why) + '</span></div>' +
+
+      '<div class="ch-body">' + rich(c.body || '') + '</div>' +
+
+      /* 다른 곳으로 보낼 때는 거기 그대로 붙여 넣을 프롬프트를 함께 준다. */
+      (c.draft
+        ? '<div class="ch-draft"><div class="dh">붙여 넣을 프롬프트' +
+          '<button class="btn dcopy" id="chCopy">복사</button></div>' +
+          '<pre>' + esc(c.draft) + '</pre></div>'
+        : '') +
+      (c.tail ? '<div class="ch-tail">' + rich(c.tail) + '</div>' : '') +
+
+      /* 판정이 가리키는 실행이 이 데모에 이미 있으면 그리로 건너뛴다. */
+      (c.run
+        ? '<button class="ch-go" id="chGo"><span class="ci">' + I.bolt + '</span>' +
+          '<span class="ct"><b>이 판정이 가리키는 실행 열기</b><span>' +
+          esc(c.runNote || '') + '</span></span>' +
+          '<span class="co">' + I.ext + '</span></button>'
+        : '') +
+      '<div class="ch-t end">' + esc(c.answerTime) + '</div>',
+      CHAT_HASH + '/' + id);
+
+    document.getElementById('chBack')
+      .addEventListener('click', function () { renderChats(); });
+    var go = document.getElementById('chGo');
+    if (go) { go.addEventListener('click', function () { open(c.run); }); }
+    var cp = document.getElementById('chCopy');
+    if (cp) {
+      cp.addEventListener('click', function () {
+        var t = document.querySelector('.ch-draft pre').textContent;
+        if (navigator.clipboard) { navigator.clipboard.writeText(t); }
+        cp.textContent = '복사했습니다';
+        setTimeout(function () { cp.textContent = '복사'; }, 1600);
+      });
+    }
   }
 
   /* ── 자동화 ──
@@ -1958,6 +2120,10 @@
     else if (id === SKILLS_HASH) { renderSkills(true); }
     else if (id.indexOf(SKILLS_HASH + '/') === 0) {
       renderSkill(id.slice(SKILLS_HASH.length + 1), true);
+    }
+    else if (id === CHAT_HASH) { renderChats(true); }
+    else if (id.indexOf(CHAT_HASH + '/') === 0) {
+      openChat(id.slice(CHAT_HASH.length + 1), true);
     }
     else if (id && RUNS.some(function (r) { return r.id === id; })) { open(id, true); }
     else { renderHome(true); }
