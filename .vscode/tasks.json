@@ -1,0 +1,64 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "검증: 전체",
+      "detail": "jsdom 렌더링 확인과 README 대조를 순서대로. 커밋 전에 이것만 돌리면 된다",
+      "type": "shell",
+      "command": "node check.js; python check_readme.py",
+      "options": { "cwd": "${workspaceFolder}/_작업" },
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "clear": true, "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "검증: 화면만",
+      "detail": "check.js만 돌린다. 화면이나 데이터를 고친 직후에 쓴다",
+      "type": "shell",
+      "command": "node check.js",
+      "options": { "cwd": "${workspaceFolder}/_작업" },
+      "group": "test",
+      "presentation": { "clear": true, "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "빌드: 데이터 다시 만들기",
+      "detail": "runs/*.json과 autos.json을 data/*.js로 굽는다",
+      "type": "shell",
+      "command": "python build.py",
+      "options": { "cwd": "${workspaceFolder}/_작업" },
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "clear": true, "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "빌드: 전부 다시 만들기",
+      "detail": "회차 생성 스크립트 전부와 build.py를 순서대로",
+      "type": "shell",
+      "command": "python build_all.py",
+      "options": { "cwd": "${workspaceFolder}/_작업" },
+      "group": "build",
+      "presentation": { "clear": true, "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "미리보기 서버",
+      "detail": "http://localhost:8977 에서 연다. file:// 로 열면 데이터 파일을 못 읽는다",
+      "type": "shell",
+      "command": "python -m http.server 8977",
+      "options": { "cwd": "${workspaceFolder}" },
+      "isBackground": true,
+      "presentation": { "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "jsdom 설치",
+      "detail": "check.js를 처음 돌릴 때 한 번. 검증에만 쓰므로 끝나면 지워도 된다",
+      "type": "shell",
+      "command": "npm install jsdom --no-save",
+      "options": { "cwd": "${workspaceFolder}/_작업" },
+      "presentation": { "clear": true, "panel": "dedicated" },
+      "problemMatcher": []
+    }
+  ]
+}

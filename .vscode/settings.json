@@ -1,0 +1,44 @@
+{
+  // 자동 생성 파일은 실수로 고치지 않게 잠근다.
+  // 고칠 곳은 _작업/ 아래의 생성 스크립트다.
+  "files.readonlyInclude": {
+    "data/runs.js": true,
+    "data/autos.js": true,
+    "data/skills.js": true,
+    "data/chat.js": true,
+    "data/fx.js": true
+  },
+
+  // 검색에서 빼 둔다. runs.js 하나가 250KB라 결과를 덮는다.
+  "search.exclude": {
+    "data/*.js": true,
+    "node_modules": true,
+    "assets/artifacts/**/*.png": true
+  },
+
+  // 산출물 미리보기가 많아 탐색기가 느려진다.
+  "files.watcherExclude": {
+    "**/assets/artifacts/**": true,
+    "**/_작업/frames/**": true
+  },
+
+  "[python]": {
+    "editor.rulers": [88],
+    "editor.tabSize": 4
+  },
+  "[javascript]": {
+    "editor.rulers": [96],
+    "editor.tabSize": 2
+  },
+
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  // 커밋 메시지와 코드 생성에 이 저장소 규칙을 따르게 한다.
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    { "file": ".github/copilot-instructions.md" }
+  ],
+  "github.copilot.chat.codeGeneration.instructions": [
+    { "file": ".github/copilot-instructions.md" }
+  ]
+}
