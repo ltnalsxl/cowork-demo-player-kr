@@ -1,2 +1,2 @@
 /* 자동 생성 파일. _작업/fetch_fx.py 로 다시 만든다. */
-window.COWORK_FX = {"usdkrw": 1336.21, "date": "2026-11-17", "src": "frankfurter"};
+window.COWORK_FX = {"usdkrw": 1332.33, "date": "2026-11-18", "src": "frankfurter"};
